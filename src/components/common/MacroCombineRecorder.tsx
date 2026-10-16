@@ -144,7 +144,7 @@ export const MacroCombineRecorder: React.FC<MacroCombineRecorderProps> = ({
 
   const handleAppendKey = (code: string) => {
     if (savedKeys.length >= 5) {
-      alert("组合快捷键最多支持 5 个按键");
+      alert("组合键最多支持 5 个按键");
       return;
     }
     const next = [...savedKeys, code];
@@ -170,7 +170,7 @@ export const MacroCombineRecorder: React.FC<MacroCombineRecorderProps> = ({
         <div className="flex items-center gap-1.5">
           <Command className="h-3.5 w-3.5 text-[#111111]" />
           <span className="text-[10px] font-semibold uppercase tracking-wider text-[#787774]">
-            组合快捷键 (HotKey)
+            组合键 (Combine / HotKey)
           </span>
         </div>
         {savedKeys.length > 0 && !isRecording && (
@@ -245,17 +245,17 @@ export const MacroCombineRecorder: React.FC<MacroCombineRecorderProps> = ({
             className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[#111111] bg-[#fbfbfa] py-2.5 text-xs font-semibold text-[#111111] transition-all hover:bg-[#111111] hover:text-[#ffffff] group"
           >
             <Keyboard className="h-4 w-4" />
-            <span>点击录制组合快捷键 (按下键盘组合键)</span>
+            <span>点击录制组合键 (按下键盘组合键)</span>
           </button>
         )}
       </div>
 
-      {/* 已生效的组合快捷键 (单行键帽串联展示) */}
+      {/* 已生效的组合键 (单行键帽串联展示) */}
       {!isRecording && (
         <div className="space-y-1.5">
           {savedKeys.length === 0 ? (
             <div className="rounded border border-dashed border-[#eaeaea] bg-[#fbfbfa] py-2.5 text-center text-[11px] text-[#9b9a97]">
-              暂未绑定快捷键，点击上方按钮直接按下键盘组合键
+              暂未绑定组合键，点击上方按钮直接按下键盘组合键
             </div>
           ) : (
             <div className="rounded-lg border border-[#eaeaea] bg-[#ffffff] p-2.5 flex items-center justify-between shadow-xs">
@@ -294,7 +294,7 @@ export const MacroCombineRecorder: React.FC<MacroCombineRecorderProps> = ({
         </div>
       )}
 
-      {/* 备选：手柄快捷键组合追加 */}
+      {/* 备选：手柄组合键追加 */}
       {!isRecording && savedKeys.length < 5 && (
         <div className="pt-0.5">
           <button

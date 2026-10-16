@@ -52,7 +52,7 @@ export const FloatingInspector: React.FC = () => {
       case CrownElementType.DIGITAL_COMMON_BUTTON: return "普通按键";
       case CrownElementType.DIGITAL_SWITCH_BUTTON: return "自锁开关";
       case CrownElementType.DIGITAL_MOVABLE_BUTTON: return "滑动视角";
-      case CrownElementType.DIGITAL_COMBINE_BUTTON: return "组合快捷键";
+      case CrownElementType.DIGITAL_COMBINE_BUTTON: return "组合键";
       case CrownElementType.GROUP_BUTTON: return "抽屉组按键";
       case CrownElementType.DIGITAL_PAD: return "十字方向键";
       case CrownElementType.ANALOG_STICK: return "模拟摇杆";
@@ -122,7 +122,7 @@ export const FloatingInspector: React.FC = () => {
           </div>
         )}
 
-      {/* 组合快捷键专属录制器 */}
+      {/* 组合键专属录制器 */}
       {selectedElement.element_type === CrownElementType.DIGITAL_COMBINE_BUTTON && (
         <MacroCombineRecorder
           value={selectedElement.element_value}

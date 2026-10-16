@@ -168,9 +168,9 @@ const DOCK_PRESETS: DockPreset[] = [
   },
   {
     type: CrownElementType.DIGITAL_COMBINE_BUTTON,
-    name: "快捷键",
+    name: "组合键",
     icon: <Command className="h-4 w-4 text-[#5c3e75]" />,
-    hint: "组合快捷键 (如 Ctrl+C、Alt+Tab)",
+    hint: "组合按键 (如 Ctrl+C、Alt+Tab)",
     createDefault: (cx, cy) => ({
       element_id: Date.now(),
       config_id: 1710000000000,
