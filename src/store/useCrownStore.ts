@@ -47,9 +47,6 @@ export interface CrownState {
   hoveredElementId: number | null;
   zoom: number;
   panOffset: { x: number; y: number };
-  snapToGrid: boolean;
-  gridSize: number;
-  showSafeArea: boolean;
   isLayersOpen: boolean;
   isGlobalSettingsOpen: boolean;
   isWelcomeModalOpen: boolean;
@@ -83,9 +80,6 @@ export interface CrownState {
   setZoom: (zoom: number | ((prev: number) => number)) => void;
   setPanOffset: (offset: { x: number; y: number }) => void;
   resetViewport: () => void;
-  toggleSnapToGrid: () => void;
-  setGridSize: (size: number) => void;
-  toggleSafeArea: () => void;
   toggleLayers: () => void;
   setLayersOpen: (open: boolean) => void;
   toggleGlobalSettings: () => void;
@@ -147,9 +141,6 @@ export const useCrownStore = create<CrownState>((set, get) => ({
   hoveredElementId: null,
   zoom: 0.65,
   panOffset: { x: 0, y: 0 },
-  snapToGrid: true,
-  gridSize: 20,
-  showSafeArea: true,
   isLayersOpen: false,
   isGlobalSettingsOpen: false,
   isWelcomeModalOpen: typeof window !== "undefined" ? localStorage.getItem("moonlight_crown_welcome_dismissed") !== "true" : true,
@@ -373,9 +364,6 @@ export const useCrownStore = create<CrownState>((set, get) => ({
     }
   },
 
-  toggleSnapToGrid: () => set((s) => ({ snapToGrid: !s.snapToGrid })),
-  setGridSize: (size) => set({ gridSize: size }),
-  toggleSafeArea: () => set((s) => ({ showSafeArea: !s.showSafeArea })),
   toggleLayers: () => set((s) => ({ isLayersOpen: !s.isLayersOpen })),
   setLayersOpen: (open) => set({ isLayersOpen: open }),
   toggleGlobalSettings: () => set((s) => ({ isGlobalSettingsOpen: !s.isGlobalSettingsOpen })),

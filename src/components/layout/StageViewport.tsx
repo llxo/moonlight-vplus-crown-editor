@@ -45,9 +45,6 @@ export const StageViewport: React.FC = () => {
     panOffset,
     elements,
     selectedElementIds,
-    snapToGrid,
-    gridSize,
-    showSafeArea,
     selectElement,
     updateElement,
     updateElementTransient,
@@ -57,8 +54,6 @@ export const StageViewport: React.FC = () => {
     reorderLayer,
     addElement,
     resetViewport,
-    toggleSnapToGrid,
-    toggleSafeArea,
     setZoom,
     setPanOffset,
   } = useCrownStore();
@@ -96,17 +91,12 @@ export const StageViewport: React.FC = () => {
       let clampedX = Math.round(rawX);
       let clampedY = Math.round(rawY);
 
-      if (snapToGrid) {
-        clampedX = Math.round(clampedX / gridSize) * gridSize;
-        clampedY = Math.round(clampedY / gridSize) * gridSize;
-      }
-
       clampedX = Math.max(50, Math.min(layoutBasis.widthPx - 50, clampedX));
       clampedY = Math.max(50, Math.min(layoutBasis.heightPx - 50, clampedY));
 
       return { x: clampedX, y: clampedY };
     },
-    [layoutBasis, zoom, snapToGrid, gridSize]
+    [layoutBasis, zoom]
   );
 
   const openContextMenu = useCallback(
@@ -173,11 +163,6 @@ export const StageViewport: React.FC = () => {
           let newX = Math.round(initialCentralX + deltaX);
           let newY = Math.round(initialCentralY + deltaY);
 
-          if (snapToGrid) {
-            newX = Math.round(newX / gridSize) * gridSize;
-            newY = Math.round(newY / gridSize) * gridSize;
-          }
-
           // 贴合屏幕物理边界
           newX = Math.max(10, Math.min(layoutBasis.widthPx - 10, newX));
           newY = Math.max(10, Math.min(layoutBasis.heightPx - 10, newY));
@@ -189,7 +174,7 @@ export const StageViewport: React.FC = () => {
         });
       }
     },
-    [zoom, snapToGrid, gridSize, layoutBasis, updateElementTransient, setPanOffset]
+    [zoom, layoutBasis, updateElementTransient, setPanOffset]
   );
 
   // 全局指针释放
@@ -416,14 +401,6 @@ export const StageViewport: React.FC = () => {
         }}
         className="rounded-[36px] border-[8px] border-[#ffffff] bg-[#fafaf9] shadow-[0_16px_50px_-10px_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.06)] select-none"
       >
-        {/* 安全区模拟 */}
-        {showSafeArea && (
-          <>
-            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-20 border-r border-dashed border-[#eaeaea] bg-black/[0.015] z-0" />
-            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-20 border-l border-dashed border-[#eaeaea] bg-black/[0.015] z-0" />
-          </>
-        )}
-
         {/* 屏幕几何中心十字准星 */}
         <div className="pointer-events-none absolute left-1/2 top-0 bottom-0 w-[1px] bg-black/[0.04] z-0" />
         <div className="pointer-events-none absolute top-1/2 left-0 right-0 h-[1px] bg-black/[0.04] z-0" />
@@ -447,14 +424,12 @@ export const StageViewport: React.FC = () => {
         <span>•</span>
         <span>缩放: <strong className="text-[#111111] font-mono font-semibold">{Math.round(zoom * 100)}%</strong></span>
         <span>•</span>
-        <span>右键呼出菜单 / 拖动画布</span>
+        <span>右键呼出菜单</span>
       </div>
 
       {/* 极简右键快捷菜单 */}
       <StageContextMenu
         menu={contextMenu}
-        snapToGrid={snapToGrid}
-        showSafeArea={showSafeArea}
         hasSelectedElements={selectedElementIds.length > 0}
         onClose={closeContextMenu}
         onDuplicate={duplicateSelectedElements}
@@ -466,8 +441,6 @@ export const StageViewport: React.FC = () => {
         onAddButton={handleAddButtonAt}
         onAddStick={handleAddStickAt}
         onResetViewport={resetViewport}
-        onToggleSnapToGrid={toggleSnapToGrid}
-        onToggleSafeArea={toggleSafeArea}
         onDeselect={() => selectElement(null)}
       />
     </main>

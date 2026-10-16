@@ -9,8 +9,6 @@ import {
   Upload,
   Undo2,
   Redo2,
-  Grid,
-  ShieldAlert,
   Smartphone,
   ZoomIn,
   ZoomOut,
@@ -23,11 +21,12 @@ import {
 import { useCrownStore } from "../../store/useCrownStore";
 
 const PRESET_RESOLUTIONS = [
-  { label: "2400 × 1080 (20:9 常见旗舰)", width: 2400, height: 1080, dpi: 400, density: 2.5 },
-  { label: "1920 × 1080 (16:9 标准高清)", width: 1920, height: 1080, dpi: 320, density: 2.0 },
-  { label: "2560 × 1440 (16:9 2K 游戏屏)", width: 2560, height: 1440, dpi: 480, density: 3.0 },
-  { label: "2560 × 1600 (16:10 平板设备)", width: 2560, height: 1600, dpi: 360, density: 2.25 },
-  { label: "2880 × 1800 (16:10 高刷掌机)", width: 2880, height: 1800, dpi: 400, density: 2.5 },
+  { label: "2400 × 1080 (20:9 常见旗舰 400 DPI)", width: 2400, height: 1080, dpi: 400, density: 2.5 },
+  { label: "2340 × 1080 (19.5:9 水滴屏 440 DPI)", width: 2340, height: 1080, dpi: 440, density: 2.75 },
+  { label: "1920 × 1080 (16:9 掌机/大屏 360 DPI)", width: 1920, height: 1080, dpi: 360, density: 2.25 },
+  { label: "1920 × 1080 (16:9 标准高清 320 DPI)", width: 1920, height: 1080, dpi: 320, density: 2.0 },
+  { label: "2560 × 1440 (16:9 2K 游戏屏 480 DPI)", width: 2560, height: 1440, dpi: 480, density: 3.0 },
+  { label: "2560 × 1600 (16:10 平板设备 360 DPI)", width: 2560, height: 1600, dpi: 360, density: 2.25 },
 ];
 
 export const HeaderBar: React.FC = () => {
@@ -39,14 +38,10 @@ export const HeaderBar: React.FC = () => {
     meta,
     layoutBasis,
     zoom,
-    snapToGrid,
-    showSafeArea,
     updateMeta,
     updateLayoutBasis,
     setZoom,
     resetViewport,
-    toggleSnapToGrid,
-    toggleSafeArea,
     undo,
     redo,
     canUndo,
@@ -55,6 +50,30 @@ export const HeaderBar: React.FC = () => {
     toggleWelcomeModal,
     toggleExportModal,
   } = useCrownStore();
+
+  const [customWidth, setCustomWidth] = useState(layoutBasis.widthPx);
+  const [customHeight, setCustomHeight] = useState(layoutBasis.heightPx);
+  const [customDpi, setCustomDpi] = useState(layoutBasis.densityDpi);
+
+  useEffect(() => {
+    setCustomWidth(layoutBasis.widthPx);
+    setCustomHeight(layoutBasis.heightPx);
+    setCustomDpi(layoutBasis.densityDpi);
+  }, [layoutBasis.widthPx, layoutBasis.heightPx, layoutBasis.densityDpi]);
+
+  const handleApplyCustomRes = () => {
+    const w = Math.max(640, Math.min(7680, Number(customWidth) || 1920));
+    const h = Math.max(360, Math.min(4320, Number(customHeight) || 1080));
+    const dpi = Math.max(100, Math.min(1000, Number(customDpi) || 360));
+    const density = Number((dpi / 160).toFixed(2));
+    updateLayoutBasis({
+      widthPx: w,
+      heightPx: h,
+      densityDpi: dpi,
+      density,
+    });
+    setIsResDropdownOpen(false);
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -87,11 +106,14 @@ export const HeaderBar: React.FC = () => {
   }, [isResDropdownOpen]);
 
   const currentPreset = PRESET_RESOLUTIONS.find(
-    (r) => r.width === layoutBasis.widthPx && r.height === layoutBasis.heightPx
+    (r) =>
+      r.width === layoutBasis.widthPx &&
+      r.height === layoutBasis.heightPx &&
+      r.dpi === layoutBasis.densityDpi
   );
   const currentResLabel = currentPreset
     ? currentPreset.label
-    : `${layoutBasis.widthPx} × ${layoutBasis.heightPx} (自定义)`;
+    : `${layoutBasis.widthPx} × ${layoutBasis.heightPx} (${layoutBasis.densityDpi} DPI)`;
 
   return (
     <header className="flex h-15 w-full items-center justify-between border-b border-[#eaeaea] bg-[#ffffff] px-6 text-sm select-none">
@@ -134,36 +156,96 @@ export const HeaderBar: React.FC = () => {
           </button>
 
           {isResDropdownOpen && (
-            <div className="absolute top-full left-0 mt-2 z-40 w-64 rounded-xl border border-[#eaeaea] bg-[#ffffff] p-1.5 shadow-[0_12px_36px_-6px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.04)] animate-in fade-in space-y-0.5 select-none">
-              <div className="px-2.5 py-1 text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider">
-                选择设备基准分辨率
+            <div className="absolute top-full left-0 mt-2 z-40 w-[320px] rounded-2xl border border-[#eaeaea] bg-[#ffffff] p-3 shadow-[0_16px_40px_-8px_rgba(0,0,0,0.12),0_0_0_1px_rgba(0,0,0,0.04)] animate-in fade-in space-y-2.5 select-none">
+              <div>
+                <div className="px-2 pb-1.5 text-xs font-bold text-[#6b7280] uppercase tracking-wider">
+                  推荐预设
+                </div>
+                <div className="space-y-0.5">
+                  {PRESET_RESOLUTIONS.map((res) => {
+                    const isSelected =
+                      layoutBasis.widthPx === res.width &&
+                      layoutBasis.heightPx === res.height &&
+                      layoutBasis.densityDpi === res.dpi;
+                    return (
+                      <button
+                        key={`${res.width}x${res.height}_${res.dpi}`}
+                        type="button"
+                        onClick={() => {
+                          updateLayoutBasis({
+                            widthPx: res.width,
+                            heightPx: res.height,
+                            densityDpi: res.dpi,
+                            density: res.density,
+                          });
+                          setIsResDropdownOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs text-left transition-colors cursor-pointer ${
+                          isSelected
+                            ? "bg-[#111111] text-[#ffffff] font-semibold"
+                            : "text-[#2f3437] hover:bg-[#f7f6f3] hover:text-[#111111]"
+                        }`}
+                      >
+                        <span>{res.label}</span>
+                        {isSelected && <Check className="h-4 w-4 text-[#ffffff]" />}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-              {PRESET_RESOLUTIONS.map((res) => {
-                const isSelected = layoutBasis.widthPx === res.width && layoutBasis.heightPx === res.height;
-                return (
-                  <button
-                    key={`${res.width}x${res.height}`}
-                    type="button"
-                    onClick={() => {
-                      updateLayoutBasis({
-                        widthPx: res.width,
-                        heightPx: res.height,
-                        densityDpi: res.dpi,
-                        density: res.density,
-                      });
-                      setIsResDropdownOpen(false);
-                    }}
-                    className={`w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs text-left transition-colors ${
-                      isSelected
-                        ? "bg-[#111111] text-[#ffffff] font-semibold"
-                        : "text-[#2f3437] hover:bg-[#f7f6f3] hover:text-[#111111]"
-                    }`}
-                  >
-                    <span>{res.label}</span>
-                    {isSelected && <Check className="h-4 w-4 text-[#ffffff]" />}
-                  </button>
-                );
-              })}
+
+              {/* 分隔线与自定义输入区域 */}
+              <div className="border-t border-[#eaeaea] pt-2.5 space-y-2">
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-xs font-bold text-[#374151]">
+                    自定义画幅与 DPI
+                  </span>
+                  <span className="text-[11px] font-mono text-[#6b7280]">
+                    比例: {Number(((Number(customDpi) || 360) / 160).toFixed(2))}x
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-1.5">
+                  <div>
+                    <label className="text-[11px] font-medium text-[#6b7280] block mb-0.5">宽 (Px)</label>
+                    <input
+                      type="number"
+                      value={customWidth}
+                      onChange={(e) => setCustomWidth(Number(e.target.value))}
+                      className="w-full rounded-md border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 font-mono text-xs font-semibold text-[#111111] outline-none focus:border-[#111111]"
+                      placeholder="1920"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-medium text-[#6b7280] block mb-0.5">高 (Px)</label>
+                    <input
+                      type="number"
+                      value={customHeight}
+                      onChange={(e) => setCustomHeight(Number(e.target.value))}
+                      className="w-full rounded-md border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 font-mono text-xs font-semibold text-[#111111] outline-none focus:border-[#111111]"
+                      placeholder="1080"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-medium text-[#6b7280] block mb-0.5">DPI</label>
+                    <input
+                      type="number"
+                      value={customDpi}
+                      onChange={(e) => setCustomDpi(Number(e.target.value))}
+                      className="w-full rounded-md border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 font-mono text-xs font-semibold text-[#111111] outline-none focus:border-[#111111]"
+                      placeholder="360"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleApplyCustomRes}
+                  className="w-full rounded-lg bg-[#111111] py-1.5 font-semibold text-xs text-[#ffffff] hover:bg-[#2b2b2b] transition-colors cursor-pointer shadow-2xs"
+                >
+                  应用自定义分辨率
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -194,34 +276,6 @@ export const HeaderBar: React.FC = () => {
             title="画幅自适应居中"
           >
             <Maximize2 className="h-3.5 w-3.5" />
-          </button>
-        </div>
-
-        {/* 辅助开关：网格吸附与安全区 (激活采用微灰强调，不抢主按钮焦点) */}
-        <div className="flex items-center rounded-lg border border-[#eaeaea] bg-[#ffffff] p-0.5 shadow-2xs">
-          <button
-            onClick={toggleSnapToGrid}
-            className={`flex items-center gap-1.5 rounded px-2.5 py-1 text-xs transition-all ${
-              snapToGrid
-                ? "bg-[#111111]/10 text-[#111111] font-semibold"
-                : "text-[#6b7280] hover:text-[#111111] hover:bg-[#f7f6f3]"
-            }`}
-            title="网格吸附 (20px)"
-          >
-            <Grid className="h-3.5 w-3.5" />
-            <span>网格</span>
-          </button>
-          <button
-            onClick={toggleSafeArea}
-            className={`flex items-center gap-1.5 rounded px-2.5 py-1 text-xs transition-all ${
-              showSafeArea
-                ? "bg-[#111111]/10 text-[#111111] font-semibold"
-                : "text-[#6b7280] hover:text-[#111111] hover:bg-[#f7f6f3]"
-            }`}
-            title="安全区参考线"
-          >
-            <ShieldAlert className="h-3.5 w-3.5" />
-            <span>安全区</span>
           </button>
         </div>
 

@@ -15,8 +15,6 @@ import {
   RotateCcw,
   CircleDot,
   Compass,
-  Grid,
-  ShieldAlert,
   MousePointerClick,
 } from "lucide-react";
 
@@ -31,8 +29,6 @@ export interface ContextMenuState {
 
 interface StageContextMenuProps {
   menu: ContextMenuState;
-  snapToGrid: boolean;
-  showSafeArea: boolean;
   hasSelectedElements: boolean;
   onClose: () => void;
   onDuplicate: () => void;
@@ -44,15 +40,11 @@ interface StageContextMenuProps {
   onAddButton: (cx: number, cy: number) => void;
   onAddStick: (cx: number, cy: number) => void;
   onResetViewport: () => void;
-  onToggleSnapToGrid: () => void;
-  onToggleSafeArea: () => void;
   onDeselect: () => void;
 }
 
 export const StageContextMenu: React.FC<StageContextMenuProps> = ({
   menu,
-  snapToGrid,
-  showSafeArea,
   hasSelectedElements,
   onClose,
   onDuplicate,
@@ -64,8 +56,6 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
   onAddButton,
   onAddStick,
   onResetViewport,
-  onToggleSnapToGrid,
-  onToggleSafeArea,
   onDeselect,
 }) => {
   if (!menu.isOpen) {
@@ -209,46 +199,6 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
               <RotateCcw className="h-4 w-4 text-[#555555]" />
               <span>重置视口居中</span>
             </div>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              onToggleSnapToGrid();
-              onClose();
-            }}
-            className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
-          >
-            <div className="flex items-center gap-2.5">
-              <Grid className="h-4 w-4 text-[#555555]" />
-              <span>网格吸附</span>
-            </div>
-            <span
-              className={`text-xs font-mono font-semibold px-2 py-0.5 rounded-md ${
-                snapToGrid ? "bg-[#111111] text-white" : "bg-[#f0f0ee] text-[#777777]"
-              }`}
-            >
-              {snapToGrid ? "开" : "关"}
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              onToggleSafeArea();
-              onClose();
-            }}
-            className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
-          >
-            <div className="flex items-center gap-2.5">
-              <ShieldAlert className="h-4 w-4 text-[#555555]" />
-              <span>边缘安全区参考线</span>
-            </div>
-            <span
-              className={`text-xs font-mono font-semibold px-2 py-0.5 rounded-md ${
-                showSafeArea ? "bg-[#111111] text-white" : "bg-[#f0f0ee] text-[#777777]"
-              }`}
-            >
-              {showSafeArea ? "开" : "关"}
-            </span>
           </button>
 
           {hasSelectedElements && (
