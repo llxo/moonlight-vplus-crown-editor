@@ -1,7 +1,7 @@
 {
   "kind": "crown-profile-bundle",
   "schemaVersion": 1,
-  "bundleId": "crown.fps-standard.7b3e210a",
+  "bundleId": "crown.fps-standard.50996d1e",
   "name": "FPS Standard Profile",
   "summary": "FPS 游戏基准王冠按键布局示例",
   "compatibility": {
@@ -9,13 +9,13 @@
     "profilePayloadVersion": 9
   },
   "profile": {
-    "profileId": "public-payload-7b3e210a",
+    "profileId": "public-payload-50996d1e",
     "name": "FPS Standard Profile",
-    "payload": "{\"version\":9,\"settings\":\"{\\\"config_id\\\":1710000000000,\\\"config_name\\\":\\\"FPS-Default\\\",\\\"touch_enable\\\":\\\"true\\\",\\\"touch_mode\\\":\\\"true\\\",\\\"touch_sense\\\":100,\\\"game_vibrator\\\":\\\"false\\\",\\\"button_vibrator\\\":\\\"false\\\",\\\"mouse_wheel_speed\\\":20,\\\"enhanced_touch\\\":\\\"false\\\"}\",\"elements\":\"[{\\\"element_id\\\":1710000000001,\\\"config_id\\\":1710000000000,\\\"element_type\\\":0,\\\"element_text\\\":\\\"A\\\",\\\"element_value\\\":\\\"k29\\\",\\\"element_width\\\":120,\\\"element_height\\\":120,\\\"element_central_x\\\":300,\\\"element_central_y\\\":500,\\\"element_radius\\\":60,\\\"element_thick\\\":5,\\\"element_layer\\\":50,\\\"element_color\\\":-259495768,\\\"element_pressed_color\\\":-268435201,\\\"element_background_color\\\":16777215,\\\"normalTextColor\\\":-1,\\\"pressedTextColor\\\":-3355444,\\\"textSizePercent\\\":25},{\\\"element_id\\\":1710000000002,\\\"config_id\\\":1710000000000,\\\"element_type\\\":54,\\\"element_text\\\":\\\"WEAPON\\\",\\\"element_value\\\":\\\"k8|1,k9|2,k10|3,k11|4\\\",\\\"element_width\\\":400,\\\"element_height\\\":400,\\\"element_central_x\\\":1200,\\\"element_central_y\\\":540,\\\"element_thick\\\":5,\\\"element_layer\\\":40,\\\"element_color\\\":-259495768,\\\"element_pressed_color\\\":-268435201,\\\"element_background_color\\\":-1438342076,\\\"element_mode\\\":4,\\\"element_sense\\\":30,\\\"element_flag1\\\":1,\\\"extra_attributes\\\":\\\"{\\\\\\\"normalTextColor\\\\\\\":-1,\\\\\\\"pressedTextColor\\\\\\\":-1,\\\\\\\"centerTextColor\\\\\\\":-1,\\\\\\\"textSizePercent\\\\\\\":35,\\\\\\\"centerTextSizePercent\\\\\\\":60,\\\\\\\"triggerTextSizePercent\\\\\\\":40,\\\\\\\"previewGroupChildren\\\\\\\":true,\\\\\\\"segmentAlignment\\\\\\\":\\\\\\\"center\\\\\\\"}\\\"}]\",\"md5\":\"a0bd4f11eb77eefce606e191b7d5f0e9\"}",
-    "payloadSha256": "7b3e210a563db383d47ad016bfbfb53443a9f0fdb8c11e0310ec4e1f7dbeff5b"
+    "payload": "{\"version\":9,\"settings\":\"{\\\"config_id\\\":1710000000000,\\\"config_name\\\":\\\"FPS-Default\\\",\\\"touch_enable\\\":\\\"true\\\",\\\"touch_mode\\\":\\\"true\\\",\\\"touch_sense\\\":100,\\\"game_vibrator\\\":\\\"false\\\",\\\"button_vibrator\\\":\\\"false\\\",\\\"mouse_wheel_speed\\\":20,\\\"enhanced_touch\\\":\\\"false\\\"}\",\"elements\":\"[{\\\"element_id\\\":1710000000001,\\\"config_id\\\":1710000000000,\\\"element_type\\\":0,\\\"element_text\\\":\\\"A\\\",\\\"element_value\\\":\\\"k29\\\",\\\"element_width\\\":120,\\\"element_height\\\":120,\\\"element_central_x\\\":300,\\\"element_central_y\\\":500,\\\"element_radius\\\":60,\\\"element_thick\\\":5,\\\"element_layer\\\":50,\\\"element_color\\\":-259495768,\\\"element_pressed_color\\\":-268435201,\\\"element_background_color\\\":16777215,\\\"normalTextColor\\\":-1,\\\"pressedTextColor\\\":-3355444,\\\"textSizePercent\\\":25},{\\\"element_id\\\":1710000000002,\\\"config_id\\\":1710000000000,\\\"element_type\\\":54,\\\"element_text\\\":\\\"WEAPON\\\",\\\"element_value\\\":\\\"k8|1,k9|2,k10|3,k11|4\\\",\\\"element_width\\\":400,\\\"element_height\\\":400,\\\"element_central_x\\\":1200,\\\"element_central_y\\\":540,\\\"element_thick\\\":5,\\\"element_layer\\\":40,\\\"element_color\\\":-259495768,\\\"element_pressed_color\\\":-268435201,\\\"element_background_color\\\":-1438342076,\\\"element_mode\\\":4,\\\"element_sense\\\":30,\\\"element_flag1\\\":1,\\\"extra_attributes\\\":\\\"{\\\\\\\"normalTextColor\\\\\\\":-1,\\\\\\\"pressedTextColor\\\\\\\":-1,\\\\\\\"centerTextColor\\\\\\\":-1,\\\\\\\"textSizePercent\\\\\\\":35,\\\\\\\"centerTextSizePercent\\\\\\\":60,\\\\\\\"triggerTextSizePercent\\\\\\\":40,\\\\\\\"previewGroupChildren\\\\\\\":true,\\\\\\\"segmentAlignment\\\\\\\":\\\\\\\"center\\\\\\\"}\\\"}]\",\"md5\":\"82af51983f09b41baf4000e8b28b1fb3\"}",
+    "payloadSha256": "50996d1e9b9206214a3f84976b1e14acd876b1353c06fca9cb5daac0cf5a7529"
   },
-  "createdAt": "2025-04-01T00:00:00Z",
-  "updatedAt": "2025-04-01T00:00:00Z",
+  "createdAt": "2026-10-16T05:42:24.930Z",
+  "updatedAt": "2026-10-16T05:42:24.930Z",
   "packageName": "com.limelight",
   "layoutBasis": {
     "widthPx": 2400,

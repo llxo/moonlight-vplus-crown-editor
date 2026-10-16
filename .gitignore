@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Temporary debug scripts
+src/debug-*.ts
+src/fix-fixtures.ts
+
