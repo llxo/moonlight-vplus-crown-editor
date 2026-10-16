@@ -11,18 +11,18 @@ export const StatusBar: React.FC = () => {
   const { elements, selectedElementIds, layoutBasis, zoom } = useCrownStore();
 
   return (
-    <footer className="flex h-8 w-full items-center justify-between border-t border-[#eaeaea] bg-[#fbfbfa] px-4 text-xs text-[#4b5563] select-none">
+    <footer className="flex h-9 w-full items-center justify-between border-t border-[#eaeaea] bg-[#fbfbfa] px-6 text-xs text-[#4b5563] select-none">
       {/* 左区：统计与当前状态 */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-5">
         <div className="flex items-center gap-1.5">
-          <Layers className="h-3.5 w-3.5 text-[#6b7280]" />
+          <Layers className="h-4 w-4 text-[#6b7280]" />
           <span>控件总数: <strong className="text-[#111111] font-semibold">{elements.length}</strong></span>
         </div>
 
-        <div className="h-3.5 w-[1px] bg-[#eaeaea]" />
+        <div className="h-4 w-[1px] bg-[#eaeaea]" />
 
         <div className="flex items-center gap-1.5">
-          <MousePointer className="h-3.5 w-3.5 text-[#6b7280]" />
+          <MousePointer className="h-4 w-4 text-[#6b7280]" />
           <span>
             选中项:{" "}
             <strong className="text-[#111111] font-semibold">
@@ -31,10 +31,10 @@ export const StatusBar: React.FC = () => {
           </span>
         </div>
 
-        <div className="h-3.5 w-[1px] bg-[#eaeaea]" />
+        <div className="h-4 w-[1px] bg-[#eaeaea]" />
 
         <div className="flex items-center gap-1.5">
-          <Smartphone className="h-3.5 w-3.5 text-[#6b7280]" />
+          <Smartphone className="h-4 w-4 text-[#6b7280]" />
           <span>
             分辨率基准: <span className="font-mono font-semibold text-[#111111]">{layoutBasis.widthPx} × {layoutBasis.heightPx}</span> ({layoutBasis.densityDpi} DPI)
           </span>

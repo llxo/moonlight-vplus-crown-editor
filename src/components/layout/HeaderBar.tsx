@@ -1,6 +1,6 @@
 /**
  * @file HeaderBar.tsx
- * @description 顶部全局操作栏：遵循 minimalist-ui 规范，采用纯净暖白背景、深炭黑排版与纯色高对比度按钮
+ * @description 顶部全局操作栏：遵循 minimalist-ui 规范，采用纯净暖白背景、深炭黑排版与严谨的功能层级划分
  */
 
 import React, { useRef, useState, useEffect } from "react";
@@ -113,59 +113,48 @@ export const HeaderBar: React.FC = () => {
     : `${layoutBasis.widthPx} × ${layoutBasis.heightPx} (自定义)`;
 
   return (
-    <header className="flex h-14 w-full items-center justify-between border-b border-[#eaeaea] bg-[#ffffff] px-5 text-xs select-none">
-      {/* 左区：应用 Logo & 配置名称编辑 */}
+    <header className="flex h-15 w-full items-center justify-between border-b border-[#eaeaea] bg-[#ffffff] px-6 text-sm select-none">
+      {/* 左区：应用品牌 Logo & 内联工程标题轻量编辑 */}
       <div className="flex items-center gap-3.5">
-        <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#111111] text-[#ffffff]">
-            <Crown className="h-4 w-4" />
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#111111] text-[#ffffff] shadow-2xs">
+            <Crown className="h-4.5 w-4.5" />
           </div>
-          <div className="flex flex-col">
-            <span className="font-bold text-sm tracking-tight text-[#111111]">
-              Moonlight-vplus
-            </span>
-            <span className="text-xs text-[#4b5563] -mt-0.5">Crown Editor</span>
-          </div>
+          <span className="font-bold text-base tracking-tight text-[#111111]">
+            Moonlight-vplus
+          </span>
         </div>
 
-        <div className="h-4 w-[1px] bg-[#eaeaea]" />
+        <div className="h-4 w-[1px] bg-[#e5e5e5]" />
 
-        {/* 配置名称快速输入 */}
-        <div className="flex items-center">
-          <input
-            type="text"
-            value={meta.name}
-            onChange={(e) => updateMeta({ name: e.target.value })}
-            className="w-44 rounded-md border border-[#eaeaea] bg-[#fbfbfa] px-2.5 py-1 text-xs font-medium text-[#111111] transition-colors focus:border-[#111111] focus:bg-[#ffffff] focus:outline-none"
-            placeholder="未命名配置"
-            title="配置显示名称"
-          />
-        </div>
-
-        {/* 协议兼容微型胶囊徽章 (Muted Pastel Green) */}
-        <div className="hidden lg:flex items-center gap-1 rounded-full bg-[#edf3ec] px-2.5 py-0.5 text-xs font-semibold text-[#346538]">
-          <Check className="h-3 w-3" />
-          <span>V+ 协议就绪</span>
-        </div>
+        {/* 内联轻量重命名标题 (Figma 风格，平常干净，悬停聚焦微提示) */}
+        <input
+          type="text"
+          value={meta.name}
+          onChange={(e) => updateMeta({ name: e.target.value })}
+          className="w-48 rounded-md px-2.5 py-1 text-sm font-semibold text-[#111111] hover:bg-[#f7f6f3] focus:bg-[#fbfbfa] focus:ring-1 focus:ring-[#111111] focus:outline-none transition-all placeholder:text-[#999999]"
+          placeholder="未命名配置"
+          title="点击编辑配置名称"
+        />
       </div>
 
-      {/* 中区：设备基准分辨率、视口控制、吸附辅助 */}
-      <div className="flex items-center gap-2">
-        {/* 自定义精致设备基准下拉选择器 */}
+      {/* 中区：设备基准选择、视口缩放与画布辅助工具 */}
+      <div className="flex items-center gap-2.5">
+        {/* 设备基准分辨率选择器 */}
         <div ref={dropdownRef} className="relative">
           <button
             type="button"
             onClick={() => setIsResDropdownOpen(!isResDropdownOpen)}
-            className="flex items-center gap-1.5 rounded-md border border-[#eaeaea] bg-[#ffffff] px-2.5 py-1 text-xs font-semibold text-[#111111] hover:border-[#111111]/40 hover:bg-[#fbfbfa] transition-all"
+            className="flex items-center gap-1.5 rounded-lg border border-[#eaeaea] bg-[#ffffff] px-3 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#fbfbfa] hover:border-[#d4d4d0] transition-all shadow-2xs"
           >
-            <Smartphone className="h-3.5 w-3.5 text-[#4b5563]" />
+            <Smartphone className="h-4 w-4 text-[#6b7280]" />
             <span>{currentResLabel}</span>
-            <ChevronDown className={`h-3 w-3 text-[#6b7280] transition-transform duration-150 ${isResDropdownOpen ? "rotate-180" : ""}`} />
+            <ChevronDown className={`h-3.5 w-3.5 text-[#888888] transition-transform duration-150 ${isResDropdownOpen ? "rotate-180" : ""}`} />
           </button>
 
           {isResDropdownOpen && (
-            <div className="absolute top-full left-0 mt-1.5 z-40 w-64 rounded-xl border border-[#eaeaea] bg-[#ffffff] p-1.5 shadow-[0_12px_36px_-6px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.04)] animate-in fade-in space-y-0.5 select-none">
-              <div className="px-2 py-1 text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider">
+            <div className="absolute top-full left-0 mt-2 z-40 w-64 rounded-xl border border-[#eaeaea] bg-[#ffffff] p-1.5 shadow-[0_12px_36px_-6px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.04)] animate-in fade-in space-y-0.5 select-none">
+              <div className="px-2.5 py-1 text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider">
                 选择设备基准分辨率
               </div>
               {PRESET_RESOLUTIONS.map((res) => {
@@ -183,14 +172,14 @@ export const HeaderBar: React.FC = () => {
                       });
                       setIsResDropdownOpen(false);
                     }}
-                    className={`w-full flex items-center justify-between rounded-md px-2.5 py-1.5 text-xs text-left transition-colors ${
+                    className={`w-full flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs text-left transition-colors ${
                       isSelected
                         ? "bg-[#111111] text-[#ffffff] font-semibold"
                         : "text-[#2f3437] hover:bg-[#f7f6f3] hover:text-[#111111]"
                     }`}
                   >
                     <span>{res.label}</span>
-                    {isSelected && <Check className="h-3.5 w-3.5 text-[#ffffff]" />}
+                    {isSelected && <Check className="h-4 w-4 text-[#ffffff]" />}
                   </button>
                 );
               })}
@@ -198,80 +187,85 @@ export const HeaderBar: React.FC = () => {
           )}
         </div>
 
-        {/* 视口缩放控制组合 */}
-        <div className="flex items-center rounded-md border border-[#eaeaea] bg-[#ffffff] text-[#2f3437]">
+        {/* 视口缩放控制胶囊组合 */}
+        <div className="flex items-center rounded-lg border border-[#eaeaea] bg-[#ffffff] p-0.5 shadow-2xs">
           <button
             onClick={() => setZoom((z) => Math.max(0.2, z - 0.1))}
-            className="px-2 py-1 hover:bg-[#f7f6f3] text-[#787774] hover:text-[#111111] transition-colors"
-            title="缩小"
+            className="rounded p-1 text-[#6b7280] hover:bg-[#f7f6f3] hover:text-[#111111] transition-colors"
+            title="缩小画布"
           >
-            <ZoomOut className="h-3.5 w-3.5" />
+            <ZoomOut className="h-4 w-4" />
           </button>
           <span className="w-12 text-center font-mono text-xs font-semibold text-[#111111]">
             {Math.round(zoom * 100)}%
           </span>
           <button
             onClick={() => setZoom((z) => Math.min(2.5, z + 0.1))}
-            className="px-2 py-1 hover:bg-[#f7f6f3] text-[#787774] hover:text-[#111111] transition-colors"
-            title="放大"
+            className="rounded p-1 text-[#6b7280] hover:bg-[#f7f6f3] hover:text-[#111111] transition-colors"
+            title="放大画布"
           >
-            <ZoomIn className="h-3.5 w-3.5" />
+            <ZoomIn className="h-4 w-4" />
           </button>
+          <div className="h-3.5 w-[1px] bg-[#eaeaea] mx-0.5" />
           <button
             onClick={resetViewport}
-            className="border-l border-[#eaeaea] px-2 py-1 hover:bg-[#f7f6f3] text-[#787774] hover:text-[#111111] transition-colors"
-            title="自适应居中"
+            className="rounded p-1 text-[#6b7280] hover:bg-[#f7f6f3] hover:text-[#111111] transition-colors"
+            title="画幅自适应居中"
           >
-            <Maximize2 className="h-3 w-3" />
+            <Maximize2 className="h-3.5 w-3.5" />
           </button>
         </div>
 
-        {/* 辅助开关：网格吸附与安全区 */}
-        <div className="flex items-center rounded-md border border-[#eaeaea] bg-[#ffffff] p-0.5">
+        {/* 辅助开关：网格吸附与安全区 (激活采用微灰强调，不抢主按钮焦点) */}
+        <div className="flex items-center rounded-lg border border-[#eaeaea] bg-[#ffffff] p-0.5 shadow-2xs">
           <button
             onClick={toggleSnapToGrid}
-            className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium transition-all ${
-              snapToGrid ? "bg-[#111111] text-[#ffffff]" : "text-[#4b5563] hover:text-[#111111] hover:bg-[#f7f6f3]"
+            className={`flex items-center gap-1.5 rounded px-2.5 py-1 text-xs transition-all ${
+              snapToGrid
+                ? "bg-[#111111]/10 text-[#111111] font-semibold"
+                : "text-[#6b7280] hover:text-[#111111] hover:bg-[#f7f6f3]"
             }`}
             title="网格吸附 (20px)"
           >
             <Grid className="h-3.5 w-3.5" />
-            <span className="hidden md:inline">网格吸附</span>
+            <span>网格</span>
           </button>
           <button
             onClick={toggleSafeArea}
-            className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium transition-all ${
-              showSafeArea ? "bg-[#111111] text-[#ffffff]" : "text-[#4b5563] hover:text-[#111111] hover:bg-[#f7f6f3]"
+            className={`flex items-center gap-1.5 rounded px-2.5 py-1 text-xs transition-all ${
+              showSafeArea
+                ? "bg-[#111111]/10 text-[#111111] font-semibold"
+                : "text-[#6b7280] hover:text-[#111111] hover:bg-[#f7f6f3]"
             }`}
             title="安全区参考线"
           >
             <ShieldAlert className="h-3.5 w-3.5" />
-            <span className="hidden md:inline">安全区</span>
+            <span>安全区</span>
           </button>
         </div>
 
         {/* 撤销 / 重做 */}
-        <div className="flex items-center rounded-md border border-[#eaeaea] bg-[#ffffff]">
+        <div className="flex items-center rounded-lg border border-[#eaeaea] bg-[#ffffff] p-0.5 shadow-2xs">
           <button
             onClick={undo}
             disabled={!canUndo()}
-            className="px-2 py-1 text-[#787774] hover:text-[#111111] hover:bg-[#f7f6f3] disabled:opacity-30 transition-colors"
+            className="rounded p-1 text-[#6b7280] hover:text-[#111111] hover:bg-[#f7f6f3] disabled:opacity-25 transition-colors"
             title="撤销 (Ctrl+Z)"
           >
-            <Undo2 className="h-3.5 w-3.5" />
+            <Undo2 className="h-4 w-4" />
           </button>
           <button
             onClick={redo}
             disabled={!canRedo()}
-            className="border-l border-[#eaeaea] px-2 py-1 text-[#787774] hover:text-[#111111] hover:bg-[#f7f6f3] disabled:opacity-30 transition-colors"
+            className="rounded p-1 text-[#6b7280] hover:text-[#111111] hover:bg-[#f7f6f3] disabled:opacity-25 transition-colors"
             title="重做 (Ctrl+Y)"
           >
-            <Redo2 className="h-3.5 w-3.5" />
+            <Redo2 className="h-4 w-4" />
           </button>
         </div>
       </div>
 
-      {/* 右区：导入与导出 */}
+      {/* 右区：功能分层清晰的辅助设置与导入导出操作 */}
       <div className="flex items-center gap-2">
         <input
           type="file"
@@ -281,49 +275,53 @@ export const HeaderBar: React.FC = () => {
           className="hidden"
         />
 
+        {/* 轻量辅助按钮 */}
         <button
           onClick={toggleWelcomeModal}
-          className="flex items-center gap-1.5 rounded-md border border-[#eaeaea] bg-[#ffffff] px-2.5 py-1.5 font-medium text-[#2f3437] transition-all hover:bg-[#f7f6f3] hover:border-[#dcdbd8]"
-          title="打开新手指南与精选模版中心"
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-[#4b5563] hover:text-[#111111] hover:bg-[#f7f6f3] transition-colors"
+          title="指南与模版中心"
         >
-          <HelpCircle className="h-3.5 w-3.5 text-[#4b5563]" />
-          <span>指南与模版</span>
+          <HelpCircle className="h-4 w-4" />
+          <span>模版</span>
         </button>
 
         <button
           onClick={toggleGlobalSettings}
-          className="flex items-center gap-1.5 rounded-md border border-[#eaeaea] bg-[#ffffff] px-2.5 py-1.5 font-medium text-[#2f3437] transition-all hover:bg-[#f7f6f3] hover:border-[#dcdbd8]"
-          title="配置全局触控与游戏信息"
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-[#4b5563] hover:text-[#111111] hover:bg-[#f7f6f3] transition-colors"
+          title="全局触控与按键参数设置"
         >
-          <Settings className="h-3.5 w-3.5 text-[#4b5563]" />
-          <span>全局设置</span>
+          <Settings className="h-4 w-4" />
+          <span>设置</span>
         </button>
 
+        <div className="h-4 w-[1px] bg-[#e5e5e5] mx-1" />
+
+        {/* 核心业务操作组 */}
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-1.5 rounded-md border border-[#eaeaea] bg-[#ffffff] px-3 py-1.5 font-medium text-[#2f3437] transition-all hover:bg-[#f7f6f3] hover:border-[#dcdbd8]"
+          className="flex items-center gap-1.5 rounded-lg border border-[#eaeaea] bg-[#ffffff] px-3 py-1.5 font-medium text-sm text-[#374151] hover:bg-[#f7f6f3] hover:border-[#d4d4d0] transition-all shadow-2xs"
           title="导入 .crown.json 或 raw-payload.json"
         >
-          <Upload className="h-3.5 w-3.5 text-[#787774]" />
-          <span>导入配置</span>
+          <Upload className="h-4 w-4 text-[#6b7280]" />
+          <span>导入</span>
         </button>
 
         <button
           onClick={toggleShareModal}
-          className="flex items-center gap-1.5 rounded-md border border-[#d4d4d0] bg-[#ffffff] px-3 py-1.5 font-medium text-[#111111] transition-all hover:bg-[#f7f6f3] hover:border-[#111111] active:scale-[0.98]"
+          className="flex items-center gap-1.5 rounded-lg border border-[#eaeaea] bg-[#ffffff] px-3.5 py-1.5 font-medium text-sm text-[#111111] hover:bg-[#f7f6f3] hover:border-[#111111]/40 transition-all active:scale-[0.98] shadow-2xs"
           title="生成 24 小时短效直链 (供手机直接下载导入)"
         >
-          <Link2 className="h-3.5 w-3.5 text-[#111111]" />
+          <Link2 className="h-4 w-4 text-[#111111]" />
           <span>分享直链</span>
         </button>
 
-        {/* 规范 CTA 主按钮: 纯黑实体背景 #111111, 白字, 6px 圆角, active 微缩放 */}
+        {/* 规范主 CTA 按钮: 纯黑实体背景 #111111, 白字, 8px 圆角, 唯此全黑主焦点 */}
         <button
           onClick={handleExport}
-          className="flex items-center gap-1.5 rounded-md bg-[#111111] px-3.5 py-1.5 font-medium text-[#ffffff] transition-all hover:bg-[#2b2b2b] active:scale-[0.98]"
+          className="flex items-center gap-1.5 rounded-lg bg-[#111111] px-4 py-1.5 font-semibold text-sm text-[#ffffff] hover:bg-[#2b2b2b] active:scale-[0.98] transition-all shadow-xs"
           title="打包导出为 Moonlight-vplus 标准分享包 (.crown.json)"
         >
-          <Download className="h-3.5 w-3.5 text-[#ffffff]" />
+          <Download className="h-4 w-4 text-[#ffffff]" />
           <span>导出分享包</span>
         </button>
       </div>

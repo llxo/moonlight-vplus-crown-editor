@@ -216,6 +216,24 @@ export const StageViewport: React.FC = () => {
     setActiveDragElementId(null);
   }, [selectElement]);
 
+  // 初次进入视口或布局基准改变时，智能计算自适应视口比例（避免大屏下画布缩微与大片空洞）
+  useEffect(() => {
+    const handleFitViewport = () => {
+      if (!containerRef.current) return;
+      const { clientWidth, clientHeight } = containerRef.current;
+      if (clientWidth <= 0 || clientHeight <= 0) return;
+
+      const fitZoomX = (clientWidth * 0.80) / layoutBasis.widthPx;
+      const fitZoomY = (clientHeight * 0.76) / layoutBasis.heightPx;
+      const bestZoom = Math.max(0.3, Math.min(1.8, Number(Math.min(fitZoomX, fitZoomY).toFixed(2))));
+      setZoom(bestZoom);
+      setPanOffset({ x: 0, y: 0 });
+    };
+
+    const timer = setTimeout(handleFitViewport, 50);
+    return () => clearTimeout(timer);
+  }, [layoutBasis.widthPx, layoutBasis.heightPx, setZoom, setPanOffset]);
+
   // 挂载全局事件监听器
   useEffect(() => {
     window.addEventListener("pointermove", handleGlobalPointerMove, { passive: true });

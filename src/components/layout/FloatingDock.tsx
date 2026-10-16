@@ -119,7 +119,7 @@ export const FloatingDock: React.FC = () => {
           </div>
         )}
 
-        <div className="flex items-center gap-1 rounded-full border border-[#eaeaea] bg-[#ffffff]/95 px-3 py-1.5 shadow-[0_12px_36px_-6px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)] backdrop-blur-md">
+        <div className="flex items-center gap-1.5 rounded-full border border-[#eaeaea] bg-[#ffffff]/95 px-3.5 py-2 shadow-[0_12px_36px_-6px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.04)] backdrop-blur-md">
           {DOCK_PRESETS.map((preset) => (
             <button
               key={preset.type}
@@ -129,14 +129,14 @@ export const FloatingDock: React.FC = () => {
               onMouseLeave={() => setHoveredHint(null)}
               className="group flex flex-col items-center justify-center rounded-full p-2 text-[#374151] hover:bg-[#f7f6f3] hover:text-[#111111] transition-all hover:scale-105 active:scale-95"
             >
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#fbfbfa] border border-[#eaeaea] group-hover:border-[#111111]/30 transition-colors">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#fbfbfa] border border-[#eaeaea] group-hover:border-[#111111]/30 transition-colors">
                 {preset.icon}
               </div>
-              <span className="text-[11px] font-semibold mt-0.5">{preset.name}</span>
+              <span className="text-xs font-semibold mt-1">{preset.name}</span>
             </button>
           ))}
 
-          <div className="mx-1.5 h-6 w-[1px] bg-[#eaeaea]" />
+          <div className="mx-2 h-7 w-[1px] bg-[#eaeaea]" />
 
           {/* 轻量图层小抽屉开关 */}
           <button
@@ -148,12 +148,12 @@ export const FloatingDock: React.FC = () => {
               isLayersOpen ? "bg-[#111111] text-[#ffffff]" : "text-[#374151] hover:bg-[#f7f6f3] hover:text-[#111111]"
             }`}
           >
-            <div className={`flex h-7 w-7 items-center justify-center rounded-full border ${
+            <div className={`flex h-8 w-8 items-center justify-center rounded-full border ${
               isLayersOpen ? "bg-[#222222] border-[#333333] text-[#ffffff]" : "bg-[#fbfbfa] border-[#eaeaea]"
             }`}>
-              <Layers className="h-4 w-4" />
+              <Layers className="h-4.5 w-4.5" />
             </div>
-            <span className="text-[11px] font-semibold mt-0.5">
+            <span className="text-xs font-semibold mt-1">
               图层 ({elements.length})
             </span>
           </button>

@@ -355,7 +355,19 @@ export const useCrownStore = create<CrownState>((set, get) => ({
 
   setPanOffset: (offset) => set({ panOffset: offset }),
 
-  resetViewport: () => set({ zoom: 0.65, panOffset: { x: 0, y: 0 } }),
+  resetViewport: () => {
+    if (typeof window !== "undefined") {
+      const w = window.innerWidth;
+      const h = window.innerHeight - 90; // 扣除顶部栏和底部栏
+      const basis = get().layoutBasis;
+      const fitX = (w * 0.80) / basis.widthPx;
+      const fitY = (h * 0.78) / basis.heightPx;
+      const bestZoom = Math.max(0.3, Math.min(1.8, Number(Math.min(fitX, fitY).toFixed(2))));
+      set({ zoom: bestZoom, panOffset: { x: 0, y: 0 } });
+    } else {
+      set({ zoom: 0.8, panOffset: { x: 0, y: 0 } });
+    }
+  },
 
   toggleSnapToGrid: () => set((s) => ({ snapToGrid: !s.snapToGrid })),
   setGridSize: (size) => set({ gridSize: size }),
