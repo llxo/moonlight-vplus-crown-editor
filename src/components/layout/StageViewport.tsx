@@ -313,7 +313,7 @@ export const StageViewport: React.FC = () => {
       element_height: 120,
       element_central_x: cx,
       element_central_y: cy,
-      element_radius: 60,
+      element_radius: 16,
       element_thick: 3,
       element_layer: 50,
       element_color: 0xff333333,
@@ -455,17 +455,16 @@ export const StageViewport: React.FC = () => {
     const borderColor = CrownColorUtils.intToRgbaHex(el.element_color);
     const bgColor = CrownColorUtils.intToRgbaHex(el.element_background_color);
 
-    // 计算几何圆角：摇杆、全圆按键与轮盘菜单自动对齐 9999px 正圆
-    const isRoundControl =
+    // 计算几何圆角：摇杆与轮盘菜单强制正圆；普通按键与组合键由 element_radius 决定
+    const isStrictRound =
       el.element_type === CrownElementType.ANALOG_STICK ||
       el.element_type === CrownElementType.INVISIBLE_ANALOG_STICK ||
-      el.element_type === CrownElementType.WHEEL_PAD ||
-      ("element_radius" in el && el.element_radius && el.element_radius >= el.element_width / 2 - 2);
+      el.element_type === CrownElementType.WHEEL_PAD;
 
-    const calculatedBorderRadius = isRoundControl
+    const calculatedBorderRadius = isStrictRound
       ? "9999px"
-      : "element_radius" in el && el.element_radius
-      ? `${el.element_radius}px`
+      : "element_radius" in el && typeof el.element_radius === "number"
+      ? `${Math.max(0, el.element_radius)}px`
       : "16px";
 
     return (
@@ -573,8 +572,8 @@ export const StageViewport: React.FC = () => {
         const numSegments = Math.max(2, el.element_mode || 8);
         const innerRatio = (el.element_sense || 30) / 100;
         const radius = el.element_width / 2;
-        const centerSize = Math.max(64, Math.round(el.element_width * innerRatio));
-        const centerFontSize = Math.max(16, Math.round(centerSize * 0.28));
+        const centerSize = Math.max(16, Math.round(el.element_width * innerRatio));
+        const centerFontSize = Math.max(14, Math.round(centerSize * 0.28));
 
         // 解析各扇区名称
         const segmentPairs = (el.element_value || "").split(",").map((s) => {

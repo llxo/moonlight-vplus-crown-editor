@@ -154,7 +154,14 @@ export const FloatingInspector: React.FC = () => {
       {/* 几何尺寸与中心锚点 */}
       <div className="space-y-2 border-t border-[#eaeaea] pt-3">
         <div className="text-xs font-semibold uppercase tracking-wider text-[#374151]">
-          几何位置与尺寸 (Px)
+          {selectedElement.element_type === CrownElementType.WHEEL_PAD
+            ? "轮盘几何与中心半径 (Px)"
+            : selectedElement.element_type === CrownElementType.ANALOG_STICK ||
+              selectedElement.element_type === CrownElementType.INVISIBLE_ANALOG_STICK ||
+              selectedElement.element_type === CrownElementType.DIGITAL_STICK ||
+              selectedElement.element_type === CrownElementType.INVISIBLE_DIGITAL_STICK
+            ? "摇杆几何与死区半径 (Px)"
+            : "按键尺寸与圆角 (Px)"}
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
@@ -175,24 +182,186 @@ export const FloatingInspector: React.FC = () => {
               className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
             />
           </div>
-          <div>
-            <label className="text-xs font-medium text-[#4b5563] block mb-1">宽度 W</label>
-            <input
-              type="number"
-              value={selectedElement.element_width}
-              onChange={(e) => updateElement(selectedElement.element_id, { element_width: Math.max(20, Number(e.target.value)) })}
-              className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-[#4b5563] block mb-1">高度 H</label>
-            <input
-              type="number"
-              value={selectedElement.element_height}
-              onChange={(e) => updateElement(selectedElement.element_id, { element_height: Math.max(20, Number(e.target.value)) })}
-              className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
-            />
-          </div>
+
+          {selectedElement.element_type === CrownElementType.WHEEL_PAD ? (
+            /* 轮盘：肯定为正圆，配置直径与中心半径 */
+            <>
+              <div>
+                <label className="text-xs font-medium text-[#4b5563] block mb-1">轮盘直径 (D)</label>
+                <input
+                  type="number"
+                  min="60"
+                  value={selectedElement.element_width}
+                  onChange={(e) => {
+                    const d = Math.max(60, Number(e.target.value));
+                    updateElement(selectedElement.element_id, {
+                      element_width: d,
+                      element_height: d,
+                    });
+                  }}
+                  className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
+                />
+              </div>
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-xs font-medium text-[#4b5563]">中心半径 (r)</label>
+                  <span className="text-[10px] font-mono text-[#888888]">
+                    {selectedElement.element_sense || 30}%
+                  </span>
+                </div>
+                <input
+                  type="number"
+                  min="5"
+                  max={Math.max(10, Math.round(selectedElement.element_width / 2 - 5))}
+                  value={Math.round((selectedElement.element_width / 2) * ((selectedElement.element_sense || 30) / 100))}
+                  onChange={(e) => {
+                    const outerR = selectedElement.element_width / 2;
+                    const r = Math.max(5, Math.min(outerR - 5, Number(e.target.value)));
+                    const newSense = Math.max(5, Math.min(85, Math.round((r / outerR) * 100)));
+                    updateElement(selectedElement.element_id, { element_sense: newSense });
+                  }}
+                  className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
+                />
+              </div>
+            </>
+          ) : selectedElement.element_type === CrownElementType.ANALOG_STICK ||
+            selectedElement.element_type === CrownElementType.INVISIBLE_ANALOG_STICK ||
+            selectedElement.element_type === CrownElementType.DIGITAL_STICK ||
+            selectedElement.element_type === CrownElementType.INVISIBLE_DIGITAL_STICK ? (
+            /* 摇杆：天然正圆，配置直径与死区半径 */
+            <>
+              <div>
+                <label className="text-xs font-medium text-[#4b5563] block mb-1">摇杆直径 (D)</label>
+                <input
+                  type="number"
+                  min="80"
+                  value={selectedElement.element_width}
+                  onChange={(e) => {
+                    const d = Math.max(80, Number(e.target.value));
+                    updateElement(selectedElement.element_id, {
+                      element_width: d,
+                      element_height: d,
+                      element_radius: Math.round(d / 2),
+                    } as any);
+                  }}
+                  className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
+                />
+              </div>
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-xs font-medium text-[#4b5563]">死区半径 (r)</label>
+                  <span className="text-[10px] font-mono text-[#888888]">
+                    {selectedElement.element_sense ?? 30}%
+                  </span>
+                </div>
+                <input
+                  type="number"
+                  min="0"
+                  max={Math.max(10, Math.round(selectedElement.element_width / 2 - 5))}
+                  value={Math.round((selectedElement.element_width / 2) * ((selectedElement.element_sense ?? 30) / 100))}
+                  onChange={(e) => {
+                    const outerR = selectedElement.element_width / 2;
+                    const r = Math.max(0, Math.min(outerR - 5, Number(e.target.value)));
+                    const newSense = Math.max(0, Math.min(80, Math.round((r / outerR) * 100)));
+                    updateElement(selectedElement.element_id, { element_sense: newSense });
+                  }}
+                  className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
+                />
+              </div>
+            </>
+          ) : (
+            /* 普通按键、组合键等：创建时为正方形，支持自由调整为长方形，且支持自由调圆角 */
+            <>
+              <div>
+                <label className="text-xs font-medium text-[#4b5563] block mb-1">宽度 W</label>
+                <input
+                  type="number"
+                  min="20"
+                  value={selectedElement.element_width}
+                  onChange={(e) => updateElement(selectedElement.element_id, { element_width: Math.max(20, Number(e.target.value)) })}
+                  className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-[#4b5563] block mb-1">高度 H</label>
+                <input
+                  type="number"
+                  min="20"
+                  value={selectedElement.element_height}
+                  onChange={(e) => updateElement(selectedElement.element_id, { element_height: Math.max(20, Number(e.target.value)) })}
+                  className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
+                />
+              </div>
+
+              {"element_radius" in selectedElement && (
+                <>
+                  <div className="col-span-2">
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-xs font-medium text-[#4b5563]">圆角 Radius (Px)</label>
+                      <span className="text-[10px] font-mono text-[#888888]">
+                        {(selectedElement.element_radius ?? 16) === 0
+                          ? "直角 (0px)"
+                          : (selectedElement.element_radius ?? 16) >=
+                            Math.round(Math.min(selectedElement.element_width, selectedElement.element_height) / 2)
+                          ? "胶囊/全圆"
+                          : `${selectedElement.element_radius ?? 16}px`}
+                      </span>
+                    </div>
+                    <input
+                      type="number"
+                      min="0"
+                      max={Math.round(Math.min(selectedElement.element_width, selectedElement.element_height) / 2)}
+                      value={selectedElement.element_radius ?? 16}
+                      onChange={(e) => {
+                        const maxR = Math.round(
+                          Math.min(selectedElement.element_width, selectedElement.element_height) / 2
+                        );
+                        const r = Math.max(0, Math.min(maxR, Number(e.target.value)));
+                        updateElement(selectedElement.element_id, { element_radius: r } as any);
+                      }}
+                      className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
+                    />
+                  </div>
+
+                  {/* 快捷圆角预设 */}
+                  <div className="col-span-2 flex items-center gap-1.5 pt-0.5 flex-wrap">
+                    <span className="text-[10px] text-[#888888]">圆角预设:</span>
+                    {[
+                      { label: "直角 (0)", val: 0 },
+                      { label: "微圆 (12)", val: 12 },
+                      { label: "标准 (20)", val: 20 },
+                      {
+                        label: "胶囊/全圆",
+                        val: Math.round(
+                          Math.min(selectedElement.element_width, selectedElement.element_height) / 2
+                        ),
+                      },
+                    ].map((preset) => {
+                      const currentR = selectedElement.element_radius ?? 16;
+                      const isActive = currentR === preset.val;
+                      return (
+                        <button
+                          key={preset.label}
+                          type="button"
+                          onClick={() =>
+                            updateElement(selectedElement.element_id, { element_radius: preset.val } as any)
+                          }
+                          className={`px-2 py-0.5 rounded text-[10px] font-mono border transition-colors cursor-pointer ${
+                            isActive
+                              ? "bg-[#111111] text-white border-[#111111]"
+                              : "bg-[#fbfbfa] text-[#4b5563] border-[#eaeaea] hover:bg-[#f0f0ee]"
+                          }`}
+                        >
+                          {preset.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </>
+          )}
+
           <div>
             <label className="text-xs font-medium text-[#4b5563] block mb-1">图层 Layer</label>
             <input
@@ -313,6 +482,42 @@ function renderSpecialTypeFields(
               label="右 (RIGHT)"
               value={element.element_right_value}
               onChange={(val) => onUpdate({ element_right_value: val } as any)}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    case CrownElementType.WHEEL_PAD: {
+      return (
+        <div className="space-y-3 border-t border-[#eaeaea] pt-3">
+          <div className="text-xs font-semibold uppercase tracking-wider text-[#374151]">
+            轮盘扇区配置
+          </div>
+          <div>
+            <div className="flex justify-between text-xs text-[#4b5563] mb-1">
+              <span>扇区数量 (Mode)</span>
+              <span className="font-mono text-[#111111] font-semibold">{element.element_mode || 8} 扇区</span>
+            </div>
+            <input
+              type="number"
+              min="2"
+              max="16"
+              value={element.element_mode || 8}
+              onChange={(e) => onUpdate({ element_mode: Math.max(2, Math.min(16, Number(e.target.value))) } as any)}
+              className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-[#4b5563] block mb-1">
+              扇区键位与名称 (按顺时针，逗号分隔)
+            </label>
+            <textarea
+              rows={2}
+              value={element.element_value || ""}
+              onChange={(e) => onUpdate({ element_value: e.target.value } as any)}
+              className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 font-mono text-xs text-[#111111] outline-none"
+              placeholder="k8|1,k9|2,k10|3,k11|4"
             />
           </div>
         </div>
