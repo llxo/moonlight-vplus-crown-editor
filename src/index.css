@@ -8,28 +8,42 @@
   body {
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Geist Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     user-select: none;
-    background-color: #0d0e11;
-    color: #e2e8f0;
+    background-color: #f7f6f3;
+    color: #111111;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-/* 自定义滚动条 */
+/* 简约浅色自定义滚动条 */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #14151a;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2b2e38;
+  background: #dcdbd8;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3e4252;
+  background: #b8b7b3;
+}
+
+/* 简约实体按键标签样式 */
+kbd {
+  font-family: "Geist Mono", "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  background-color: #f7f6f3;
+  border: 1px solid #eaeaea;
+  border-radius: 4px;
+  padding: 0.15rem 0.35rem;
+  font-size: 0.75rem;
+  color: #2f3437;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
 }

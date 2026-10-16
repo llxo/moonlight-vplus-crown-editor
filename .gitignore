@@ -27,3 +27,5 @@ dist-ssr
 src/debug-*.ts
 src/fix-fixtures.ts
 
+.agents/
+skills-lock.json

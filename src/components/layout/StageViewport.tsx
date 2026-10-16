@@ -1,6 +1,6 @@
 /**
  * @file StageViewport.tsx
- * @description 中央工作区画布视口：依据 layoutBasis 等比呈现真实设备画幅，支持无限缩放、平移与控件交互排布
+ * @description 中央工作区画布视口：遵循 minimalist-ui 规范，采用温润骨白点阵底色、极简白色机身画幅与高清晰度按键排布
  */
 
 import React, { useRef, useState, useEffect } from "react";
@@ -41,14 +41,12 @@ export const StageViewport: React.FC = () => {
     setPanOffset,
   } = useCrownStore();
 
-  // 滚轮缩放处理
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
     const delta = e.deltaY > 0 ? -0.05 : 0.05;
     setZoom((prev) => Math.max(0.15, Math.min(2.5, prev + delta)));
   };
 
-  // 画布平移处理（按住空格或中键拖拽，或空白区右键/左键平移）
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button === 1 || isSpaceDownRef.current || (e.button === 0 && e.target === containerRef.current)) {
       isDraggingViewportRef.current = true;
@@ -81,7 +79,6 @@ export const StageViewport: React.FC = () => {
         newY = Math.round(newY / gridSize) * gridSize;
       }
 
-      // 限制在屏幕范围内
       newX = Math.max(10, Math.min(layoutBasis.widthPx - 10, newX));
       newY = Math.max(10, Math.min(layoutBasis.heightPx - 10, newY));
 
@@ -134,7 +131,6 @@ export const StageViewport: React.FC = () => {
     };
   };
 
-  // 渲染单个王冠控件实体
   const renderElement = (el: CrownElement) => {
     const isSelected = selectedElementIds.includes(el.element_id);
     const left = el.element_central_x - el.element_width / 2;
@@ -143,7 +139,6 @@ export const StageViewport: React.FC = () => {
     const borderColor = CrownColorUtils.intToRgbaHex(el.element_color);
     const bgColor = CrownColorUtils.intToRgbaHex(el.element_background_color);
 
-    // 通用样式与外框
     return (
       <div
         key={el.element_id}
@@ -160,18 +155,17 @@ export const StageViewport: React.FC = () => {
           backgroundColor: bgColor,
           zIndex: el.element_layer,
         }}
-        className={`group cursor-move transition-shadow select-none flex items-center justify-center ${
+        className={`group cursor-move transition-all select-none flex items-center justify-center ${
           isSelected
-            ? "ring-4 ring-amber-400 ring-offset-2 ring-offset-transparent shadow-lg shadow-amber-500/30"
-            : "hover:ring-2 hover:ring-amber-400/50"
+            ? "ring-2 ring-[#111111] ring-offset-2 ring-offset-[#fafaf9] shadow-sm"
+            : "hover:ring-1 hover:ring-[#111111]/30"
         }`}
       >
-        {/* 内部根据控件类型定制渲染 */}
         {renderElementContent(el)}
 
-        {/* 选中时的尺寸标注小浮标 */}
+        {/* 选中时的尺寸标注小浮标 (纯黑底白字极简风格) */}
         {isSelected && (
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 rounded bg-amber-500 px-1.5 py-0.5 text-[10px] font-mono font-bold text-slate-950 pointer-events-none whitespace-nowrap shadow-sm">
+          <div className="absolute -top-6 left-1/2 -translate-x-1/2 rounded bg-[#111111] px-2 py-0.5 text-[10px] font-mono font-medium text-[#ffffff] pointer-events-none whitespace-nowrap shadow-xs">
             {el.element_width} × {el.element_height} (L{el.element_layer})
           </div>
         )}
@@ -179,26 +173,24 @@ export const StageViewport: React.FC = () => {
     );
   };
 
-  // 各类型控件专属视觉呈现
   const renderElementContent = (el: CrownElement) => {
     switch (el.element_type) {
       case CrownElementType.DIGITAL_PAD: {
         return (
           <div className="relative h-full w-full pointer-events-none flex items-center justify-center">
-            {/* 十字准星与四向按键标注 */}
-            <div className="absolute top-2 text-[12px] font-bold text-slate-200">
+            <div className="absolute top-2.5 text-[11px] font-mono font-bold text-[#111111]">
               {el.element_up_value || "UP"}
             </div>
-            <div className="absolute bottom-2 text-[12px] font-bold text-slate-200">
+            <div className="absolute bottom-2.5 text-[11px] font-mono font-bold text-[#111111]">
               {el.element_down_value || "DOWN"}
             </div>
-            <div className="absolute left-2 text-[12px] font-bold text-slate-200">
+            <div className="absolute left-2.5 text-[11px] font-mono font-bold text-[#111111]">
               {el.element_left_value || "LEFT"}
             </div>
-            <div className="absolute right-2 text-[12px] font-bold text-slate-200">
+            <div className="absolute right-2.5 text-[11px] font-mono font-bold text-[#111111]">
               {el.element_right_value || "RIGHT"}
             </div>
-            <div className="h-10 w-10 rounded-full border border-dashed border-slate-400/40" />
+            <div className="h-10 w-10 rounded-full border border-dashed border-[#111111]/20" />
           </div>
         );
       }
@@ -214,11 +206,11 @@ export const StageViewport: React.FC = () => {
                 width: `${el.element_width * deadzoneRatio}px`,
                 height: `${el.element_height * deadzoneRatio}px`,
               }}
-              className="rounded-full border border-dashed border-rose-400/60 bg-rose-500/10"
+              className="rounded-full border border-dashed border-[#9f2f2d]/40 bg-[#fdebec]/20"
             />
             {/* 摇杆中心帽 */}
-            <div className="absolute flex h-14 w-14 items-center justify-center rounded-full border-2 border-slate-300 bg-slate-800 shadow-md">
-              <span className="font-mono text-xs font-bold text-amber-400">
+            <div className="absolute flex h-14 w-14 items-center justify-center rounded-full border border-[#eaeaea] bg-[#ffffff] shadow-xs">
+              <span className="font-mono text-xs font-bold text-[#111111]">
                 {"element_value" in el ? el.element_value : "STICK"}
               </span>
             </div>
@@ -237,14 +229,13 @@ export const StageViewport: React.FC = () => {
                 width: `${el.element_width * innerRatio}px`,
                 height: `${el.element_height * innerRatio}px`,
               }}
-              className="rounded-full border-2 border-amber-400/60 bg-amber-500/10 flex items-center justify-center"
+              className="rounded-full border border-[#eaeaea] bg-[#ffffff] flex items-center justify-center shadow-xs"
             >
-              <span className="text-[11px] font-bold text-amber-300">
+              <span className="text-[11px] font-semibold text-[#111111]">
                 {el.element_text || "WHEEL"}
               </span>
             </div>
-            {/* 扇区分割提示 */}
-            <div className="absolute bottom-2 text-[11px] font-mono text-slate-300">
+            <div className="absolute bottom-2 text-[10px] font-mono text-[#787774]">
               {numSegments} 扇区
             </div>
           </div>
@@ -253,21 +244,20 @@ export const StageViewport: React.FC = () => {
 
       case CrownElementType.SIMPLIFY_PERFORMANCE: {
         return (
-          <div className="px-4 text-center text-xs font-mono font-medium text-emerald-400 truncate">
+          <div className="px-3 text-center text-xs font-mono font-medium text-[#111111] truncate">
             {el.element_text || "PERFORMANCE STATUS"}
           </div>
         );
       }
 
       default: {
-        // 普通按键、开关、视角按键、组合按键、组按键
         const text = "element_text" in el && el.element_text ? el.element_text : "BTN";
         const val = "element_value" in el && el.element_value ? el.element_value : "";
         return (
           <div className="flex flex-col items-center justify-center pointer-events-none text-center">
-            <span className="font-bold text-slate-100 text-sm tracking-wide">{text}</span>
+            <span className="font-semibold text-xs tracking-tight text-[#111111]">{text}</span>
             {val && (
-              <span className="text-[10px] font-mono text-amber-400/90 mt-0.5">{val}</span>
+              <span className="text-[10px] font-mono text-[#787774] mt-0.5">{val}</span>
             )}
           </div>
         );
@@ -282,17 +272,13 @@ export const StageViewport: React.FC = () => {
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
-      className="relative flex-1 overflow-hidden bg-[#0c0d10] cursor-default"
+      className="relative flex-1 overflow-hidden bg-[#f7f6f3] cursor-default"
       style={{
-        backgroundImage: `
-          radial-gradient(circle at 50% 50%, rgba(30, 34, 45, 0.4) 0%, rgba(12, 13, 16, 1) 100%),
-          linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-          linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px)
-        `,
-        backgroundSize: "100% 100%, 40px 40px, 40px 40px",
+        backgroundImage: "radial-gradient(#d5d4d0 1px, transparent 1px)",
+        backgroundSize: "28px 28px",
       }}
     >
-      {/* 居中渲染的实际设备屏幕画幅 (Device Frame) */}
+      {/* 居中渲染的真实设备屏幕画幅 (Minimalist Device Frame) */}
       <div
         style={{
           position: "absolute",
@@ -303,34 +289,34 @@ export const StageViewport: React.FC = () => {
           transform: `translate(-50%, -50%) scale(${zoom})`,
           transformOrigin: "center center",
         }}
-        className="rounded-[32px] border-[6px] border-[#22252e] bg-[#101217] shadow-2xl shadow-black/80 transition-transform duration-75 ease-out select-none"
+        className="rounded-[36px] border-[8px] border-[#ffffff] bg-[#fafaf9] shadow-[0_16px_50px_-10px_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.06)] transition-transform duration-75 ease-out select-none"
       >
-        {/* 设备状态参考：屏幕边框打孔与安全区 (Safe Area) */}
+        {/* 安全区与摄像头模拟 */}
         {showSafeArea && (
           <>
-            {/* 屏幕左/右握持防误触半透明区域 (80px) */}
-            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-20 border-r border-dashed border-red-500/20 bg-red-500/5 z-0" />
-            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-20 border-l border-dashed border-red-500/20 bg-red-500/5 z-0" />
-            {/* 顶部中央前置打孔摄像头模拟 */}
-            <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 h-5 w-5 rounded-full bg-[#08090b] border border-[#22252e] z-10" />
+            {/* 左右防误触握持区 */}
+            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-20 border-r border-dashed border-[#eaeaea] bg-black/[0.015] z-0" />
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-20 border-l border-dashed border-[#eaeaea] bg-black/[0.015] z-0" />
+            {/* 顶部中央微摄像头打孔 */}
+            <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 h-4 w-4 rounded-full bg-[#111111] z-10" />
           </>
         )}
 
-        {/* 画布中心十字准星 */}
-        <div className="pointer-events-none absolute left-1/2 top-0 bottom-0 w-[1px] bg-slate-700/20 z-0" />
-        <div className="pointer-events-none absolute top-1/2 left-0 right-0 h-[1px] bg-slate-700/20 z-0" />
+        {/* 屏幕几何中心轻十字准星 */}
+        <div className="pointer-events-none absolute left-1/2 top-0 bottom-0 w-[1px] bg-black/[0.04] z-0" />
+        <div className="pointer-events-none absolute top-1/2 left-0 right-0 h-[1px] bg-black/[0.04] z-0" />
 
-        {/* 渲染所有王冠虚拟按键元素 */}
+        {/* 渲染所有按键元素 */}
         {elements.map(renderElement)}
       </div>
 
-      {/* 视口浮动信息提示小窗 */}
-      <div className="pointer-events-none absolute bottom-4 left-4 flex items-center gap-2 rounded-lg border border-[#242730] bg-[#14161be6] px-3 py-1.5 text-[11px] text-slate-400 backdrop-blur-md">
-        <span>画布物理基准: <strong className="text-slate-200">{layoutBasis.widthPx} × {layoutBasis.heightPx}</strong></span>
+      {/* 视口浮动状态标签 (左下角，轻薄白底纯净卡片) */}
+      <div className="pointer-events-none absolute bottom-4 left-4 flex items-center gap-2 rounded-md border border-[#eaeaea] bg-[#ffffff]/90 px-3 py-1.5 text-[11px] text-[#787774] backdrop-blur-sm shadow-xs">
+        <span>画布基准: <strong className="text-[#111111] font-mono font-medium">{layoutBasis.widthPx} × {layoutBasis.heightPx}</strong></span>
         <span>•</span>
-        <span>缩放: <strong className="text-amber-400">{Math.round(zoom * 100)}%</strong></span>
+        <span>缩放: <strong className="text-[#111111] font-mono font-medium">{Math.round(zoom * 100)}%</strong></span>
         <span>•</span>
-        <span className="text-slate-500">按住空格或滚轮可平移视口</span>
+        <span>按住 <kbd>Space</kbd> 拖动画布</span>
       </div>
     </main>
   );

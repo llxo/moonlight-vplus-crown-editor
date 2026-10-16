@@ -1,6 +1,6 @@
 /**
  * @file LeftSidebar.tsx
- * @description 编辑器左侧边栏：控件预设库 (Palette) 与 图层大纲树 (Layers)
+ * @description 编辑器左侧边栏：遵循 minimalist-ui 规范，采用 Bento-grid 风格预设卡片与极简浅色图层大纲
  */
 
 import React from "react";
@@ -37,8 +37,8 @@ const PRESETS: PresetItem[] = [
     type: CrownElementType.DIGITAL_COMMON_BUTTON,
     name: "普通按键",
     category: "button",
-    icon: <CircleDot className="h-4 w-4 text-amber-400" />,
-    desc: "单次按压触发，支持键鼠/手柄映射",
+    icon: <CircleDot className="h-4 w-4 text-[#111111]" />,
+    desc: "单次按压触发，映射键鼠与手柄按键",
     createDefault: (cx, cy) => ({
       element_id: Date.now(),
       config_id: 1710000000000,
@@ -50,22 +50,22 @@ const PRESETS: PresetItem[] = [
       element_central_x: cx,
       element_central_y: cy,
       element_radius: 60,
-      element_thick: 4,
+      element_thick: 3,
       element_layer: 50,
-      element_color: -259495768,
-      element_pressed_color: -268435201,
-      element_background_color: 16777215,
-      normalTextColor: -1,
-      pressedTextColor: -3355444,
-      textSizePercent: 25,
+      element_color: 0xff333333,
+      element_pressed_color: 0xff000000,
+      element_background_color: 0x15000000,
+      normalTextColor: 0xff111111,
+      pressedTextColor: 0xff000000,
+      textSizePercent: 26,
     }),
   },
   {
     type: CrownElementType.DIGITAL_SWITCH_BUTTON,
     name: "自锁开关",
     category: "button",
-    icon: <ToggleLeft className="h-4 w-4 text-emerald-400" />,
-    desc: "点击自锁保持，再次点击解锁",
+    icon: <ToggleLeft className="h-4 w-4 text-[#346538]" />,
+    desc: "点击后持续保持按下，再次点击解锁",
     createDefault: (cx, cy) => ({
       element_id: Date.now(),
       config_id: 1710000000000,
@@ -76,14 +76,14 @@ const PRESETS: PresetItem[] = [
       element_height: 120,
       element_central_x: cx,
       element_central_y: cy,
-      element_radius: 20,
-      element_thick: 4,
+      element_radius: 16,
+      element_thick: 3,
       element_layer: 50,
-      element_color: -16711936,
-      element_pressed_color: -268435201,
-      element_background_color: 0x3300ff00,
-      normalTextColor: -1,
-      pressedTextColor: -1,
+      element_color: 0xff346538,
+      element_pressed_color: 0xff1e3d22,
+      element_background_color: 0x15346538,
+      normalTextColor: 0xff111111,
+      pressedTextColor: 0xff111111,
       textSizePercent: 22,
     }),
   },
@@ -91,8 +91,8 @@ const PRESETS: PresetItem[] = [
     type: CrownElementType.DIGITAL_MOVABLE_BUTTON,
     name: "滑动视角按键",
     category: "button",
-    icon: <Move className="h-4 w-4 text-cyan-400" />,
-    desc: "按下时可划动控制鼠标/右摇杆视角",
+    icon: <Move className="h-4 w-4 text-[#1f6c9f]" />,
+    desc: "按下时可直接划动控制视角或鼠标",
     createDefault: (cx, cy) => ({
       element_id: Date.now(),
       config_id: 1710000000000,
@@ -104,13 +104,13 @@ const PRESETS: PresetItem[] = [
       element_central_x: cx,
       element_central_y: cy,
       element_radius: 70,
-      element_thick: 4,
+      element_thick: 3,
       element_layer: 50,
-      element_color: -16728065,
-      element_pressed_color: -268435201,
-      element_background_color: 0x2200ffff,
-      normalTextColor: -1,
-      pressedTextColor: -1,
+      element_color: 0xff1f6c9f,
+      element_pressed_color: 0xff0f3650,
+      element_background_color: 0x151f6c9f,
+      normalTextColor: 0xff111111,
+      pressedTextColor: 0xff111111,
       textSizePercent: 24,
       element_mode: 0,
       element_sense: 100,
@@ -121,7 +121,7 @@ const PRESETS: PresetItem[] = [
     type: CrownElementType.DIGITAL_COMBINE_BUTTON,
     name: "宏组合键",
     category: "button",
-    icon: <Sliders className="h-4 w-4 text-purple-400" />,
+    icon: <Sliders className="h-4 w-4 text-[#5c3e75]" />,
     desc: "最多同时触发 5 个按键的组合宏",
     createDefault: (cx, cy) => ({
       element_id: Date.now(),
@@ -137,14 +137,14 @@ const PRESETS: PresetItem[] = [
       element_height: 130,
       element_central_x: cx,
       element_central_y: cy,
-      element_radius: 24,
-      element_thick: 4,
+      element_radius: 18,
+      element_thick: 3,
       element_layer: 50,
-      element_color: -65281,
-      element_pressed_color: -268435201,
-      element_background_color: 0x22ff00ff,
-      normalTextColor: -1,
-      pressedTextColor: -1,
+      element_color: 0xff5c3e75,
+      element_pressed_color: 0xff352343,
+      element_background_color: 0x155c3e75,
+      normalTextColor: 0xff111111,
+      pressedTextColor: 0xff111111,
       textSizePercent: 22,
     }),
   },
@@ -152,7 +152,7 @@ const PRESETS: PresetItem[] = [
     type: CrownElementType.GROUP_BUTTON,
     name: "抽屉组按键",
     category: "button",
-    icon: <FolderOpen className="h-4 w-4 text-blue-400" />,
+    icon: <FolderOpen className="h-4 w-4 text-[#787774]" />,
     desc: "点击展开或收起关联的子按键组",
     createDefault: (cx, cy) => ({
       element_id: Date.now(),
@@ -165,13 +165,13 @@ const PRESETS: PresetItem[] = [
       element_central_x: cx,
       element_central_y: cy,
       element_radius: 55,
-      element_thick: 4,
+      element_thick: 3,
       element_layer: 50,
-      element_color: -16744193,
-      element_pressed_color: -268435201,
-      element_background_color: 0x220088ff,
-      normalTextColor: -1,
-      pressedTextColor: -1,
+      element_color: 0xff787774,
+      element_pressed_color: 0xff111111,
+      element_background_color: 0x12000000,
+      normalTextColor: 0xff111111,
+      pressedTextColor: 0xff111111,
       textSizePercent: 22,
       element_sense: CrownChildVisibility.VISIBLE,
       element_flag1: 0,
@@ -185,7 +185,7 @@ const PRESETS: PresetItem[] = [
     type: CrownElementType.DIGITAL_PAD,
     name: "十字方向键 D-Pad",
     category: "stick",
-    icon: <Compass className="h-4 w-4 text-yellow-400" />,
+    icon: <Compass className="h-4 w-4 text-[#956400]" />,
     desc: "上下左右经典四向连体方向键",
     createDefault: (cx, cy) => ({
       element_id: Date.now(),
@@ -199,18 +199,18 @@ const PRESETS: PresetItem[] = [
       element_height: 320,
       element_central_x: cx,
       element_central_y: cy,
-      element_thick: 4,
+      element_thick: 3,
       element_layer: 48,
-      element_color: -259495768,
-      element_pressed_color: -268435201,
-      element_background_color: -1438342076,
+      element_color: 0xff444444,
+      element_pressed_color: 0xff111111,
+      element_background_color: 0x18000000,
     }),
   },
   {
     type: CrownElementType.ANALOG_STICK,
     name: "模拟摇杆 (LS/RS)",
     category: "stick",
-    icon: <Disc className="h-4 w-4 text-rose-400" />,
+    icon: <Disc className="h-4 w-4 text-[#9f2f2d]" />,
     desc: "双轴线性摇杆，支持死区与动态跟随",
     createDefault: (cx, cy) => ({
       element_id: Date.now(),
@@ -223,11 +223,11 @@ const PRESETS: PresetItem[] = [
       element_central_x: cx,
       element_central_y: cy,
       element_radius: 180,
-      element_thick: 4,
+      element_thick: 3,
       element_layer: 46,
-      element_color: -259495768,
-      element_pressed_color: -268435201,
-      element_background_color: -1438342076,
+      element_color: 0xff444444,
+      element_pressed_color: 0xff111111,
+      element_background_color: 0x15000000,
       element_sense: 30, // 30% 死区
       element_mode: CrownStickMoveMode.FIXED_ABSOLUTE,
     }),
@@ -236,7 +236,7 @@ const PRESETS: PresetItem[] = [
     type: CrownElementType.WHEEL_PAD,
     name: "轮盘快捷菜单",
     category: "wheel",
-    icon: <PieChart className="h-4 w-4 text-amber-500" />,
+    icon: <PieChart className="h-4 w-4 text-[#956400]" />,
     desc: "多扇区轮盘快捷键，支持居中弹出",
     createDefault: (cx, cy) => ({
       element_id: Date.now(),
@@ -248,18 +248,18 @@ const PRESETS: PresetItem[] = [
       element_height: 440,
       element_central_x: cx,
       element_central_y: cy,
-      element_thick: 5,
+      element_thick: 4,
       element_layer: 42,
-      element_color: -259495768,
-      element_pressed_color: -268435201,
-      element_background_color: -1438342076,
+      element_color: 0xff444444,
+      element_pressed_color: 0xff111111,
+      element_background_color: 0x18000000,
       element_mode: 8,
       element_sense: 30,
       element_flag1: 1,
       extra_attributes: JSON.stringify({
-        normalTextColor: -1,
-        pressedTextColor: -1,
-        centerTextColor: -1,
+        normalTextColor: 0xff111111,
+        pressedTextColor: 0xff111111,
+        centerTextColor: 0xff111111,
         textSizePercent: 35,
         centerTextSizePercent: 60,
         triggerTextSizePercent: 40,
@@ -272,7 +272,7 @@ const PRESETS: PresetItem[] = [
     type: CrownElementType.SIMPLIFY_PERFORMANCE,
     name: "极简性能监视条",
     category: "widget",
-    icon: <Activity className="h-4 w-4 text-emerald-400" />,
+    icon: <Activity className="h-4 w-4 text-[#346538]" />,
     desc: "悬浮状态栏：显示帧率、延迟与时间",
     createDefault: (cx, cy) => ({
       element_id: Date.now(),
@@ -280,15 +280,15 @@ const PRESETS: PresetItem[] = [
       element_type: CrownElementType.SIMPLIFY_PERFORMANCE,
       element_text: "FPS: ##帧率## | 延迟: ##网络延时##ms | HH:MM",
       element_width: 380,
-      element_height: 60,
+      element_height: 52,
       element_central_x: cx,
       element_central_y: cy,
-      element_radius: 12,
-      element_thick: 20, // 字体大小
+      element_radius: 8,
+      element_thick: 18,
       element_layer: 55,
-      element_color: -1, // 字体颜色白色
-      element_pressed_color: -1,
-      element_background_color: -1610612736, // 半透明深黑
+      element_color: 0xff111111,
+      element_pressed_color: 0xff111111,
+      element_background_color: 0xe6ffffff,
     }),
   },
 ];
@@ -307,7 +307,6 @@ export const LeftSidebar: React.FC = () => {
   } = useCrownStore();
 
   const handleAddPreset = (preset: PresetItem) => {
-    // 默认在画布几何中心生成
     const cx = Math.round(layoutBasis.widthPx / 2);
     const cy = Math.round(layoutBasis.heightPx / 2);
     const el = preset.createDefault(cx, cy);
@@ -317,15 +316,15 @@ export const LeftSidebar: React.FC = () => {
   const sortedElements = [...elements].sort((a, b) => b.element_layer - a.element_layer);
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r border-[#242730] bg-[#14161b] text-xs select-none">
+    <aside className="flex h-full w-64 flex-col border-r border-[#eaeaea] bg-[#ffffff] text-xs select-none">
       {/* 选项卡切换头 */}
-      <div className="flex border-b border-[#242730] bg-[#111216]">
+      <div className="flex border-b border-[#eaeaea] bg-[#fbfbfa]">
         <button
           onClick={() => setActiveTabLeft("palette")}
           className={`flex flex-1 items-center justify-center gap-1.5 py-2.5 font-medium transition-colors ${
             activeTabLeft === "palette"
-              ? "border-b-2 border-amber-500 bg-[#16181f] text-amber-400"
-              : "text-slate-400 hover:text-slate-200"
+              ? "border-b-2 border-[#111111] bg-[#ffffff] text-[#111111]"
+              : "text-[#787774] hover:text-[#111111]"
           }`}
         >
           <Component className="h-3.5 w-3.5" />
@@ -335,8 +334,8 @@ export const LeftSidebar: React.FC = () => {
           onClick={() => setActiveTabLeft("layers")}
           className={`flex flex-1 items-center justify-center gap-1.5 py-2.5 font-medium transition-colors ${
             activeTabLeft === "layers"
-              ? "border-b-2 border-amber-500 bg-[#16181f] text-amber-400"
-              : "text-slate-400 hover:text-slate-200"
+              ? "border-b-2 border-[#111111] bg-[#ffffff] text-[#111111]"
+              : "text-[#787774] hover:text-[#111111]"
           }`}
         >
           <Layers className="h-3.5 w-3.5" />
@@ -345,29 +344,29 @@ export const LeftSidebar: React.FC = () => {
       </div>
 
       {/* 选项卡内容区 */}
-      <div className="flex-1 overflow-y-auto p-3">
+      <div className="flex-1 overflow-y-auto p-3.5">
         {activeTabLeft === "palette" ? (
           <div className="flex flex-col gap-2">
-            <div className="text-[11px] font-semibold tracking-wider text-slate-400 px-1">
-              点击快速添加控件到画布
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-[#787774] px-1 mb-0.5">
+              点击添加预设到画布
             </div>
             {PRESETS.map((preset) => (
               <div
                 key={preset.type}
                 onClick={() => handleAddPreset(preset)}
-                className="group flex cursor-pointer items-start gap-2.5 rounded-lg border border-[#242730] bg-[#1a1d24] p-2.5 transition-all hover:border-amber-500/50 hover:bg-[#20232c]"
+                className="group flex cursor-pointer items-start gap-2.5 rounded-lg border border-[#eaeaea] bg-[#ffffff] p-2.5 transition-all hover:border-[#111111] hover:bg-[#fbfbfa]"
               >
-                <div className="mt-0.5 rounded bg-[#13151a] p-1.5 border border-[#2c303c] group-hover:border-amber-500/30">
+                <div className="mt-0.5 rounded-md bg-[#f7f6f3] p-1.5 border border-[#eaeaea] group-hover:border-[#111111]/30 transition-colors">
                   {preset.icon}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-slate-100 group-hover:text-amber-400 transition-colors">
+                    <span className="font-semibold text-xs text-[#111111]">
                       {preset.name}
                     </span>
-                    <Plus className="h-3.5 w-3.5 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Plus className="h-3.5 w-3.5 text-[#787774] opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <p className="mt-0.5 text-[11px] text-slate-400 line-clamp-1">
+                  <p className="mt-0.5 text-[11px] text-[#787774] line-clamp-1 leading-relaxed">
                     {preset.desc}
                   </p>
                 </div>
@@ -376,13 +375,13 @@ export const LeftSidebar: React.FC = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between px-1 text-[11px] text-slate-400">
-              <span>按图层深度 (Layer) 排列</span>
+            <div className="flex items-center justify-between px-1 text-[10px] text-[#787774]">
+              <span className="font-semibold uppercase tracking-wider">按图层深度 (Layer) 排列</span>
               <div className="flex items-center gap-1">
                 <button
                   onClick={duplicateSelectedElements}
                   disabled={selectedElementIds.length === 0}
-                  className="rounded p-1 hover:bg-[#252a35] disabled:opacity-30"
+                  className="rounded p-1 hover:bg-[#f7f6f3] text-[#787774] hover:text-[#111111] disabled:opacity-30"
                   title="克隆选中控件"
                 >
                   <Copy className="h-3.5 w-3.5" />
@@ -390,7 +389,7 @@ export const LeftSidebar: React.FC = () => {
                 <button
                   onClick={deleteSelectedElements}
                   disabled={selectedElementIds.length === 0}
-                  className="rounded p-1 text-rose-400 hover:bg-[#252a35] disabled:opacity-30"
+                  className="rounded p-1 text-[#9f2f2d] hover:bg-[#fdebec] disabled:opacity-30"
                   title="删除选中控件"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -399,7 +398,7 @@ export const LeftSidebar: React.FC = () => {
             </div>
 
             {sortedElements.length === 0 ? (
-              <div className="mt-8 text-center text-slate-500">
+              <div className="mt-8 text-center text-[#9b9a97] text-xs">
                 暂无按键元素，请在控件库中添加
               </div>
             ) : (
@@ -416,19 +415,21 @@ export const LeftSidebar: React.FC = () => {
                   <div
                     key={el.element_id}
                     onClick={() => selectElement(el.element_id)}
-                    className={`flex cursor-pointer items-center justify-between rounded border px-2.5 py-1.5 transition-colors ${
+                    className={`flex cursor-pointer items-center justify-between rounded-md border px-2.5 py-1.5 transition-colors ${
                       isSelected
-                        ? "border-amber-500/80 bg-amber-500/10 text-amber-300 font-medium"
-                        : "border-[#242730] bg-[#1a1d24] text-slate-300 hover:border-[#383d4c] hover:bg-[#20232c]"
+                        ? "border-[#111111] bg-[#111111] text-[#ffffff] font-medium"
+                        : "border-[#eaeaea] bg-[#ffffff] text-[#2f3437] hover:border-[#111111]/40 hover:bg-[#fbfbfa]"
                     }`}
                   >
                     <div className="flex items-center gap-2 truncate">
-                      <span className="rounded bg-[#121418] px-1.5 py-0.5 text-[10px] font-mono text-slate-400">
+                      <span className={`rounded px-1.5 py-0.5 text-[10px] font-mono ${
+                        isSelected ? "bg-[#333333] text-[#ffffff]" : "bg-[#f7f6f3] text-[#787774]"
+                      }`}>
                         L{el.element_layer}
                       </span>
                       <span className="truncate">{displayLabel}</span>
                     </div>
-                    <span className="text-[10px] text-slate-400">
+                    <span className={`text-[10px] font-mono ${isSelected ? "text-slate-300" : "text-[#787774]"}`}>
                       {el.element_width}×{el.element_height}
                     </span>
                   </div>

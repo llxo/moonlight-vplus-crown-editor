@@ -59,7 +59,7 @@ export default function App() {
   }, [deleteSelectedElements, undo, redo, canUndo, canRedo]);
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#0e0f12] text-slate-100">
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#f7f6f3] text-[#111111] antialiased">
       {/* 顶部操作工具栏 */}
       <HeaderBar />
 
