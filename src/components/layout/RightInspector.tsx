@@ -20,6 +20,7 @@ import {
   type CrownElement,
 } from "../../crownSchema";
 import { KeyCodePicker } from "../common/KeyCodePicker";
+import { MacroCombineRecorder } from "../common/MacroCombineRecorder";
 
 export const RightInspector: React.FC = () => {
   const {
@@ -230,16 +231,18 @@ const ElementPropertyForm: React.FC<ElementPropertyFormProps> = ({
         </div>
       )}
 
-      {/* 核心按键绑定选择器 */}
-      {"element_value" in element && element.element_type !== CrownElementType.WHEEL_PAD && (
-        <div className="space-y-1.5 border-t border-[#eaeaea] pt-3">
-          <KeyCodePicker
-            label="绑定按键 (支持键盘敲击录制 / 手柄 / 鼠标)"
-            value={element.element_value || ""}
-            onChange={(newVal) => onUpdate({ element_value: newVal } as any)}
-          />
-        </div>
-      )}
+      {/* 核心按键绑定选择器 (普通按键/开关/视角键等展示单键选择器) */}
+      {"element_value" in element &&
+        element.element_type !== CrownElementType.WHEEL_PAD &&
+        element.element_type !== CrownElementType.DIGITAL_COMBINE_BUTTON && (
+          <div className="space-y-1.5 border-t border-[#eaeaea] pt-3">
+            <KeyCodePicker
+              label="绑定按键 (支持键盘敲击录制 / 手柄 / 鼠标)"
+              value={element.element_value || ""}
+              onChange={(newVal) => onUpdate({ element_value: newVal } as any)}
+            />
+          </div>
+        )}
 
       {/* 颜色样式设置 (ARGB 32位整数互转) */}
       <div className="space-y-2 border-t border-[#eaeaea] pt-3">
@@ -366,37 +369,16 @@ function renderSpecialAttributes(
 
     case CrownElementType.DIGITAL_COMBINE_BUTTON: {
       return (
-        <div className="space-y-3 border-t border-[#eaeaea] pt-3">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-[#787774]">
-            组合宏按键 (最多 5 个键同时触发)
-          </div>
-          <div className="space-y-2">
-            <KeyCodePicker
-              label="宏槽位 1 (主键)"
-              value={element.element_value}
-              onChange={(val) => onUpdate({ element_value: val } as any)}
-            />
-            <KeyCodePicker
-              label="宏槽位 2"
-              value={element.element_up_value}
-              onChange={(val) => onUpdate({ element_up_value: val } as any)}
-            />
-            <KeyCodePicker
-              label="宏槽位 3"
-              value={element.element_down_value}
-              onChange={(val) => onUpdate({ element_down_value: val } as any)}
-            />
-            <KeyCodePicker
-              label="宏槽位 4"
-              value={element.element_left_value}
-              onChange={(val) => onUpdate({ element_left_value: val } as any)}
-            />
-            <KeyCodePicker
-              label="宏槽位 5"
-              value={element.element_right_value}
-              onChange={(val) => onUpdate({ element_right_value: val } as any)}
-            />
-          </div>
+        <div className="border-t border-[#eaeaea] pt-3">
+          <MacroCombineRecorder
+            value={element.element_value}
+            upValue={element.element_up_value}
+            downValue={element.element_down_value}
+            leftValue={element.element_left_value}
+            rightValue={element.element_right_value}
+            currentText={element.element_text}
+            onChange={(slots) => onUpdate(slots as any)}
+          />
         </div>
       );
     }

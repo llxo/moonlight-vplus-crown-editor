@@ -119,17 +119,17 @@ const PRESETS: PresetItem[] = [
   },
   {
     type: CrownElementType.DIGITAL_COMBINE_BUTTON,
-    name: "宏组合键",
+    name: "组合快捷键",
     category: "button",
     icon: <Sliders className="h-4 w-4 text-[#5c3e75]" />,
-    desc: "最多同时触发 5 个按键的组合宏",
+    desc: "一键触发快捷键组合（如 Ctrl+C、Alt+Tab）",
     createDefault: (cx, cy) => ({
       element_id: Date.now(),
       config_id: 1710000000000,
       element_type: CrownElementType.DIGITAL_COMBINE_BUTTON,
-      element_text: "COMB",
+      element_text: "Ctrl+C",
       element_value: "k113", // Ctrl
-      element_up_value: "k29", // A
+      element_up_value: "k31", // C
       element_down_value: "null",
       element_left_value: "null",
       element_right_value: "null",
