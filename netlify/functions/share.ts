@@ -8,6 +8,23 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
+// 限制配置大小最大 512KB (正常配置通常为 5KB~30KB)
+const MAX_PAYLOAD_BYTES = 512 * 1024;
+
+// 格式初验：必须是王冠模式社区分享包或原生 payload 格式
+function isValidCrownProfile(bundle: any): boolean {
+  if (!bundle || typeof bundle !== "object") return false;
+  // 1. 标准社区分享包
+  if (bundle.kind === "moonlight-vplus-crown-profile-bundle" && Array.isArray(bundle.elements)) {
+    return true;
+  }
+  // 2. 原始 payload 或导出配置
+  if (bundle.elements && (Array.isArray(bundle.elements) || typeof bundle.elements === "string")) {
+    return true;
+  }
+  return false;
+}
+
 // 内存暂存兜底（用于本地测试或临时会话）
 interface MemoryStoreItem {
   data: string;
@@ -70,12 +87,43 @@ export default async (req: Request, context: Context): Promise<Response> => {
   // ==========================================
   if (req.method === "POST") {
     try {
-      const body = await req.json();
+      // 1. 体积前置防御：限制请求体最大 512KB
+      const bodyText = await req.text();
+      if (bodyText.length > MAX_PAYLOAD_BYTES) {
+        return new Response(
+          JSON.stringify({
+            error: "配置文件体积超出限制，最大允许 512KB",
+            code: "PAYLOAD_TOO_LARGE",
+          }),
+          {
+            status: 413,
+            headers: { ...CORS_HEADERS, "Content-Type": "application/json; charset=utf-8" },
+          }
+        );
+      }
+
+      let body: any;
+      try {
+        body = JSON.parse(bodyText);
+      } catch {
+        return new Response(
+          JSON.stringify({ error: "数据格式错误，必须为有效 JSON", code: "INVALID_JSON" }),
+          {
+            status: 400,
+            headers: { ...CORS_HEADERS, "Content-Type": "application/json; charset=utf-8" },
+          }
+        );
+      }
+
       const bundle = body.bundle || body;
 
-      if (!bundle || typeof bundle !== "object") {
+      // 2. 格式初验：确保为 Moonlight-vplus 王冠模式合法配置
+      if (!isValidCrownProfile(bundle)) {
         return new Response(
-          JSON.stringify({ error: "无效的配置文件数据", code: "INVALID_PAYLOAD" }),
+          JSON.stringify({
+            error: "非合法的 Moonlight-vplus 王冠模式配置文件格式",
+            code: "INVALID_CROWN_PROFILE",
+          }),
           {
             status: 400,
             headers: { ...CORS_HEADERS, "Content-Type": "application/json; charset=utf-8" },

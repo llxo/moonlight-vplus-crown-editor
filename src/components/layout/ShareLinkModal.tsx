@@ -75,10 +75,17 @@ export const ShareLinkModal: React.FC = () => {
 
     try {
       const bundle = await exportBundle();
+      const payloadStr = JSON.stringify({ bundle });
+
+      // 前端前置防御校验
+      if (payloadStr.length > 512 * 1024) {
+        throw new Error("当前配置文件体积超出上限 (最大 512KB)，请检查按键数据");
+      }
+
       const res = await fetch("/api/share", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bundle }),
+        body: payloadStr,
       });
 
       if (!res.ok) {
