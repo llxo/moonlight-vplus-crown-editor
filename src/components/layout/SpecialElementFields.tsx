@@ -13,6 +13,7 @@ import {
 } from "../../crownSchema";
 import { KeyCodePicker } from "../common/KeyCodePicker";
 import { RangeField, NumberField } from "../common/FormFields";
+import { WheelSegmentsEditor } from "./WheelSegmentsEditor";
 
 interface SpecialElementFieldsProps {
   element: CrownElement;
@@ -103,18 +104,11 @@ export const SpecialElementFields: React.FC<SpecialElementFieldsProps> = ({
             badge={`${element.element_mode || 8} 扇区`}
             onChange={(val) => onUpdate({ element_mode: val } as any)}
           />
-          <div>
-            <label className="text-xs font-medium text-[#4b5563] block mb-1">
-              扇区键位与名称 (按顺时针，逗号分隔)
-            </label>
-            <textarea
-              rows={2}
-              value={element.element_value || ""}
-              onChange={(e) => onUpdate({ element_value: e.target.value } as any)}
-              className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 font-mono text-xs text-[#111111] outline-none"
-              placeholder="k8|1,k9|2,k10|3,k11|4"
-            />
-          </div>
+          <WheelSegmentsEditor
+            mode={element.element_mode || 8}
+            value={element.element_value || ""}
+            onChange={(newVal) => onUpdate({ element_value: newVal } as any)}
+          />
         </div>
       );
     }
