@@ -153,7 +153,7 @@ export const WelcomeModal: React.FC = () => {
                 </span>
               </div>
               <p className="text-xs text-[#787774] mt-0.5">
-                高精度触控虚拟手柄排布工具 · 物理即时贴手与免校验分享包封装
+                v+ 王冠模式虚拟按键可视化排布工具 · 导出 .crown.json 直接传给手机
               </p>
             </div>
           </div>
