@@ -104,54 +104,57 @@ export const MacroCombineRecorder: React.FC<MacroCombineRecorderProps> = ({
       e.preventDefault();
       e.stopPropagation();
 
-      const androidCode = WEB_CODE_TO_ANDROID_KEY[e.code];
-      if (androidCode) {
-        pressedCodesRef.current.add(e.code);
-        setRecordedKeys((prev) => {
-          if (prev.includes(androidCode)) return prev;
-          if (prev.length >= 5) return prev;
-          return [...prev, androidCode];
-        });
+      const webCode = e.code;
+      pressedCodesRef.current.add(webCode);
+
+      // 将当前同时按下的物理键转换为 Android Keycode
+      const currentAndroidKeys: string[] = [];
+      pressedCodesRef.current.forEach((code) => {
+        const androidCode = WEB_CODE_TO_ANDROID_KEY[code];
+        if (androidCode && !currentAndroidKeys.includes(androidCode)) {
+          currentAndroidKeys.push(androidCode);
+        }
+      });
+
+      if (currentAndroidKeys.length > 0) {
+        setRecordedKeys(currentAndroidKeys.slice(0, 5));
       }
     };
 
-    const handleKeyUp = (e: KeyboardEvent) => {
-      pressedCodesRef.current.delete(e.code);
-      // 当所有物理按键松开，并且已捕获按键时
-      if (pressedCodesRef.current.size === 0) {
-        setRecordedKeys((current) => {
-          if (current.length > 0) {
-            setTimeout(() => finishRecording(current), 80);
-          }
-          return current;
-        });
+    const handleKeyUp = () => {
+      // 只要有一把按键抬起，且已经录制到了有效按键，立即自动完成当前组合识别
+      if (pressedCodesRef.current.size > 0 && recordedKeys.length > 0) {
+        finishRecording(recordedKeys);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown, true);
     window.addEventListener("keyup", handleKeyUp, true);
+
     return () => {
       window.removeEventListener("keydown", handleKeyDown, true);
       window.removeEventListener("keyup", handleKeyUp, true);
     };
-  }, [isRecording]);
+  }, [isRecording, recordedKeys]);
 
-  const handleRemoveKey = (index: number) => {
-    const next = [...savedKeys];
-    next.splice(index, 1);
-    finishRecording(next);
+  // 手动移除单项按键
+  const handleRemoveKey = (indexToRemove: number) => {
+    const nextKeys = savedKeys.filter((_, idx) => idx !== indexToRemove);
+    finishRecording(nextKeys);
   };
 
-  const handleAppendKey = (code: string) => {
+  // 手动追加手柄按键
+  const handleAppendKey = (gamepadKey: string) => {
     if (savedKeys.length >= 5) {
-      alert("组合键最多支持 5 个按键");
+      alert("组合键最多支持绑定 5 个按键");
       return;
     }
-    const next = [...savedKeys, code];
-    finishRecording(next);
+    const nextKeys = [...savedKeys, gamepadKey];
+    finishRecording(nextKeys);
     setShowAddMenu(false);
   };
 
+  // 清空全部组合键
   const handleClearAll = () => {
     onChange({
       element_value: "null",
@@ -167,19 +170,19 @@ export const MacroCombineRecorder: React.FC<MacroCombineRecorderProps> = ({
     <div className="space-y-3">
       {/* 标题栏 */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <Command className="h-3.5 w-3.5 text-[#111111]" />
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-[#787774]">
-            组合键 (Combine / HotKey)
+        <div className="flex items-center gap-2">
+          <Command className="h-4 w-4 text-[#111111]" />
+          <span className="text-xs font-bold uppercase tracking-wider text-[#374151]">
+            组合键配置
           </span>
         </div>
         {savedKeys.length > 0 && !isRecording && (
           <button
             type="button"
             onClick={handleClearAll}
-            className="flex items-center gap-1 text-[10px] text-[#9f2f2d] hover:underline"
+            className="flex items-center gap-1 text-xs font-medium text-[#9f2f2d] hover:underline cursor-pointer"
           >
-            <Trash2 className="h-3 w-3" />
+            <Trash2 className="h-3.5 w-3.5" />
             <span>清空</span>
           </button>
         )}
@@ -188,18 +191,18 @@ export const MacroCombineRecorder: React.FC<MacroCombineRecorderProps> = ({
       {/* 录制触发框 */}
       <div className="space-y-2">
         {isRecording ? (
-          <div className="rounded-lg border-2 border-[#111111] bg-[#fbf3db] p-3 space-y-2.5 animate-pulse">
+          <div className="rounded-xl border-2 border-[#111111] bg-[#fbf3db] p-3.5 space-y-3 animate-pulse">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-[#111111]">
-                <Radio className="h-4 w-4 text-[#956400] animate-bounce" />
-                <span>请在键盘上按下组合键（例如 Ctrl + C）...</span>
+              <div className="flex items-center gap-2 text-sm font-semibold text-[#111111]">
+                <Radio className="h-4.5 w-4.5 text-[#956400] animate-bounce" />
+                <span>请在键盘上按下组合键（如 Ctrl + C）...</span>
               </div>
             </div>
 
             {/* 实时录入按键展示 */}
-            <div className="min-h-10 rounded border border-[#eaeaea] bg-[#ffffff] p-2 flex items-center gap-1.5 flex-wrap">
+            <div className="min-h-12 rounded-lg border border-[#eaeaea] bg-[#ffffff] p-2.5 flex items-center gap-2 flex-wrap">
               {recordedKeys.length === 0 ? (
-                <span className="text-[11px] text-[#787774] italic">
+                <span className="text-xs text-[#787774] italic">
                   等待键盘按键（可同时按下修饰键 + 字母键）...
                 </span>
               ) : (
@@ -207,8 +210,8 @@ export const MacroCombineRecorder: React.FC<MacroCombineRecorderProps> = ({
                   const info = getKeyHumanLabel(k);
                   return (
                     <React.Fragment key={k}>
-                      {idx > 0 && <span className="font-bold text-[#111111]">+</span>}
-                      <kbd className="bg-[#111111] text-[#ffffff] border-0 px-2 py-1 font-mono text-xs">
+                      {idx > 0 && <span className="font-bold text-[#111111] text-sm">+</span>}
+                      <kbd className="bg-[#111111] text-[#ffffff] rounded-md px-2.5 py-1 font-mono text-sm font-bold">
                         {info.label}
                       </kbd>
                     </React.Fragment>
@@ -222,16 +225,16 @@ export const MacroCombineRecorder: React.FC<MacroCombineRecorderProps> = ({
               <button
                 type="button"
                 onClick={() => setRecordedKeys([])}
-                className="flex items-center gap-1 rounded border border-[#eaeaea] bg-[#ffffff] px-2 py-1 text-[11px] text-[#2f3437] hover:bg-[#f7f6f3]"
+                className="flex items-center gap-1 rounded-lg border border-[#eaeaea] bg-[#ffffff] px-2.5 py-1 text-xs text-[#2f3437] hover:bg-[#f7f6f3]"
               >
-                <RotateCcw className="h-3 w-3" />
+                <RotateCcw className="h-3.5 w-3.5" />
                 <span>重按</span>
               </button>
               <button
                 type="button"
                 onClick={() => finishRecording()}
                 disabled={recordedKeys.length === 0}
-                className="flex items-center gap-1.5 rounded bg-[#111111] px-3 py-1 font-medium text-xs text-[#ffffff] hover:bg-[#2b2b2b] disabled:opacity-40"
+                className="flex items-center gap-1.5 rounded-lg bg-[#111111] px-3.5 py-1.5 font-semibold text-xs text-[#ffffff] hover:bg-[#2b2b2b] disabled:opacity-40"
               >
                 <Check className="h-3.5 w-3.5 text-emerald-400" />
                 <span>完成录制</span>
@@ -242,10 +245,10 @@ export const MacroCombineRecorder: React.FC<MacroCombineRecorderProps> = ({
           <button
             type="button"
             onClick={startRecording}
-            className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[#111111] bg-[#fbfbfa] py-2.5 text-xs font-semibold text-[#111111] transition-all hover:bg-[#111111] hover:text-[#ffffff] group"
+            className="w-full flex items-center justify-center gap-2.5 rounded-xl border-2 border-dashed border-[#111111] bg-[#fbfbfa] py-3 text-sm font-semibold text-[#111111] transition-all hover:bg-[#111111] hover:text-[#ffffff] group cursor-pointer shadow-2xs"
           >
-            <Keyboard className="h-4 w-4" />
-            <span>点击录制组合键 (按下键盘组合键)</span>
+            <Keyboard className="h-4.5 w-4.5" />
+            <span>点击录制键盘组合键</span>
           </button>
         )}
       </div>
@@ -254,25 +257,25 @@ export const MacroCombineRecorder: React.FC<MacroCombineRecorderProps> = ({
       {!isRecording && (
         <div className="space-y-1.5">
           {savedKeys.length === 0 ? (
-            <div className="rounded border border-dashed border-[#eaeaea] bg-[#fbfbfa] py-2.5 text-center text-[11px] text-[#9b9a97]">
-              暂未绑定组合键，点击上方按钮直接按下键盘组合键
+            <div className="rounded-xl border border-dashed border-[#eaeaea] bg-[#fbfbfa] py-3 text-center text-xs text-[#9b9a97]">
+              暂未绑定组合键，点击上方录制
             </div>
           ) : (
-            <div className="rounded-lg border border-[#eaeaea] bg-[#ffffff] p-2.5 flex items-center justify-between shadow-xs">
-              <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="rounded-xl border border-[#eaeaea] bg-[#ffffff] p-3 flex items-center justify-between shadow-2xs">
+              <div className="flex items-center gap-2 flex-wrap">
                 {savedKeys.map((k, idx) => {
                   const info = getKeyHumanLabel(k);
                   return (
                     <React.Fragment key={`${k}-${idx}`}>
-                      {idx > 0 && <span className="font-bold text-[#787774] text-xs">+</span>}
-                      <div className="group flex items-center gap-1 bg-[#f7f6f3] border border-[#eaeaea] rounded px-2 py-1">
-                        <span className="font-mono text-xs font-bold text-[#111111]">
+                      {idx > 0 && <span className="font-bold text-[#787774] text-sm">+</span>}
+                      <div className="group flex items-center gap-1.5 bg-[#fbfbfa] border border-[#dcdbd8] rounded-lg px-2.5 py-1.5 shadow-2xs">
+                        <span className="font-mono text-sm font-bold text-[#111111]">
                           {info.label.split(" ")[0]}
                         </span>
                         <button
                           type="button"
                           onClick={() => handleRemoveKey(idx)}
-                          className="text-[#9b9a97] hover:text-[#9f2f2d] ml-0.5"
+                          className="text-[#999999] hover:text-[#9f2f2d] text-base leading-none font-bold cursor-pointer"
                           title="删除该按键"
                         >
                           ×
@@ -285,7 +288,7 @@ export const MacroCombineRecorder: React.FC<MacroCombineRecorderProps> = ({
               <button
                 type="button"
                 onClick={startRecording}
-                className="text-[10px] font-medium text-[#111111] hover:underline whitespace-nowrap ml-2"
+                className="text-xs font-semibold text-[#111111] hover:underline whitespace-nowrap ml-3 cursor-pointer"
               >
                 重新录制
               </button>
@@ -300,24 +303,24 @@ export const MacroCombineRecorder: React.FC<MacroCombineRecorderProps> = ({
           <button
             type="button"
             onClick={() => setShowAddMenu(!showAddMenu)}
-            className="flex items-center gap-1 text-[10px] font-medium text-[#787774] hover:text-[#111111]"
+            className="flex items-center gap-1.5 text-xs font-semibold text-[#4b5563] hover:text-[#111111] cursor-pointer"
           >
-            <Plus className="h-3 w-3" />
-            <span>追加手柄组合按键 (如 LB + A)</span>
+            <Plus className="h-3.5 w-3.5" />
+            <span>追加手柄按键 (如 LB + A)</span>
           </button>
 
           {showAddMenu && (
-            <div className="mt-2 rounded-lg border border-[#eaeaea] bg-[#ffffff] p-2 shadow-xs space-y-1.5">
-              <div className="text-[10px] font-semibold text-[#787774]">
+            <div className="mt-2 rounded-xl border border-[#eaeaea] bg-[#ffffff] p-3 shadow-2xs space-y-2">
+              <div className="text-xs font-semibold text-[#6b7280]">
                 点击手柄键追加至组合序列：
               </div>
-              <div className="flex items-center gap-1 flex-wrap">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 {GAMEPAD_ITEMS.slice(0, 10).map((g) => (
                   <button
                     key={g.code}
                     type="button"
                     onClick={() => handleAppendKey(g.code)}
-                    className="rounded border border-[#eaeaea] bg-[#f7f6f3] px-2 py-0.5 text-[10px] font-medium text-[#2f3437] hover:bg-[#111111] hover:text-[#ffffff] transition-colors"
+                    className="rounded-lg border border-[#eaeaea] bg-[#fbfbfa] px-2.5 py-1 text-xs font-semibold text-[#111111] hover:bg-[#111111] hover:text-[#ffffff] transition-colors cursor-pointer"
                   >
                     {g.label.split(" ")[0]}
                   </button>

@@ -68,18 +68,18 @@ export const FloatingInspector: React.FC = () => {
   };
 
   return (
-    <div className="absolute top-5 right-5 z-20 w-80 max-h-[calc(100vh-90px)] overflow-y-auto rounded-2xl border border-[#eaeaea] bg-[#ffffff] p-4 shadow-[0_16px_40px_-8px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.04)] animate-in fade-in slide-in-from-right-4 select-none space-y-4">
+    <div className="absolute top-5 right-5 z-20 w-[320px] 2xl:w-[350px] max-h-[calc(100vh-90px)] overflow-y-auto rounded-2xl border border-[#eaeaea] bg-[#ffffff] p-4.5 2xl:p-5 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.04)] animate-in fade-in slide-in-from-right-4 select-none space-y-4">
       {/* 头部摘要与操作 */}
-      <div className="flex items-center justify-between border-b border-[#eaeaea] pb-2.5">
-        <div className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[#111111] text-[#ffffff]">
-            <SlidersHorizontal className="h-3.5 w-3.5" />
+      <div className="flex items-center justify-between border-b border-[#eaeaea] pb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#111111] text-[#ffffff]">
+            <SlidersHorizontal className="h-4 w-4" />
           </div>
           <div>
-            <span className="font-bold text-xs text-[#111111]">
+            <span className="font-bold text-sm text-[#111111]">
               {getTypeName(selectedElement.element_type)}
             </span>
-            <span className="block text-[10px] font-mono text-[#6b7280]">
+            <span className="block text-xs font-mono text-[#888888]">
               ID: {selectedElement.element_id}
             </span>
           </div>
@@ -89,26 +89,26 @@ export const FloatingInspector: React.FC = () => {
           <button
             type="button"
             onClick={duplicateSelectedElements}
-            className="rounded p-1 text-[#4b5563] hover:bg-[#f7f6f3] hover:text-[#111111] transition-colors"
+            className="rounded-lg p-1.5 text-[#4b5563] hover:bg-[#f7f6f3] hover:text-[#111111] transition-colors"
             title="克隆此按键"
           >
-            <Copy className="h-3.5 w-3.5" />
+            <Copy className="h-4 w-4" />
           </button>
           <button
             type="button"
             onClick={deleteSelectedElements}
-            className="rounded p-1 text-[#9f2f2d] hover:bg-[#fdebec] transition-colors"
+            className="rounded-lg p-1.5 text-[#9f2f2d] hover:bg-[#fdebec] transition-colors"
             title="删除此按键"
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 className="h-4 w-4" />
           </button>
           <button
             type="button"
             onClick={() => selectElement(null)}
-            className="rounded p-1 text-[#4b5563] hover:bg-[#f7f6f3] hover:text-[#111111] transition-colors ml-0.5"
+            className="rounded-lg p-1.5 text-[#4b5563] hover:bg-[#f7f6f3] hover:text-[#111111] transition-colors ml-0.5"
             title="关闭浮窗"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4.5 w-4.5" />
           </button>
         </div>
       </div>
@@ -264,14 +264,14 @@ export const FloatingInspector: React.FC = () => {
                   />
 
                   {/* 快捷圆角预设 */}
-                  <div className="col-span-2 flex items-center gap-1.5 pt-0.5 flex-wrap">
-                    <span className="text-[10px] text-[#888888]">圆角预设:</span>
+                  <div className="col-span-2 flex items-center gap-1.5 pt-1 flex-wrap">
+                    <span className="text-xs font-medium text-[#6b7280]">圆角:</span>
                     {[
                       { label: "直角 (0)", val: 0 },
                       { label: "微圆 (12)", val: 12 },
                       { label: "标准 (20)", val: 20 },
                       {
-                        label: "胶囊/全圆",
+                        label: "全圆/胶囊",
                         val: Math.round(
                           Math.min(selectedElement.element_width, selectedElement.element_height) / 2
                         ),
@@ -284,10 +284,10 @@ export const FloatingInspector: React.FC = () => {
                           key={preset.label}
                           type="button"
                           onClick={() => handleUpdate({ element_radius: preset.val } as any)}
-                          className={`px-2 py-0.5 rounded text-[10px] font-mono border transition-colors cursor-pointer ${
+                          className={`px-2.5 py-1 rounded-lg text-xs font-semibold font-mono border transition-all cursor-pointer ${
                             isActive
-                              ? "bg-[#111111] text-white border-[#111111]"
-                              : "bg-[#fbfbfa] text-[#4b5563] border-[#eaeaea] hover:bg-[#f0f0ee]"
+                              ? "bg-[#111111] text-white border-[#111111] shadow-2xs"
+                              : "bg-[#fbfbfa] text-[#4b5563] border-[#eaeaea] hover:bg-[#f0f0ee] hover:text-[#111111]"
                           }`}
                         >
                           {preset.label}

@@ -1,6 +1,6 @@
 /**
  * @file FormFields.tsx
- * @description 属性面板通用表单原子组件：遵循 minimalist-ui 规范，统一输入框容器、标签与聚焦样式
+ * @description 属性面板通用表单原子组件：遵循 minimalist-ui 规范，统一现代圆角输入框容器、加粗大字号与聚焦微光环
  * @author Moonlight-vplus Architect
  * @license Apache-2.0
  */
@@ -29,10 +29,10 @@ export const NumberField: React.FC<NumberFieldProps> = ({
   className = "",
 }) => {
   return (
-    <div className={className}>
-      <div className="flex justify-between items-center mb-1">
-        <label className="text-xs font-medium text-[#4b5563]">{label}</label>
-        {badge && <span className="text-[10px] font-mono text-[#888888]">{badge}</span>}
+    <div className={`space-y-1.5 ${className}`}>
+      <div className="flex justify-between items-center">
+        <label className="text-xs font-semibold text-[#374151]">{label}</label>
+        {badge && <span className="text-xs font-mono font-medium text-[#6b7280]">{badge}</span>}
       </div>
       <input
         type="number"
@@ -47,7 +47,7 @@ export const NumberField: React.FC<NumberFieldProps> = ({
           if (max !== undefined) clamped = Math.min(max, clamped);
           onChange(clamped);
         }}
-        className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
+        className="w-full rounded-lg border border-[#eaeaea] bg-[#fbfbfa] px-3 py-2 text-sm font-mono font-semibold text-[#111111] outline-none hover:border-[#d4d4d0] focus:border-[#111111] focus:bg-[#ffffff] focus:ring-1 focus:ring-[#111111]/10 transition-all"
       />
     </div>
   );
@@ -69,14 +69,14 @@ export const TextField: React.FC<TextFieldProps> = ({
   className = "",
 }) => {
   return (
-    <div className={`space-y-1 ${className}`}>
+    <div className={`space-y-1.5 ${className}`}>
       <label className="text-xs font-semibold text-[#374151] block">{label}</label>
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-md border border-[#eaeaea] bg-[#fbfbfa] px-2.5 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
+        className="w-full rounded-lg border border-[#eaeaea] bg-[#fbfbfa] px-3 py-2 text-sm font-semibold text-[#111111] outline-none hover:border-[#d4d4d0] focus:border-[#111111] focus:bg-[#ffffff] focus:ring-1 focus:ring-[#111111]/10 transition-all"
       />
     </div>
   );
@@ -100,11 +100,11 @@ export const RangeField: React.FC<RangeFieldProps> = ({
   displayValue,
 }) => {
   return (
-    <div className="space-y-1">
-      <div className="flex justify-between text-xs text-[#4b5563]">
+    <div className="space-y-1.5">
+      <div className="flex justify-between items-center text-xs font-semibold text-[#374151]">
         <span>{label}</span>
-        <span className="font-mono text-[#111111] font-semibold">
-          {displayValue ?? `${value}%`}
+        <span className="font-mono font-bold text-[#111111]">
+          {displayValue !== undefined ? displayValue : value}
         </span>
       </div>
       <input
@@ -113,7 +113,7 @@ export const RangeField: React.FC<RangeFieldProps> = ({
         max={max}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-[#111111]"
+        className="w-full accent-[#111111] h-2 bg-[#eaeaea] rounded-lg cursor-pointer"
       />
     </div>
   );

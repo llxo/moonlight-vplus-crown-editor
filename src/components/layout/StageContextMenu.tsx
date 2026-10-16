@@ -1,6 +1,6 @@
 /**
  * @file StageContextMenu.tsx
- * @description 画布与控件右键快捷菜单：提供极简操作指令（复制、居中、层级、重置视口、辅助开关等）
+ * @description 画布与控件右键快捷菜单：遵循 minimalist-ui 规范，升级为 14px 舒适字号与大方内边距，提供极简操作指令
  * @author Moonlight-vplus Architect
  * @license Apache-2.0
  */
@@ -79,7 +79,7 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
         left: `${menu.x}px`,
         top: `${menu.y}px`,
       }}
-      className="fixed z-50 min-w-[190px] rounded-xl border border-[#eaeaea] bg-[#ffffff]/98 p-1.5 shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14),0_0_0_1px_rgba(0,0,0,0.04)] backdrop-blur-sm select-none animate-in fade-in zoom-in-95 duration-100 cursor-default"
+      className="fixed z-50 min-w-[220px] rounded-2xl border border-[#eaeaea] bg-[#ffffff]/98 p-1.5 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.18),0_0_0_1px_rgba(0,0,0,0.05)] backdrop-blur-md select-none animate-in fade-in zoom-in-95 duration-100 cursor-default"
       onContextMenu={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -93,7 +93,7 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
       {menu.targetElementId !== null ? (
         /* 针对选中的控件右键菜单 */
         <div className="flex flex-col gap-0.5">
-          <div className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider text-[#888888]">
+          <div className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#888888]">
             控件操作
           </div>
           <button
@@ -102,51 +102,51 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
               onDuplicate();
               onClose();
             }}
-            className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+            className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
           >
-            <div className="flex items-center gap-2">
-              <Copy className="h-3.5 w-3.5 text-[#555555]" />
-              <span>复制 / 克隆</span>
+            <div className="flex items-center gap-2.5">
+              <Copy className="h-4 w-4 text-[#555555]" />
+              <span>克隆控件</span>
             </div>
-            <span className="text-[10px] font-mono text-[#888888]">Ctrl+D</span>
+            <span className="text-xs font-mono font-semibold text-[#888888]">Ctrl+D</span>
           </button>
           <button
             type="button"
             onClick={() => onBringToFront(menu.targetElementId!)}
-            className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+            className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
           >
-            <div className="flex items-center gap-2">
-              <BringToFront className="h-3.5 w-3.5 text-[#555555]" />
+            <div className="flex items-center gap-2.5">
+              <BringToFront className="h-4 w-4 text-[#555555]" />
               <span>置于顶层</span>
             </div>
           </button>
           <button
             type="button"
             onClick={() => onSendToBack(menu.targetElementId!)}
-            className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+            className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
           >
-            <div className="flex items-center gap-2">
-              <SendToBack className="h-3.5 w-3.5 text-[#555555]" />
+            <div className="flex items-center gap-2.5">
+              <SendToBack className="h-4 w-4 text-[#555555]" />
               <span>置于底层</span>
             </div>
           </button>
           <button
             type="button"
             onClick={() => onCenterHorizontal(menu.targetElementId!)}
-            className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+            className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
           >
-            <div className="flex items-center gap-2">
-              <AlignCenter className="h-3.5 w-3.5 text-[#555555]" />
+            <div className="flex items-center gap-2.5">
+              <AlignCenter className="h-4 w-4 text-[#555555]" />
               <span>水平居中</span>
             </div>
           </button>
           <button
             type="button"
             onClick={() => onCenterVertical(menu.targetElementId!)}
-            className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+            className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
           >
-            <div className="flex items-center gap-2">
-              <AlignCenter className="h-3.5 w-3.5 rotate-90 text-[#555555]" />
+            <div className="flex items-center gap-2.5">
+              <AlignCenter className="h-4 w-4 rotate-90 text-[#555555]" />
               <span>垂直居中</span>
             </div>
           </button>
@@ -159,38 +159,38 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
               onDelete();
               onClose();
             }}
-            className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#9f2f2d] hover:bg-[#fdebec] transition-colors cursor-pointer"
+            className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#9f2f2d] hover:bg-[#fdebec] transition-colors cursor-pointer"
           >
-            <div className="flex items-center gap-2">
-              <Trash2 className="h-3.5 w-3.5 text-[#9f2f2d]" />
+            <div className="flex items-center gap-2.5">
+              <Trash2 className="h-4 w-4 text-[#9f2f2d]" />
               <span>删除控件</span>
             </div>
-            <span className="text-[10px] font-mono text-[#9f2f2d]/70">Del</span>
+            <span className="text-xs font-mono font-semibold text-[#9f2f2d]/70">Del</span>
           </button>
         </div>
       ) : (
         /* 画布空白处右键菜单 */
         <div className="flex flex-col gap-0.5">
-          <div className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider text-[#888888]">
-            画布快捷操作
+          <div className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#888888]">
+            画布操作
           </div>
           <button
             type="button"
             onClick={() => onAddButton(menu.canvasX, menu.canvasY)}
-            className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+            className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
           >
-            <div className="flex items-center gap-2">
-              <CircleDot className="h-3.5 w-3.5 text-[#111111]" />
+            <div className="flex items-center gap-2.5">
+              <CircleDot className="h-4 w-4 text-[#111111]" />
               <span>在此添加按键</span>
             </div>
           </button>
           <button
             type="button"
             onClick={() => onAddStick(menu.canvasX, menu.canvasY)}
-            className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+            className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
           >
-            <div className="flex items-center gap-2">
-              <Compass className="h-3.5 w-3.5 text-[#111111]" />
+            <div className="flex items-center gap-2.5">
+              <Compass className="h-4 w-4 text-[#111111]" />
               <span>在此添加摇杆</span>
             </div>
           </button>
@@ -203,13 +203,12 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
               onResetViewport();
               onClose();
             }}
-            className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+            className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
           >
-            <div className="flex items-center gap-2">
-              <RotateCcw className="h-3.5 w-3.5 text-[#555555]" />
+            <div className="flex items-center gap-2.5">
+              <RotateCcw className="h-4 w-4 text-[#555555]" />
               <span>重置视口居中</span>
             </div>
-            <span className="text-[10px] font-mono text-[#888888]">100%</span>
           </button>
           <button
             type="button"
@@ -217,14 +216,14 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
               onToggleSnapToGrid();
               onClose();
             }}
-            className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+            className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
           >
-            <div className="flex items-center gap-2">
-              <Grid className="h-3.5 w-3.5 text-[#555555]" />
-              <span>网格吸附对齐</span>
+            <div className="flex items-center gap-2.5">
+              <Grid className="h-4 w-4 text-[#555555]" />
+              <span>网格吸附</span>
             </div>
             <span
-              className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
+              className={`text-xs font-mono font-semibold px-2 py-0.5 rounded-md ${
                 snapToGrid ? "bg-[#111111] text-white" : "bg-[#f0f0ee] text-[#777777]"
               }`}
             >
@@ -237,14 +236,14 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
               onToggleSafeArea();
               onClose();
             }}
-            className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+            className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
           >
-            <div className="flex items-center gap-2">
-              <ShieldAlert className="h-3.5 w-3.5 text-[#555555]" />
-              <span>模拟边缘安全区</span>
+            <div className="flex items-center gap-2.5">
+              <ShieldAlert className="h-4 w-4 text-[#555555]" />
+              <span>边缘安全区参考线</span>
             </div>
             <span
-              className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
+              className={`text-xs font-mono font-semibold px-2 py-0.5 rounded-md ${
                 showSafeArea ? "bg-[#111111] text-white" : "bg-[#f0f0ee] text-[#777777]"
               }`}
             >
@@ -261,11 +260,11 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
                   onDeselect();
                   onClose();
                 }}
-                className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#555555] hover:bg-[#f7f6f3] hover:text-[#111111] transition-colors cursor-pointer"
+                className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#555555] hover:bg-[#f7f6f3] hover:text-[#111111] transition-colors cursor-pointer"
               >
-                <div className="flex items-center gap-2">
-                  <MousePointerClick className="h-3.5 w-3.5 text-[#555555]" />
-                  <span>取消选中</span>
+                <div className="flex items-center gap-2.5">
+                  <MousePointerClick className="h-4 w-4 text-[#555555]" />
+                  <span>取消选中所有</span>
                 </div>
               </button>
             </>
