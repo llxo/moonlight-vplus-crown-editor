@@ -1,6 +1,6 @@
-# Moonlight-vplus (v+) Crown Editor
+# Moonlight-vplus Crown Editor
 
-Moonlight-vplus (v+) 王冠模式虚拟按键可视化编辑器。
+Moonlight-vplus Crown Editor 是专为 Moonlight-vplus 王冠模式打造的虚拟按键可视化编辑器。
 
 在手机屏幕上排布几十个虚拟按键既费手又容易挡视线，本项目提供了一个在大屏网页端拖拽排布、微调参数并生成配置的**可视化 JSON 工具**。在电脑上摆放好按键后，一键导出 `.crown.json` 传给手机即可直接导入。
 
@@ -110,7 +110,7 @@ npm run build
 ## 📁 目录结构
 
 ```text
-moonlight-crown-editor/
+moonlight-vplus-crown-editor/
 ├── docs/
 │   ├── CROWN_PROTOCOL_SPEC.md     # 王冠模式底层协议规范手册
 │   └── images/                    # 界面预览截图目录

@@ -142,7 +142,7 @@ export const WelcomeModal: React.FC = () => {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="font-bold text-base text-[#111111] tracking-tight">
-                  Moonlight-vplus 王冠模式编辑器
+                  Moonlight-vplus Crown Editor
                 </h2>
                 <span className="rounded-full bg-[#fbf3db] text-[#956400] text-[10px] font-mono px-2 py-0.5 border border-[#eaeaea]">
                   v1.2.0

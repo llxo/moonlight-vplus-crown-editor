@@ -120,9 +120,9 @@ export const HeaderBar: React.FC = () => {
           </div>
           <div className="flex flex-col">
             <span className="font-bold text-sm tracking-tight text-[#111111]">
-              Moonlight-v+
+              Moonlight-vplus
             </span>
-            <span className="text-xs text-[#4b5563] -mt-0.5">王冠模式编辑器</span>
+            <span className="text-xs text-[#4b5563] -mt-0.5">Crown Editor</span>
           </div>
         </div>
 
