@@ -15,13 +15,13 @@ import {
 } from "lucide-react";
 import { useCrownStore } from "../../store/useCrownStore";
 import {
-  CrownColorUtils,
   CrownElementType,
   CrownStickMoveMode,
   type CrownElement,
 } from "../../crownSchema";
 import { KeyCodePicker } from "../common/KeyCodePicker";
 import { MacroCombineRecorder } from "../common/MacroCombineRecorder";
+import { CrownColorPicker } from "../common/CrownColorPicker";
 
 export const FloatingInspector: React.FC = () => {
   const {
@@ -46,9 +46,6 @@ export const FloatingInspector: React.FC = () => {
   if (!selectedElement) {
     return null;
   }
-
-  const hexBorderColor = CrownColorUtils.intToRgbaHex(selectedElement.element_color).slice(0, 7);
-  const hexBgColor = CrownColorUtils.intToRgbaHex(selectedElement.element_background_color).slice(0, 7);
 
   const getTypeName = (type: CrownElementType) => {
     switch (type) {
@@ -217,41 +214,23 @@ export const FloatingInspector: React.FC = () => {
         </div>
       </div>
 
-      {/* 颜色样式设置 */}
-      <div className="space-y-2 border-t border-[#eaeaea] pt-3">
+      {/* 颜色样式设置 (CrownColorPicker 替换原生丑陋直角弹窗) */}
+      <div className="space-y-2.5 border-t border-[#eaeaea] pt-3">
         <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#374151]">
           <Palette className="h-3.5 w-3.5 text-[#111111]" />
-          <span>颜色配置</span>
+          <span>颜色与透明度</span>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="text-xs font-medium text-[#4b5563] block mb-1">描边颜色</label>
-            <div className="flex items-center gap-1.5 rounded border border-[#eaeaea] bg-[#fbfbfa] p-1.5">
-              <input
-                type="color"
-                value={hexBorderColor}
-                onChange={(e) =>
-                  updateElement(selectedElement.element_id, { element_color: CrownColorUtils.rgbaHexToInt(e.target.value) })
-                }
-                className="h-6 w-7 cursor-pointer rounded border-0 bg-transparent p-0"
-              />
-              <span className="font-mono text-xs font-medium text-[#111111]">{hexBorderColor}</span>
-            </div>
-          </div>
-          <div>
-            <label className="text-xs font-medium text-[#4b5563] block mb-1">背景填充色</label>
-            <div className="flex items-center gap-1.5 rounded border border-[#eaeaea] bg-[#fbfbfa] p-1.5">
-              <input
-                type="color"
-                value={hexBgColor}
-                onChange={(e) =>
-                  updateElement(selectedElement.element_id, { element_background_color: CrownColorUtils.rgbaHexToInt(e.target.value) })
-                }
-                className="h-6 w-7 cursor-pointer rounded border-0 bg-transparent p-0"
-              />
-              <span className="font-mono text-xs font-medium text-[#111111]">{hexBgColor}</span>
-            </div>
-          </div>
+          <CrownColorPicker
+            label="描边颜色"
+            intColor={selectedElement.element_color}
+            onChange={(newInt) => updateElement(selectedElement.element_id, { element_color: newInt })}
+          />
+          <CrownColorPicker
+            label="背景填充色"
+            intColor={selectedElement.element_background_color}
+            onChange={(newInt) => updateElement(selectedElement.element_id, { element_background_color: newInt })}
+          />
         </div>
       </div>
 

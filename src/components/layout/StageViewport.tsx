@@ -220,10 +220,11 @@ export const StageViewport: React.FC = () => {
     const borderColor = CrownColorUtils.intToRgbaHex(el.element_color);
     const bgColor = CrownColorUtils.intToRgbaHex(el.element_background_color);
 
-    // 计算几何圆角：摇杆与全圆按键自动对齐 50% 正圆，其余控件使用配置的物理半径
+    // 计算几何圆角：摇杆、全圆按键与轮盘菜单自动对齐 9999px 正圆
     const isRoundControl =
       el.element_type === CrownElementType.ANALOG_STICK ||
       el.element_type === CrownElementType.INVISIBLE_ANALOG_STICK ||
+      el.element_type === CrownElementType.WHEEL_PAD ||
       ("element_radius" in el && el.element_radius && el.element_radius >= el.element_width / 2 - 2);
 
     const calculatedBorderRadius = isRoundControl
@@ -261,7 +262,7 @@ export const StageViewport: React.FC = () => {
 
         {/* 选中时的尺寸标注小浮标 */}
         {isSelected && (
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 rounded bg-[#111111] px-2 py-0.5 text-[10px] font-mono font-medium text-[#ffffff] pointer-events-none whitespace-nowrap shadow-xs">
+          <div className="absolute -top-7 left-1/2 -translate-x-1/2 rounded bg-[#111111] px-2.5 py-0.5 text-xs font-mono font-semibold text-[#ffffff] pointer-events-none whitespace-nowrap shadow-sm">
             {el.element_width} × {el.element_height} (L{el.element_layer})
           </div>
         )}
@@ -333,24 +334,85 @@ export const StageViewport: React.FC = () => {
       }
 
       case CrownElementType.WHEEL_PAD: {
-        const numSegments = el.element_mode || 8;
+        const numSegments = Math.max(2, el.element_mode || 8);
         const innerRatio = (el.element_sense || 30) / 100;
+        const radius = el.element_width / 2;
         const centerSize = Math.max(64, Math.round(el.element_width * innerRatio));
         const centerFontSize = Math.max(16, Math.round(centerSize * 0.28));
+
+        // 解析各扇区名称
+        const segmentPairs = (el.element_value || "").split(",").map((s) => {
+          const parts = s.split("|");
+          return parts[1] || parts[0] || "";
+        });
+
+        // 构造扇区分割线角度 (0度在顶部 -90deg)
+        const angleStep = (2 * Math.PI) / numSegments;
+        const lines: Array<{ x1: number; y1: number; x2: number; y2: number }> = [];
+        const labelPositions: Array<{ x: number; y: number; text: string }> = [];
+
+        const labelRadius = radius * (innerRatio + (1 - innerRatio) * 0.55);
+
+        for (let i = 0; i < numSegments; i++) {
+          const angle = -Math.PI / 2 + i * angleStep;
+          const x2 = radius + radius * Math.cos(angle);
+          const y2 = radius + radius * Math.sin(angle);
+          lines.push({ x1: radius, y1: radius, x2, y2 });
+
+          // 计算扇区文字位置（扇区中线角度）
+          const midAngle = angle + angleStep / 2;
+          const lx = radius + labelRadius * Math.cos(midAngle);
+          const ly = radius + labelRadius * Math.sin(midAngle);
+          const text = segmentPairs[i] || `${i + 1}`;
+          labelPositions.push({ x: lx, y: ly, text });
+        }
+
         return (
-          <div className="relative h-full w-full pointer-events-none flex items-center justify-center">
+          <div className="relative h-full w-full pointer-events-none flex items-center justify-center overflow-hidden rounded-full">
+            {/* SVG 放射状扇区分割线 */}
+            <svg
+              className="absolute inset-0 h-full w-full"
+              viewBox={`0 0 ${el.element_width} ${el.element_height}`}
+            >
+              {lines.map((l, idx) => (
+                <line
+                  key={idx}
+                  x1={l.x1}
+                  y1={l.y1}
+                  x2={l.x2}
+                  y2={l.y2}
+                  stroke="rgba(0,0,0,0.25)"
+                  strokeWidth="2"
+                  strokeDasharray="4 2"
+                />
+              ))}
+            </svg>
+
+            {/* 扇区文字标签 */}
+            {labelPositions.map((pos, idx) => (
+              <div
+                key={idx}
+                style={{
+                  left: `${pos.x}px`,
+                  top: `${pos.y}px`,
+                  transform: "translate(-50%, -50%)",
+                }}
+                className="absolute font-bold text-sm text-[#111111] bg-white/70 px-1.5 py-0.5 rounded shadow-xs"
+              >
+                {pos.text}
+              </div>
+            ))}
+
+            {/* 轮盘中心空心圆与触发文字 */}
             <div
               style={{
                 width: `${centerSize}px`,
                 height: `${centerSize}px`,
                 fontSize: `${centerFontSize}px`,
               }}
-              className="rounded-full border-2 border-[#d4d4d0] bg-[#ffffff] flex items-center justify-center shadow-xs font-bold text-[#111111]"
+              className="relative z-10 rounded-full border-2 border-[#d4d4d0] bg-[#ffffff] flex items-center justify-center shadow-sm font-extrabold text-[#111111]"
             >
               {el.element_text || "WHEEL"}
-            </div>
-            <div className="absolute bottom-4 text-xs font-mono font-bold text-[#374151] bg-white/80 px-2 py-0.5 rounded shadow-xs">
-              {numSegments} 扇区
             </div>
           </div>
         );

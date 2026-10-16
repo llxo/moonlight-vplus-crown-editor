@@ -3,7 +3,7 @@
  * @description 顶部全局操作栏：遵循 minimalist-ui 规范，采用纯净暖白背景、深炭黑排版与纯色高对比度按钮
  */
 
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   Download,
   Upload,
@@ -18,6 +18,7 @@ import {
   Check,
   Crown,
   Settings,
+  ChevronDown,
 } from "lucide-react";
 import { useCrownStore } from "../../store/useCrownStore";
 
@@ -31,6 +32,8 @@ const PRESET_RESOLUTIONS = [
 
 export const HeaderBar: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isResDropdownOpen, setIsResDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const {
     meta,
@@ -85,17 +88,25 @@ export const HeaderBar: React.FC = () => {
     }
   };
 
-  const handleResolutionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const found = PRESET_RESOLUTIONS.find((r) => `${r.width}x${r.height}` === e.target.value);
-    if (found) {
-      updateLayoutBasis({
-        widthPx: found.width,
-        heightPx: found.height,
-        densityDpi: found.dpi,
-        density: found.density,
-      });
+  // 点击外部关闭下拉菜单
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsResDropdownOpen(false);
+      }
+    };
+    if (isResDropdownOpen) {
+      window.addEventListener("mousedown", handleOutsideClick);
     }
-  };
+    return () => window.removeEventListener("mousedown", handleOutsideClick);
+  }, [isResDropdownOpen]);
+
+  const currentPreset = PRESET_RESOLUTIONS.find(
+    (r) => r.width === layoutBasis.widthPx && r.height === layoutBasis.heightPx
+  );
+  const currentResLabel = currentPreset
+    ? currentPreset.label
+    : `${layoutBasis.widthPx} × ${layoutBasis.heightPx} (自定义)`;
 
   return (
     <header className="flex h-14 w-full items-center justify-between border-b border-[#eaeaea] bg-[#ffffff] px-5 text-xs select-none">
@@ -136,20 +147,51 @@ export const HeaderBar: React.FC = () => {
 
       {/* 中区：设备基准分辨率、视口控制、吸附辅助 */}
       <div className="flex items-center gap-2">
-        {/* 设备基准选择 */}
-        <div className="flex items-center gap-1.5 rounded-md border border-[#eaeaea] bg-[#fbfbfa] px-2.5 py-1 text-[#2f3437]">
-          <Smartphone className="h-3.5 w-3.5 text-[#787774]" />
-          <select
-            value={`${layoutBasis.widthPx}x${layoutBasis.heightPx}`}
-            onChange={handleResolutionChange}
-            className="bg-transparent text-xs font-medium text-[#111111] outline-none cursor-pointer"
+        {/* 自定义精致设备基准下拉选择器 */}
+        <div ref={dropdownRef} className="relative">
+          <button
+            type="button"
+            onClick={() => setIsResDropdownOpen(!isResDropdownOpen)}
+            className="flex items-center gap-1.5 rounded-md border border-[#eaeaea] bg-[#ffffff] px-2.5 py-1 text-xs font-semibold text-[#111111] hover:border-[#111111]/40 hover:bg-[#fbfbfa] transition-all"
           >
-            {PRESET_RESOLUTIONS.map((res) => (
-              <option key={`${res.width}x${res.height}`} value={`${res.width}x${res.height}`} className="bg-[#ffffff]">
-                {res.label}
-              </option>
-            ))}
-          </select>
+            <Smartphone className="h-3.5 w-3.5 text-[#4b5563]" />
+            <span>{currentResLabel}</span>
+            <ChevronDown className={`h-3 w-3 text-[#6b7280] transition-transform duration-150 ${isResDropdownOpen ? "rotate-180" : ""}`} />
+          </button>
+
+          {isResDropdownOpen && (
+            <div className="absolute top-full left-0 mt-1.5 z-40 w-64 rounded-xl border border-[#eaeaea] bg-[#ffffff] p-1.5 shadow-[0_12px_36px_-6px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.04)] animate-in fade-in space-y-0.5 select-none">
+              <div className="px-2 py-1 text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider">
+                选择设备基准分辨率
+              </div>
+              {PRESET_RESOLUTIONS.map((res) => {
+                const isSelected = layoutBasis.widthPx === res.width && layoutBasis.heightPx === res.height;
+                return (
+                  <button
+                    key={`${res.width}x${res.height}`}
+                    type="button"
+                    onClick={() => {
+                      updateLayoutBasis({
+                        widthPx: res.width,
+                        heightPx: res.height,
+                        densityDpi: res.dpi,
+                        density: res.density,
+                      });
+                      setIsResDropdownOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between rounded-md px-2.5 py-1.5 text-xs text-left transition-colors ${
+                      isSelected
+                        ? "bg-[#111111] text-[#ffffff] font-semibold"
+                        : "text-[#2f3437] hover:bg-[#f7f6f3] hover:text-[#111111]"
+                    }`}
+                  >
+                    <span>{res.label}</span>
+                    {isSelected && <Check className="h-3.5 w-3.5 text-[#ffffff]" />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* 视口缩放控制组合 */}
