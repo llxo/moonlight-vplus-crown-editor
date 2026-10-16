@@ -50,6 +50,8 @@ export interface CrownState {
   snapToGrid: boolean;
   gridSize: number;
   showSafeArea: boolean;
+  isLayersOpen: boolean;
+  isGlobalSettingsOpen: boolean;
   activeTabLeft: "palette" | "layers";
   activeTabRight: "element" | "settings";
   isDirty: boolean;
@@ -83,6 +85,10 @@ export interface CrownState {
   toggleSnapToGrid: () => void;
   setGridSize: (size: number) => void;
   toggleSafeArea: () => void;
+  toggleLayers: () => void;
+  setLayersOpen: (open: boolean) => void;
+  toggleGlobalSettings: () => void;
+  setGlobalSettingsOpen: (open: boolean) => void;
   setActiveTabLeft: (tab: "palette" | "layers") => void;
   setActiveTabRight: (tab: "element" | "settings") => void;
 
@@ -138,6 +144,8 @@ export const useCrownStore = create<CrownState>((set, get) => ({
   snapToGrid: true,
   gridSize: 20,
   showSafeArea: true,
+  isLayersOpen: false,
+  isGlobalSettingsOpen: false,
   activeTabLeft: "palette",
   activeTabRight: "element",
   isDirty: false,
@@ -358,6 +366,10 @@ export const useCrownStore = create<CrownState>((set, get) => ({
   toggleSnapToGrid: () => set((s) => ({ snapToGrid: !s.snapToGrid })),
   setGridSize: (size) => set({ gridSize: size }),
   toggleSafeArea: () => set((s) => ({ showSafeArea: !s.showSafeArea })),
+  toggleLayers: () => set((s) => ({ isLayersOpen: !s.isLayersOpen })),
+  setLayersOpen: (open) => set({ isLayersOpen: open }),
+  toggleGlobalSettings: () => set((s) => ({ isGlobalSettingsOpen: !s.isGlobalSettingsOpen })),
+  setGlobalSettingsOpen: (open) => set({ isGlobalSettingsOpen: open }),
   setActiveTabLeft: (tab) => set({ activeTabLeft: tab }),
   setActiveTabRight: (tab) => set({ activeTabRight: tab }),
 

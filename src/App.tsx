@@ -1,13 +1,14 @@
 /**
  * @file App.tsx
- * @description Moonlight-vplus 王冠模式虚拟按键可视化编辑器主应用页面
+ * @description Moonlight-vplus 王冠模式虚拟按键可视化编辑器：沉浸式悬浮工作台架构
  */
 
 import { useEffect } from "react";
 import { HeaderBar } from "./components/layout/HeaderBar";
-import { LeftSidebar } from "./components/layout/LeftSidebar";
 import { StageViewport } from "./components/layout/StageViewport";
-import { RightInspector } from "./components/layout/RightInspector";
+import { FloatingDock } from "./components/layout/FloatingDock";
+import { FloatingInspector } from "./components/layout/FloatingInspector";
+import { GlobalSettingsModal } from "./components/layout/GlobalSettingsModal";
 import { StatusBar } from "./components/layout/StatusBar";
 import { useCrownStore } from "./store/useCrownStore";
 import defaultSampleProfile from "../fixtures/minimal-profile.crown.json";
@@ -33,7 +34,6 @@ export default function App() {
   // 全局键盘快捷键响应 (Delete, Ctrl+Z, Ctrl+Y)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // 如果焦点在输入框或文本域内，不触发全局快捷键
       const target = e.target as HTMLElement;
       if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT") {
         return;
@@ -59,23 +59,26 @@ export default function App() {
   }, [deleteSelectedElements, undo, redo, canUndo, canRedo]);
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#f7f6f3] text-[#111111]">
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#f7f6f3] text-[#111111] relative">
       {/* 顶部操作工具栏 */}
       <HeaderBar />
 
-      {/* 工作区三栏主体 */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* 左侧边栏：控件预设库与图层树 */}
-        <LeftSidebar />
-
-        {/* 中央主视口：设备模拟画幅与按键排布 */}
+      {/* 沉浸式工作台主视口 (全屏宽幅设备画框 + 伴随悬浮卡片 + 底部工具坞) */}
+      <div className="relative flex flex-1 overflow-hidden">
+        {/* 中央画幅 */}
         <StageViewport />
 
-        {/* 右侧边栏：选中国件属性与全局配置 */}
-        <RightInspector />
+        {/* 底部悬浮按键胶囊坞 (包含核心预设与图层抽屉) */}
+        <FloatingDock />
+
+        {/* 右侧按需伴随悬浮属性卡片 (选中时轻量浮现) */}
+        <FloatingInspector />
       </div>
 
-      {/* 底部状态栏 */}
+      {/* 全局设置弹层 */}
+      <GlobalSettingsModal />
+
+      {/* 底部极简状态栏 */}
       <StatusBar />
     </div>
   );
