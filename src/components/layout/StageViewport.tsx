@@ -20,6 +20,7 @@ export const StageViewport: React.FC = () => {
   const isPanningRef = useRef(false);
   const panStartRef = useRef({ x: 0, y: 0 });
   const panOffsetRef = useRef({ x: 0, y: 0 });
+  const panHasMovedRef = useRef(false);
 
   // 控件拖拽状态 Ref
   const isDraggingElementRef = useRef(false);
@@ -69,6 +70,7 @@ export const StageViewport: React.FC = () => {
     (e: PointerEvent) => {
       // 1. 画布视口平移
       if (isPanningRef.current) {
+        panHasMovedRef.current = true;
         const deltaX = e.clientX - panStartRef.current.x;
         const deltaY = e.clientY - panStartRef.current.y;
         setPanOffset({ x: deltaX, y: deltaY });
@@ -118,16 +120,23 @@ export const StageViewport: React.FC = () => {
       rafIdRef.current = null;
     }
 
-    if (isDraggingElementRef.current && dragInfoRef.current?.hasMoved) {
-      // 拖拽结束时恢复鼠标光标
+    if (isPanningRef.current) {
+      // 若只是轻点空白处而未实际拖移，则取消按键选中
+      if (!panHasMovedRef.current) {
+        selectElement(null);
+      }
+      isPanningRef.current = false;
       document.body.style.cursor = "";
     }
 
-    isPanningRef.current = false;
+    if (isDraggingElementRef.current && dragInfoRef.current?.hasMoved) {
+      document.body.style.cursor = "";
+    }
+
     isDraggingElementRef.current = false;
     dragInfoRef.current = null;
     setActiveDragElementId(null);
-  }, []);
+  }, [selectElement]);
 
   // 挂载全局顶级事件监听器（确保鼠标无论移动多快、划出窗口任何地方都不丢帧）
   useEffect(() => {
@@ -157,17 +166,24 @@ export const StageViewport: React.FC = () => {
     };
   }, [handleGlobalPointerMove, handleGlobalPointerUp]);
 
-  // 画布背景按下（平移视口）
+  // 画布背景按下（平移视口：支持左键空白处、右键、中键、空格拖拽）
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
-    if (e.button === 1 || isSpaceDownRef.current || (e.button === 0 && e.target === containerRef.current)) {
+    // 检查是否点击在虚拟按键控件上
+    const clickedElement = (e.target as HTMLElement).closest("[data-crown-element]");
+    if (clickedElement) {
+      return;
+    }
+
+    // 只要不是点击按键本身，左键(0)、中键(1)、右键(2)或空格均可自如平移视口
+    if (e.button === 0 || e.button === 1 || e.button === 2 || isSpaceDownRef.current) {
       isPanningRef.current = true;
+      panHasMovedRef.current = false;
       panStartRef.current = {
         x: e.clientX - panOffsetRef.current.x,
         y: e.clientY - panOffsetRef.current.y,
       };
+      document.body.style.cursor = "grabbing";
       e.preventDefault();
-    } else if (e.target === containerRef.current) {
-      selectElement(null);
     }
   };
 
@@ -204,9 +220,22 @@ export const StageViewport: React.FC = () => {
     const borderColor = CrownColorUtils.intToRgbaHex(el.element_color);
     const bgColor = CrownColorUtils.intToRgbaHex(el.element_background_color);
 
+    // 计算几何圆角：摇杆与全圆按键自动对齐 50% 正圆，其余控件使用配置的物理半径
+    const isRoundControl =
+      el.element_type === CrownElementType.ANALOG_STICK ||
+      el.element_type === CrownElementType.INVISIBLE_ANALOG_STICK ||
+      ("element_radius" in el && el.element_radius && el.element_radius >= el.element_width / 2 - 2);
+
+    const calculatedBorderRadius = isRoundControl
+      ? "9999px"
+      : "element_radius" in el && el.element_radius
+      ? `${el.element_radius}px`
+      : "16px";
+
     return (
       <div
         key={el.element_id}
+        data-crown-element="true"
         onMouseDown={(e) => handleElementMouseDown(e, el)}
         style={{
           position: "absolute",
@@ -214,7 +243,7 @@ export const StageViewport: React.FC = () => {
           top: `${top}px`,
           width: `${el.element_width}px`,
           height: `${el.element_height}px`,
-          borderRadius: "element_radius" in el && el.element_radius ? `${el.element_radius}px` : "12px",
+          borderRadius: calculatedBorderRadius,
           borderWidth: `${Math.max(2, el.element_thick)}px`,
           borderColor: borderColor,
           backgroundColor: bgColor,
@@ -243,21 +272,34 @@ export const StageViewport: React.FC = () => {
   const renderElementContent = (el: CrownElement) => {
     switch (el.element_type) {
       case CrownElementType.DIGITAL_PAD: {
+        const arrowFontSize = Math.max(16, Math.round(el.element_height * 0.1));
         return (
           <div className="relative h-full w-full pointer-events-none flex items-center justify-center">
-            <div className="absolute top-2 text-xs font-mono font-bold text-[#111111] bg-white/80 px-1 rounded">
+            <div
+              style={{ fontSize: `${arrowFontSize}px` }}
+              className="absolute top-4 font-mono font-bold text-[#111111] bg-white/80 px-2 py-0.5 rounded shadow-xs"
+            >
               {el.element_up_value || "UP"}
             </div>
-            <div className="absolute bottom-2 text-xs font-mono font-bold text-[#111111] bg-white/80 px-1 rounded">
+            <div
+              style={{ fontSize: `${arrowFontSize}px` }}
+              className="absolute bottom-4 font-mono font-bold text-[#111111] bg-white/80 px-2 py-0.5 rounded shadow-xs"
+            >
               {el.element_down_value || "DOWN"}
             </div>
-            <div className="absolute left-2 text-xs font-mono font-bold text-[#111111] bg-white/80 px-1 rounded">
+            <div
+              style={{ fontSize: `${arrowFontSize}px` }}
+              className="absolute left-4 font-mono font-bold text-[#111111] bg-white/80 px-2 py-0.5 rounded shadow-xs"
+            >
               {el.element_left_value || "LEFT"}
             </div>
-            <div className="absolute right-2 text-xs font-mono font-bold text-[#111111] bg-white/80 px-1 rounded">
+            <div
+              style={{ fontSize: `${arrowFontSize}px` }}
+              className="absolute right-4 font-mono font-bold text-[#111111] bg-white/80 px-2 py-0.5 rounded shadow-xs"
+            >
               {el.element_right_value || "RIGHT"}
             </div>
-            <div className="h-10 w-10 rounded-full border border-dashed border-[#111111]/20" />
+            <div className="h-16 w-16 rounded-full border-2 border-dashed border-[#111111]/30" />
           </div>
         );
       }
@@ -265,6 +307,8 @@ export const StageViewport: React.FC = () => {
       case CrownElementType.ANALOG_STICK:
       case CrownElementType.INVISIBLE_ANALOG_STICK: {
         const deadzoneRatio = (el.element_sense || 30) / 100;
+        const stickCapSize = Math.max(48, Math.round(el.element_width * 0.38));
+        const stickFontSize = Math.max(16, Math.round(stickCapSize * 0.32));
         return (
           <div className="relative h-full w-full pointer-events-none flex items-center justify-center">
             <div
@@ -272,12 +316,17 @@ export const StageViewport: React.FC = () => {
                 width: `${el.element_width * deadzoneRatio}px`,
                 height: `${el.element_height * deadzoneRatio}px`,
               }}
-              className="rounded-full border border-dashed border-[#9f2f2d]/40 bg-[#fdebec]/20"
+              className="rounded-full border-2 border-dashed border-[#9f2f2d]/50 bg-[#fdebec]/25"
             />
-            <div className="absolute flex h-14 w-14 items-center justify-center rounded-full border border-[#eaeaea] bg-[#ffffff] shadow-xs">
-              <span className="font-mono text-xs font-bold text-[#111111]">
-                {"element_value" in el ? el.element_value : "STICK"}
-              </span>
+            <div
+              style={{
+                width: `${stickCapSize}px`,
+                height: `${stickCapSize}px`,
+                fontSize: `${stickFontSize}px`,
+              }}
+              className="absolute flex items-center justify-center rounded-full border-2 border-[#d4d4d0] bg-[#ffffff] shadow-sm font-mono font-bold text-[#111111]"
+            >
+              {"element_value" in el ? el.element_value : "STICK"}
             </div>
           </div>
         );
@@ -286,20 +335,21 @@ export const StageViewport: React.FC = () => {
       case CrownElementType.WHEEL_PAD: {
         const numSegments = el.element_mode || 8;
         const innerRatio = (el.element_sense || 30) / 100;
+        const centerSize = Math.max(64, Math.round(el.element_width * innerRatio));
+        const centerFontSize = Math.max(16, Math.round(centerSize * 0.28));
         return (
           <div className="relative h-full w-full pointer-events-none flex items-center justify-center">
             <div
               style={{
-                width: `${el.element_width * innerRatio}px`,
-                height: `${el.element_height * innerRatio}px`,
+                width: `${centerSize}px`,
+                height: `${centerSize}px`,
+                fontSize: `${centerFontSize}px`,
               }}
-              className="rounded-full border border-[#eaeaea] bg-[#ffffff] flex items-center justify-center shadow-xs"
+              className="rounded-full border-2 border-[#d4d4d0] bg-[#ffffff] flex items-center justify-center shadow-xs font-bold text-[#111111]"
             >
-              <span className="text-[11px] font-semibold text-[#111111]">
-                {el.element_text || "WHEEL"}
-              </span>
+              {el.element_text || "WHEEL"}
             </div>
-            <div className="absolute bottom-2 text-[10px] font-mono text-[#787774]">
+            <div className="absolute bottom-4 text-xs font-mono font-bold text-[#374151] bg-white/80 px-2 py-0.5 rounded shadow-xs">
               {numSegments} 扇区
             </div>
           </div>
@@ -307,8 +357,12 @@ export const StageViewport: React.FC = () => {
       }
 
       case CrownElementType.SIMPLIFY_PERFORMANCE: {
+        const perfFontSize = Math.max(16, Math.round((el.element_thick || 24)));
         return (
-          <div className="px-3 text-center text-xs font-mono font-medium text-[#111111] truncate">
+          <div
+            style={{ fontSize: `${perfFontSize}px` }}
+            className="px-4 text-center font-mono font-bold text-[#111111] truncate"
+          >
             {el.element_text || "PERFORMANCE STATUS"}
           </div>
         );
@@ -317,11 +371,27 @@ export const StageViewport: React.FC = () => {
       default: {
         const text = "element_text" in el && el.element_text ? el.element_text : "BTN";
         const val = "element_value" in el && el.element_value ? el.element_value : "";
+
+        // 根据 V+ textSizePercent 规范与控件物理高度，换算设备物理像素字号
+        const textSizePercent = ("textSizePercent" in el && el.textSizePercent) ? el.textSizePercent : 35;
+        const mainFontSize = Math.max(20, Math.round((el.element_height * textSizePercent) / 100));
+        const subFontSize = Math.max(12, Math.round(mainFontSize * 0.42));
+
         return (
-          <div className="flex flex-col items-center justify-center pointer-events-none text-center">
-            <span className="font-semibold text-xs tracking-tight text-[#111111]">{text}</span>
+          <div className="flex flex-col items-center justify-center pointer-events-none text-center px-1">
+            <span
+              style={{ fontSize: `${mainFontSize}px` }}
+              className="font-bold tracking-tight text-[#111111] leading-none"
+            >
+              {text}
+            </span>
             {val && (
-              <span className="text-[10px] font-mono text-[#787774] mt-0.5">{val}</span>
+              <span
+                style={{ fontSize: `${subFontSize}px` }}
+                className="font-mono font-bold text-[#374151] mt-1.5 bg-black/5 px-2 py-0.5 rounded"
+              >
+                {val}
+              </span>
             )}
           </div>
         );
@@ -334,7 +404,8 @@ export const StageViewport: React.FC = () => {
       ref={containerRef}
       onWheel={handleWheel}
       onMouseDown={handleCanvasMouseDown}
-      className="relative flex-1 overflow-hidden bg-[#f7f6f3] cursor-default"
+      onContextMenu={(e) => e.preventDefault()}
+      className="relative flex-1 overflow-hidden bg-[#f7f6f3] cursor-grab active:cursor-grabbing"
       style={{
         backgroundImage: "radial-gradient(#d5d4d0 1px, transparent 1px)",
         backgroundSize: "28px 28px",

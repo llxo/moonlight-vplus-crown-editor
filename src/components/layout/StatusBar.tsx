@@ -44,7 +44,7 @@ export const StatusBar: React.FC = () => {
       {/* 右区：简约物理键帽快捷指示 */}
       <div className="hidden md:flex items-center gap-3 text-xs text-[#4b5563]">
         <div className="flex items-center gap-1">
-          <kbd>Space</kbd> + 拖拽平移
+          鼠标左键/右键拖动画布
         </div>
         <span>•</span>
         <div>
