@@ -66,6 +66,7 @@ export interface CrownState {
   selectElement: (id: number | null, multi?: boolean) => void;
   setHoveredElement: (id: number | null) => void;
   updateElement: (id: number, patch: Partial<CrownElement>) => void;
+  updateElementTransient: (id: number, patch: Partial<CrownElement>) => void;
   updateElementsBatch: (patches: Array<{ id: number; patch: Partial<CrownElement> }>) => void;
   addElement: (element: CrownElement) => void;
   deleteSelectedElements: () => void;
@@ -229,6 +230,16 @@ export const useCrownStore = create<CrownState>((set, get) => ({
 
   updateElement: (id, patch) => {
     get().pushHistorySnapshot();
+    const updated = get().elements.map((el) => {
+      if (el.element_id === id) {
+        return { ...el, ...patch } as CrownElement;
+      }
+      return el;
+    });
+    set({ elements: updated, isDirty: true });
+  },
+
+  updateElementTransient: (id, patch) => {
     const updated = get().elements.map((el) => {
       if (el.element_id === id) {
         return { ...el, ...patch } as CrownElement;
