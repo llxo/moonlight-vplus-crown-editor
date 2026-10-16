@@ -24,6 +24,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^26.6.5",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@types/spark-md5": "^3.0.5",
@@ -36,9 +37,12 @@
     "vite": "^8.3.4"
   },
   "dependencies": {
+    "@netlify/blobs": "^11.1.4",
+    "@netlify/functions": "^6.0.2",
     "clsx": "^2.1.1",
     "konva": "^10.9.0",
     "lucide-react": "^1.57.0",
+    "qrcode": "^1.5.4",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-konva": "^19.3.2",

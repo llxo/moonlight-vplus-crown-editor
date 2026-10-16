@@ -53,6 +53,7 @@ export interface CrownState {
   isLayersOpen: boolean;
   isGlobalSettingsOpen: boolean;
   isWelcomeModalOpen: boolean;
+  isShareModalOpen: boolean;
   isDirty: boolean;
   validationStatus: {
     isValidSha256: boolean;
@@ -90,6 +91,8 @@ export interface CrownState {
   setGlobalSettingsOpen: (open: boolean) => void;
   toggleWelcomeModal: () => void;
   setWelcomeModalOpen: (open: boolean) => void;
+  toggleShareModal: () => void;
+  setShareModalOpen: (open: boolean) => void;
   loadBlankProfile: () => void;
 
   // 历史控制
@@ -147,6 +150,7 @@ export const useCrownStore = create<CrownState>((set, get) => ({
   isLayersOpen: false,
   isGlobalSettingsOpen: false,
   isWelcomeModalOpen: typeof window !== "undefined" ? localStorage.getItem("moonlight_crown_welcome_dismissed") !== "true" : true,
+  isShareModalOpen: false,
   isDirty: false,
   validationStatus: {
     isValidSha256: true,
@@ -362,6 +366,8 @@ export const useCrownStore = create<CrownState>((set, get) => ({
   setGlobalSettingsOpen: (open) => set({ isGlobalSettingsOpen: open }),
   toggleWelcomeModal: () => set((s) => ({ isWelcomeModalOpen: !s.isWelcomeModalOpen })),
   setWelcomeModalOpen: (open) => set({ isWelcomeModalOpen: open }),
+  toggleShareModal: () => set((s) => ({ isShareModalOpen: !s.isShareModalOpen })),
+  setShareModalOpen: (open) => set({ isShareModalOpen: open }),
 
   loadBlankProfile: () => {
     get().pushHistorySnapshot();

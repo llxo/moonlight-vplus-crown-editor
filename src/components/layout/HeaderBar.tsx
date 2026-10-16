@@ -20,6 +20,7 @@ import {
   Settings,
   ChevronDown,
   HelpCircle,
+  Link2,
 } from "lucide-react";
 import { useCrownStore } from "../../store/useCrownStore";
 
@@ -56,6 +57,7 @@ export const HeaderBar: React.FC = () => {
     exportBundle,
     toggleGlobalSettings,
     toggleWelcomeModal,
+    toggleShareModal,
   } = useCrownStore();
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -304,6 +306,15 @@ export const HeaderBar: React.FC = () => {
         >
           <Upload className="h-3.5 w-3.5 text-[#787774]" />
           <span>导入配置</span>
+        </button>
+
+        <button
+          onClick={toggleShareModal}
+          className="flex items-center gap-1.5 rounded-md border border-[#d4d4d0] bg-[#ffffff] px-3 py-1.5 font-medium text-[#111111] transition-all hover:bg-[#f7f6f3] hover:border-[#111111] active:scale-[0.98]"
+          title="生成 24 小时短效直链 (供手机直接下载导入)"
+        >
+          <Link2 className="h-3.5 w-3.5 text-[#111111]" />
+          <span>分享直链</span>
         </button>
 
         {/* 规范 CTA 主按钮: 纯黑实体背景 #111111, 白字, 6px 圆角, active 微缩放 */}

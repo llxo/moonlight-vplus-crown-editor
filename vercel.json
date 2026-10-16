@@ -5,6 +5,14 @@
   "framework": "vite",
   "rewrites": [
     {
+      "source": "/api/share/:match*",
+      "destination": "/api/share"
+    },
+    {
+      "source": "/api/share",
+      "destination": "/api/share"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

@@ -10,6 +10,7 @@ import { FloatingDock } from "./components/layout/FloatingDock";
 import { FloatingInspector } from "./components/layout/FloatingInspector";
 import { GlobalSettingsModal } from "./components/layout/GlobalSettingsModal";
 import { WelcomeModal } from "./components/layout/WelcomeModal";
+import { ShareLinkModal } from "./components/layout/ShareLinkModal";
 import { StatusBar } from "./components/layout/StatusBar";
 import { useCrownStore } from "./store/useCrownStore";
 import defaultSampleProfile from "../fixtures/minimal-profile.crown.json";
@@ -82,6 +83,9 @@ export default function App() {
 
       {/* 全局设置弹层 */}
       <GlobalSettingsModal />
+
+      {/* 24小时短效直链弹窗 */}
+      <ShareLinkModal />
 
       {/* 欢迎引导与快速起步中心 */}
       <WelcomeModal />
