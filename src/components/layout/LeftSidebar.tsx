@@ -347,7 +347,7 @@ export const LeftSidebar: React.FC = () => {
       <div className="flex-1 overflow-y-auto p-3.5">
         {activeTabLeft === "palette" ? (
           <div className="flex flex-col gap-2">
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-[#787774] px-1 mb-0.5">
+            <div className="text-xs font-semibold text-[#374151] px-1 mb-0.5">
               点击添加预设到画布
             </div>
             {PRESETS.map((preset) => (
@@ -361,12 +361,12 @@ export const LeftSidebar: React.FC = () => {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-xs text-[#111111]">
+                    <span className="font-bold text-sm text-[#111111]">
                       {preset.name}
                     </span>
-                    <Plus className="h-3.5 w-3.5 text-[#787774] opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Plus className="h-4 w-4 text-[#4b5563] opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-                  <p className="mt-0.5 text-[11px] text-[#787774] line-clamp-1 leading-relaxed">
+                  <p className="mt-0.5 text-xs text-[#4b5563] line-clamp-1 leading-relaxed">
                     {preset.desc}
                   </p>
                 </div>
@@ -375,8 +375,8 @@ export const LeftSidebar: React.FC = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between px-1 text-[10px] text-[#787774]">
-              <span className="font-semibold uppercase tracking-wider">按图层深度 (Layer) 排列</span>
+            <div className="flex items-center justify-between px-1 text-xs text-[#4b5563]">
+              <span className="font-semibold">按图层深度 (Layer) 排列</span>
               <div className="flex items-center gap-1">
                 <button
                   onClick={duplicateSelectedElements}

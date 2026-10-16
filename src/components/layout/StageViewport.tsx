@@ -245,16 +245,16 @@ export const StageViewport: React.FC = () => {
       case CrownElementType.DIGITAL_PAD: {
         return (
           <div className="relative h-full w-full pointer-events-none flex items-center justify-center">
-            <div className="absolute top-2.5 text-[11px] font-mono font-bold text-[#111111]">
+            <div className="absolute top-2 text-xs font-mono font-bold text-[#111111] bg-white/80 px-1 rounded">
               {el.element_up_value || "UP"}
             </div>
-            <div className="absolute bottom-2.5 text-[11px] font-mono font-bold text-[#111111]">
+            <div className="absolute bottom-2 text-xs font-mono font-bold text-[#111111] bg-white/80 px-1 rounded">
               {el.element_down_value || "DOWN"}
             </div>
-            <div className="absolute left-2.5 text-[11px] font-mono font-bold text-[#111111]">
+            <div className="absolute left-2 text-xs font-mono font-bold text-[#111111] bg-white/80 px-1 rounded">
               {el.element_left_value || "LEFT"}
             </div>
-            <div className="absolute right-2.5 text-[11px] font-mono font-bold text-[#111111]">
+            <div className="absolute right-2 text-xs font-mono font-bold text-[#111111] bg-white/80 px-1 rounded">
               {el.element_right_value || "RIGHT"}
             </div>
             <div className="h-10 w-10 rounded-full border border-dashed border-[#111111]/20" />
@@ -372,10 +372,10 @@ export const StageViewport: React.FC = () => {
       </div>
 
       {/* 视口浮动状态标签 */}
-      <div className="pointer-events-none absolute bottom-4 left-4 flex items-center gap-2 rounded-md border border-[#eaeaea] bg-[#ffffff]/90 px-3 py-1.5 text-[11px] text-[#787774] backdrop-blur-sm shadow-xs">
-        <span>画布基准: <strong className="text-[#111111] font-mono font-medium">{layoutBasis.widthPx} × {layoutBasis.heightPx}</strong></span>
+      <div className="pointer-events-none absolute bottom-4 left-4 flex items-center gap-2 rounded-md border border-[#d4d4d0] bg-[#ffffff] px-3 py-1.5 text-xs text-[#374151] shadow-xs">
+        <span>画布基准: <strong className="text-[#111111] font-mono font-semibold">{layoutBasis.widthPx} × {layoutBasis.heightPx}</strong></span>
         <span>•</span>
-        <span>缩放: <strong className="text-[#111111] font-mono font-medium">{Math.round(zoom * 100)}%</strong></span>
+        <span>缩放: <strong className="text-[#111111] font-mono font-semibold">{Math.round(zoom * 100)}%</strong></span>
         <span>•</span>
         <span>按住 <kbd>Space</kbd> 拖动画布</span>
       </div>

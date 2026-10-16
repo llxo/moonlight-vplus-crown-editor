@@ -156,12 +156,12 @@ const ElementPropertyForm: React.FC<ElementPropertyFormProps> = ({
 
       {/* 基础几何变换与锚点 */}
       <div className="space-y-2">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-[#787774]">
+        <div className="text-xs font-semibold uppercase tracking-wider text-[#374151]">
           几何尺寸与中心锚点 (物理像素)
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-[10px] text-[#787774] block mb-1">中心点 X (Px)</label>
+            <label className="text-xs font-medium text-[#4b5563] block mb-1">中心点 X (Px)</label>
             <input
               type="number"
               value={element.element_central_x}
@@ -170,7 +170,7 @@ const ElementPropertyForm: React.FC<ElementPropertyFormProps> = ({
             />
           </div>
           <div>
-            <label className="text-[10px] text-[#787774] block mb-1">中心点 Y (Px)</label>
+            <label className="text-xs font-medium text-[#4b5563] block mb-1">中心点 Y (Px)</label>
             <input
               type="number"
               value={element.element_central_y}
@@ -179,7 +179,7 @@ const ElementPropertyForm: React.FC<ElementPropertyFormProps> = ({
             />
           </div>
           <div>
-            <label className="text-[10px] text-[#787774] block mb-1">宽度 W (Px)</label>
+            <label className="text-xs font-medium text-[#4b5563] block mb-1">宽度 W (Px)</label>
             <input
               type="number"
               value={element.element_width}
@@ -188,7 +188,7 @@ const ElementPropertyForm: React.FC<ElementPropertyFormProps> = ({
             />
           </div>
           <div>
-            <label className="text-[10px] text-[#787774] block mb-1">高度 H (Px)</label>
+            <label className="text-xs font-medium text-[#4b5563] block mb-1">高度 H (Px)</label>
             <input
               type="number"
               value={element.element_height}
@@ -197,7 +197,7 @@ const ElementPropertyForm: React.FC<ElementPropertyFormProps> = ({
             />
           </div>
           <div>
-            <label className="text-[10px] text-[#787774] block mb-1">图层深度 Layer</label>
+            <label className="text-xs font-medium text-[#4b5563] block mb-1">图层深度 Layer</label>
             <input
               type="number"
               value={element.element_layer}
@@ -206,7 +206,7 @@ const ElementPropertyForm: React.FC<ElementPropertyFormProps> = ({
             />
           </div>
           <div>
-            <label className="text-[10px] text-[#787774] block mb-1">描边厚度 Thick</label>
+            <label className="text-xs font-medium text-[#4b5563] block mb-1">描边厚度 Thick</label>
             <input
               type="number"
               value={element.element_thick}
@@ -220,12 +220,12 @@ const ElementPropertyForm: React.FC<ElementPropertyFormProps> = ({
       {/* 按键标签文本 */}
       {"element_text" in element && element.element_type !== CrownElementType.SIMPLIFY_PERFORMANCE && (
         <div className="space-y-1.5 border-t border-[#eaeaea] pt-3">
-          <label className="text-[10px] text-[#787774] block font-medium">显示标签文本 (Text)</label>
+          <label className="text-xs font-semibold text-[#374151] block">显示标签文本 (Text)</label>
           <input
             type="text"
             value={element.element_text || ""}
             onChange={(e) => onUpdate({ element_text: e.target.value } as any)}
-            className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
+            className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2.5 py-1.5 text-xs font-medium text-[#111111] outline-none focus:border-[#111111]"
             placeholder="按键表面显示文字，如 A, W, 射击"
           />
         </div>
@@ -246,37 +246,37 @@ const ElementPropertyForm: React.FC<ElementPropertyFormProps> = ({
 
       {/* 颜色样式设置 (ARGB 32位整数互转) */}
       <div className="space-y-2 border-t border-[#eaeaea] pt-3">
-        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#787774]">
+        <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#374151]">
           <Palette className="h-3.5 w-3.5 text-[#111111]" />
           <span>颜色配置 (ARGB 整数双向映射)</span>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-[10px] text-[#787774] block mb-1">描边颜色</label>
-            <div className="flex items-center gap-1.5 rounded border border-[#eaeaea] bg-[#fbfbfa] p-1">
+            <label className="text-xs font-medium text-[#4b5563] block mb-1">描边颜色</label>
+            <div className="flex items-center gap-1.5 rounded border border-[#eaeaea] bg-[#fbfbfa] p-1.5">
               <input
                 type="color"
                 value={hexBorderColor}
                 onChange={(e) =>
                   onUpdate({ element_color: CrownColorUtils.rgbaHexToInt(e.target.value) })
                 }
-                className="h-5 w-6 cursor-pointer rounded border-0 bg-transparent p-0"
+                className="h-6 w-7 cursor-pointer rounded border-0 bg-transparent p-0"
               />
-              <span className="font-mono text-[10px] text-[#2f3437]">{hexBorderColor}</span>
+              <span className="font-mono text-xs font-medium text-[#111111]">{hexBorderColor}</span>
             </div>
           </div>
           <div>
-            <label className="text-[10px] text-[#787774] block mb-1">背景填充色</label>
-            <div className="flex items-center gap-1.5 rounded border border-[#eaeaea] bg-[#fbfbfa] p-1">
+            <label className="text-xs font-medium text-[#4b5563] block mb-1">背景填充色</label>
+            <div className="flex items-center gap-1.5 rounded border border-[#eaeaea] bg-[#fbfbfa] p-1.5">
               <input
                 type="color"
                 value={hexBgColor}
                 onChange={(e) =>
                   onUpdate({ element_background_color: CrownColorUtils.rgbaHexToInt(e.target.value) })
                 }
-                className="h-5 w-6 cursor-pointer rounded border-0 bg-transparent p-0"
+                className="h-6 w-7 cursor-pointer rounded border-0 bg-transparent p-0"
               />
-              <span className="font-mono text-[10px] text-[#2f3437]">{hexBgColor}</span>
+              <span className="font-mono text-xs font-medium text-[#111111]">{hexBgColor}</span>
             </div>
           </div>
         </div>
@@ -296,11 +296,11 @@ function renderSpecialAttributes(
     case CrownElementType.ANALOG_STICK: {
       return (
         <div className="space-y-3 border-t border-[#eaeaea] pt-3">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-[#787774]">
+          <div className="text-xs font-semibold uppercase tracking-wider text-[#374151]">
             模拟摇杆专属属性
           </div>
           <div>
-            <div className="flex justify-between text-[10px] text-[#787774] mb-1">
+            <div className="flex justify-between text-xs text-[#4b5563] mb-1">
               <span>死区半径比例</span>
               <span className="font-mono text-[#111111]">{element.element_sense}%</span>
             </div>
@@ -314,11 +314,11 @@ function renderSpecialAttributes(
             />
           </div>
           <div>
-            <label className="text-[10px] text-[#787774] block mb-1">摇杆移动模式</label>
+            <label className="text-xs font-medium text-[#4b5563] block mb-1">摇杆移动模式</label>
             <select
               value={element.element_mode}
               onChange={(e) => onUpdate({ element_mode: Number(e.target.value) } as any)}
-              className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none"
+              className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2.5 py-1.5 text-xs text-[#111111] outline-none"
             >
               <option value={CrownStickMoveMode.FIXED_ABSOLUTE}>0: 绝对固定位置</option>
               <option value={CrownStickMoveMode.FOLLOW_FINGER_RELATIVE}>1: 随手指按下动态居中</option>
@@ -338,7 +338,7 @@ function renderSpecialAttributes(
     case CrownElementType.DIGITAL_PAD: {
       return (
         <div className="space-y-3 border-t border-[#eaeaea] pt-3">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-[#787774]">
+          <div className="text-xs font-semibold uppercase tracking-wider text-[#374151]">
             十字键四向键值绑定 (支持键盘敲击录制)
           </div>
           <div className="space-y-2">
@@ -448,54 +448,54 @@ const GlobalSettingsForm: React.FC<GlobalSettingsFormProps> = ({
     <div className="space-y-4">
       {/* Profile 元数据 */}
       <div className="space-y-2">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-[#787774]">
+        <div className="text-xs font-semibold uppercase tracking-wider text-[#374151]">
           Profile 社区分享包元数据
         </div>
         <div>
-          <label className="text-[10px] text-[#787774] block mb-1">配置名称</label>
+          <label className="text-xs font-medium text-[#4b5563] block mb-1">配置名称</label>
           <input
             type="text"
             value={meta.name}
             onChange={(e) => updateMeta({ name: e.target.value })}
-            className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
+            className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2.5 py-1.5 text-xs text-[#111111] outline-none focus:border-[#111111]"
           />
         </div>
         <div>
-          <label className="text-[10px] text-[#787774] block mb-1">作者 (Author)</label>
+          <label className="text-xs font-medium text-[#4b5563] block mb-1">作者 (Author)</label>
           <input
             type="text"
             value={meta.authorName || ""}
             onChange={(e) => updateMeta({ authorName: e.target.value })}
-            className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
+            className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2.5 py-1.5 text-xs text-[#111111] outline-none focus:border-[#111111]"
           />
         </div>
         <div>
-          <label className="text-[10px] text-[#787774] block mb-1">关联游戏 (Game Name)</label>
+          <label className="text-xs font-medium text-[#4b5563] block mb-1">关联游戏 (Game Name)</label>
           <input
             type="text"
             value={meta.gameName || ""}
             onChange={(e) => updateMeta({ gameName: e.target.value })}
-            className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
+            className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2.5 py-1.5 text-xs text-[#111111] outline-none focus:border-[#111111]"
           />
         </div>
         <div>
-          <label className="text-[10px] text-[#787774] block mb-1">配置简介描述</label>
+          <label className="text-xs font-medium text-[#4b5563] block mb-1">配置简介描述</label>
           <textarea
             rows={2}
             value={meta.summary || ""}
             onChange={(e) => updateMeta({ summary: e.target.value })}
-            className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
+            className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2.5 py-1.5 text-xs text-[#111111] outline-none focus:border-[#111111]"
           />
         </div>
       </div>
 
       {/* 全局触控参数 (SQLite config 表) */}
       <div className="space-y-2 border-t border-[#eaeaea] pt-3">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-[#787774]">
+        <div className="text-xs font-semibold uppercase tracking-wider text-[#374151]">
           客户端全局触控设置 (Settings)
         </div>
         <div className="flex items-center justify-between py-1">
-          <span className="text-[#2f3437] text-xs">触控模式 (Touch Mode)</span>
+          <span className="text-[#111111] text-xs font-medium">触控模式 (Touch Mode)</span>
           <select
             value={settings.touch_mode}
             onChange={(e) => updateSettings({ touch_mode: e.target.value })}
@@ -506,9 +506,9 @@ const GlobalSettingsForm: React.FC<GlobalSettingsFormProps> = ({
           </select>
         </div>
         <div>
-          <div className="flex justify-between text-[10px] text-[#787774] mb-1">
+          <div className="flex justify-between text-xs text-[#4b5563] mb-1">
             <span>触控灵敏度</span>
-            <span className="font-mono text-[#111111]">{settings.touch_sense}</span>
+            <span className="font-mono font-semibold text-[#111111]">{settings.touch_sense}</span>
           </div>
           <input
             type="range"
@@ -520,7 +520,7 @@ const GlobalSettingsForm: React.FC<GlobalSettingsFormProps> = ({
           />
         </div>
         <div className="flex items-center justify-between py-1">
-          <span className="text-[#2f3437] text-xs">游戏手柄震动</span>
+          <span className="text-[#111111] text-xs font-medium">游戏手柄震动</span>
           <input
             type="checkbox"
             checked={settings.game_vibrator === "true"}
@@ -529,7 +529,7 @@ const GlobalSettingsForm: React.FC<GlobalSettingsFormProps> = ({
           />
         </div>
         <div className="flex items-center justify-between py-1">
-          <span className="text-[#2f3437] text-xs">按键触觉反馈</span>
+          <span className="text-[#111111] text-xs font-medium">按键触觉反馈</span>
           <input
             type="checkbox"
             checked={settings.button_vibrator === "true"}

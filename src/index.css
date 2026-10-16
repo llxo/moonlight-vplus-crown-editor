@@ -8,19 +8,18 @@
   body {
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Geist Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", "Noto Sans SC", Arial, sans-serif;
     user-select: none;
     background-color: #f7f6f3;
     color: #111111;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 }
 
 /* 简约浅色自定义滚动条 */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -28,22 +27,23 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #dcdbd8;
+  background: #d4d4d0;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #b8b7b3;
+  background: #a8a8a4;
 }
 
-/* 简约实体按键标签样式 */
+/* 简约实体按键标签样式 - 清晰高对比 */
 kbd {
-  font-family: "Geist Mono", "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
-  background-color: #f7f6f3;
-  border: 1px solid #eaeaea;
+  font-family: "Cascadia Code", "Segoe UI Mono", Consolas, "SF Mono", Menlo, monospace;
+  background-color: #f0eee9;
+  border: 1px solid #dcdbd8;
   border-radius: 4px;
-  padding: 0.15rem 0.35rem;
-  font-size: 0.75rem;
-  color: #2f3437;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+  padding: 0.15rem 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #111111;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
 }

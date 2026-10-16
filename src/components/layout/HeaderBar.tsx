@@ -104,10 +104,10 @@ export const HeaderBar: React.FC = () => {
             <Crown className="h-4 w-4" />
           </div>
           <div className="flex flex-col">
-            <span className="font-semibold text-xs tracking-tight text-[#111111]">
+            <span className="font-bold text-sm tracking-tight text-[#111111]">
               Crown Editor
             </span>
-            <span className="text-[10px] text-[#787774] -mt-0.5">王冠模式按键排布</span>
+            <span className="text-xs text-[#4b5563] -mt-0.5">王冠按键编辑器</span>
           </div>
         </div>
 
@@ -126,7 +126,7 @@ export const HeaderBar: React.FC = () => {
         </div>
 
         {/* 协议兼容微型胶囊徽章 (Muted Pastel Green) */}
-        <div className="hidden lg:flex items-center gap-1 rounded-full bg-[#edf3ec] px-2 py-0.5 text-[11px] font-medium text-[#346538]">
+        <div className="hidden lg:flex items-center gap-1 rounded-full bg-[#edf3ec] px-2.5 py-0.5 text-xs font-semibold text-[#346538]">
           <Check className="h-3 w-3" />
           <span>V+ 协议就绪</span>
         </div>
@@ -159,7 +159,7 @@ export const HeaderBar: React.FC = () => {
           >
             <ZoomOut className="h-3.5 w-3.5" />
           </button>
-          <span className="w-11 text-center font-mono text-[11px] text-[#111111]">
+          <span className="w-12 text-center font-mono text-xs font-semibold text-[#111111]">
             {Math.round(zoom * 100)}%
           </span>
           <button
@@ -182,8 +182,8 @@ export const HeaderBar: React.FC = () => {
         <div className="flex items-center rounded-md border border-[#eaeaea] bg-[#ffffff] p-0.5">
           <button
             onClick={toggleSnapToGrid}
-            className={`flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium transition-all ${
-              snapToGrid ? "bg-[#111111] text-[#ffffff]" : "text-[#787774] hover:text-[#111111] hover:bg-[#f7f6f3]"
+            className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium transition-all ${
+              snapToGrid ? "bg-[#111111] text-[#ffffff]" : "text-[#4b5563] hover:text-[#111111] hover:bg-[#f7f6f3]"
             }`}
             title="网格吸附 (20px)"
           >
@@ -192,8 +192,8 @@ export const HeaderBar: React.FC = () => {
           </button>
           <button
             onClick={toggleSafeArea}
-            className={`flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium transition-all ${
-              showSafeArea ? "bg-[#111111] text-[#ffffff]" : "text-[#787774] hover:text-[#111111] hover:bg-[#f7f6f3]"
+            className={`flex items-center gap-1 rounded px-2.5 py-1 text-xs font-medium transition-all ${
+              showSafeArea ? "bg-[#111111] text-[#ffffff]" : "text-[#4b5563] hover:text-[#111111] hover:bg-[#f7f6f3]"
             }`}
             title="安全区参考线"
           >

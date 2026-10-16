@@ -11,38 +11,38 @@ export const StatusBar: React.FC = () => {
   const { elements, selectedElementIds, layoutBasis, zoom } = useCrownStore();
 
   return (
-    <footer className="flex h-7 w-full items-center justify-between border-t border-[#eaeaea] bg-[#fbfbfa] px-4 text-[11px] text-[#787774] select-none">
+    <footer className="flex h-8 w-full items-center justify-between border-t border-[#eaeaea] bg-[#fbfbfa] px-4 text-xs text-[#4b5563] select-none">
       {/* 左区：统计与当前状态 */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-1.5">
-          <Layers className="h-3 w-3 text-[#787774]" />
-          <span>控件: <strong className="text-[#111111] font-medium">{elements.length}</strong></span>
+          <Layers className="h-3.5 w-3.5 text-[#6b7280]" />
+          <span>控件总数: <strong className="text-[#111111] font-semibold">{elements.length}</strong></span>
         </div>
 
-        <div className="h-3 w-[1px] bg-[#eaeaea]" />
+        <div className="h-3.5 w-[1px] bg-[#eaeaea]" />
 
         <div className="flex items-center gap-1.5">
-          <MousePointer className="h-3 w-3 text-[#787774]" />
+          <MousePointer className="h-3.5 w-3.5 text-[#6b7280]" />
           <span>
-            选中:{" "}
-            <strong className="text-[#111111] font-medium">
+            选中项:{" "}
+            <strong className="text-[#111111] font-semibold">
               {selectedElementIds.length > 0 ? `${selectedElementIds.length} 项` : "无"}
             </strong>
           </span>
         </div>
 
-        <div className="h-3 w-[1px] bg-[#eaeaea]" />
+        <div className="h-3.5 w-[1px] bg-[#eaeaea]" />
 
         <div className="flex items-center gap-1.5">
-          <Smartphone className="h-3 w-3 text-[#787774]" />
+          <Smartphone className="h-3.5 w-3.5 text-[#6b7280]" />
           <span>
-            基准: <span className="font-mono text-[#111111]">{layoutBasis.widthPx} × {layoutBasis.heightPx}</span> ({layoutBasis.densityDpi} DPI)
+            分辨率基准: <span className="font-mono font-semibold text-[#111111]">{layoutBasis.widthPx} × {layoutBasis.heightPx}</span> ({layoutBasis.densityDpi} DPI)
           </span>
         </div>
       </div>
 
       {/* 右区：简约物理键帽快捷指示 */}
-      <div className="hidden md:flex items-center gap-3 text-[#787774]">
+      <div className="hidden md:flex items-center gap-3 text-xs text-[#4b5563]">
         <div className="flex items-center gap-1">
           <kbd>Space</kbd> + 拖拽平移
         </div>
