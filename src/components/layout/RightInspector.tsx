@@ -1,6 +1,6 @@
 /**
  * @file RightInspector.tsx
- * @description 编辑器右侧属性检查器：选中国件属性配置、颜色ARGB转换器、全局触控设置与Profile元数据
+ * @description 编辑器右侧属性检查器：选中国件属性配置、颜色ARGB转换器、多设备分类按键选择与键盘输入录制、全局触控设置与Profile元数据
  */
 
 import React from "react";
@@ -19,6 +19,7 @@ import {
   CrownStickMoveMode,
   type CrownElement,
 } from "../../crownSchema";
+import { KeyCodePicker } from "../common/KeyCodePicker";
 
 export const RightInspector: React.FC = () => {
   const {
@@ -213,37 +214,30 @@ const ElementPropertyForm: React.FC<ElementPropertyFormProps> = ({
         </div>
       </div>
 
-      {/* 键值与文字标签 */}
-      <div className="space-y-2 border-t border-[#242730] pt-3">
-        <div className="text-[11px] font-semibold text-slate-400 tracking-wider">
-          按键编码与表面文字
+      {/* 按键标签文本 */}
+      {"element_text" in element && element.element_type !== CrownElementType.SIMPLIFY_PERFORMANCE && (
+        <div className="space-y-1.5 border-t border-[#242730] pt-3">
+          <label className="text-[10px] text-slate-500 block">显示标签文本 (Text)</label>
+          <input
+            type="text"
+            value={element.element_text || ""}
+            onChange={(e) => onUpdate({ element_text: e.target.value } as any)}
+            className="w-full rounded border border-[#2a2e3a] bg-[#1a1d24] px-2 py-1 text-slate-200 outline-none focus:border-amber-500/50"
+            placeholder="按键表面显示文字，如 A, W, 射击"
+          />
         </div>
-        {"element_text" in element && (
-          <div>
-            <label className="text-[10px] text-slate-500 block mb-1">显示标签 (Text)</label>
-            <input
-              type="text"
-              value={element.element_text || ""}
-              onChange={(e) => onUpdate({ element_text: e.target.value } as any)}
-              className="w-full rounded border border-[#2a2e3a] bg-[#1a1d24] px-2 py-1 text-slate-200 outline-none focus:border-amber-500/50"
-            />
-          </div>
-        )}
-        {"element_value" in element && (
-          <div>
-            <label className="text-[10px] text-slate-500 block mb-1">
-              按键编码 (KeyCode: k=键盘, m=鼠标, g=手柄)
-            </label>
-            <input
-              type="text"
-              value={element.element_value || ""}
-              onChange={(e) => onUpdate({ element_value: e.target.value } as any)}
-              className="w-full rounded border border-[#2a2e3a] bg-[#1a1d24] px-2 py-1 font-mono text-amber-400 outline-none focus:border-amber-500/50"
-              placeholder="如 k29 (A), m1 (左键), g4096 (A)"
-            />
-          </div>
-        )}
-      </div>
+      )}
+
+      {/* 核心按键绑定选择器 (分键盘/手柄/鼠标/特殊，且支持直接键盘敲击录制) */}
+      {"element_value" in element && element.element_type !== CrownElementType.WHEEL_PAD && (
+        <div className="space-y-1.5 border-t border-[#242730] pt-3">
+          <KeyCodePicker
+            label="绑定按键 (支持键盘敲击录制 / 手柄 / 鼠标)"
+            value={element.element_value || ""}
+            onChange={(newVal) => onUpdate({ element_value: newVal } as any)}
+          />
+        </div>
+      )}
 
       {/* 颜色样式设置 (ARGB 32位整数互转) */}
       <div className="space-y-2 border-t border-[#242730] pt-3">
@@ -296,7 +290,7 @@ function renderSpecialAttributes(
   switch (element.element_type) {
     case CrownElementType.ANALOG_STICK: {
       return (
-        <div className="space-y-2 border-t border-[#242730] pt-3">
+        <div className="space-y-3 border-t border-[#242730] pt-3">
           <div className="text-[11px] font-semibold text-slate-400 tracking-wider">
             模拟摇杆专属属性
           </div>
@@ -323,12 +317,10 @@ function renderSpecialAttributes(
             </select>
           </div>
           <div>
-            <label className="text-[10px] text-slate-500 block mb-1">下压键值 (Middle Value)</label>
-            <input
-              type="text"
+            <KeyCodePicker
+              label="摇杆下压键值 (Middle Value，通常为 L3 或 R3)"
               value={element.element_middle_value || "g64"}
-              onChange={(e) => onUpdate({ element_middle_value: e.target.value } as any)}
-              className="w-full rounded border border-[#2a2e3a] bg-[#1a1d24] px-2 py-1 font-mono text-amber-400 outline-none"
+              onChange={(val) => onUpdate({ element_middle_value: val } as any)}
             />
           </div>
         </div>
@@ -337,47 +329,68 @@ function renderSpecialAttributes(
 
     case CrownElementType.DIGITAL_PAD: {
       return (
-        <div className="space-y-2 border-t border-[#242730] pt-3">
+        <div className="space-y-3 border-t border-[#242730] pt-3">
           <div className="text-[11px] font-semibold text-slate-400 tracking-wider">
-            十字键四向键值绑定
+            十字键四向键值绑定 (支持键盘敲击录制)
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-[10px] text-slate-500 block mb-1">上 (UP)</label>
-              <input
-                type="text"
-                value={element.element_up_value}
-                onChange={(e) => onUpdate({ element_up_value: e.target.value } as any)}
-                className="w-full rounded border border-[#2a2e3a] bg-[#1a1d24] px-2 py-1 font-mono text-amber-400 outline-none"
-              />
-            </div>
-            <div>
-              <label className="text-[10px] text-slate-500 block mb-1">下 (DOWN)</label>
-              <input
-                type="text"
-                value={element.element_down_value}
-                onChange={(e) => onUpdate({ element_down_value: e.target.value } as any)}
-                className="w-full rounded border border-[#2a2e3a] bg-[#1a1d24] px-2 py-1 font-mono text-amber-400 outline-none"
-              />
-            </div>
-            <div>
-              <label className="text-[10px] text-slate-500 block mb-1">左 (LEFT)</label>
-              <input
-                type="text"
-                value={element.element_left_value}
-                onChange={(e) => onUpdate({ element_left_value: e.target.value } as any)}
-                className="w-full rounded border border-[#2a2e3a] bg-[#1a1d24] px-2 py-1 font-mono text-amber-400 outline-none"
-              />
-            </div>
-            <div>
-              <label className="text-[10px] text-slate-500 block mb-1">右 (RIGHT)</label>
-              <input
-                type="text"
-                value={element.element_right_value}
-                onChange={(e) => onUpdate({ element_right_value: e.target.value } as any)}
-                className="w-full rounded border border-[#2a2e3a] bg-[#1a1d24] px-2 py-1 font-mono text-amber-400 outline-none"
-              />
-            </div>
+          <div className="space-y-2">
+            <KeyCodePicker
+              label="上方向 (UP)"
+              value={element.element_up_value}
+              onChange={(val) => onUpdate({ element_up_value: val } as any)}
+            />
+            <KeyCodePicker
+              label="下方向 (DOWN)"
+              value={element.element_down_value}
+              onChange={(val) => onUpdate({ element_down_value: val } as any)}
+            />
+            <KeyCodePicker
+              label="左方向 (LEFT)"
+              value={element.element_left_value}
+              onChange={(val) => onUpdate({ element_left_value: val } as any)}
+            />
+            <KeyCodePicker
+              label="右方向 (RIGHT)"
+              value={element.element_right_value}
+              onChange={(val) => onUpdate({ element_right_value: val } as any)}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    case CrownElementType.DIGITAL_COMBINE_BUTTON: {
+      return (
+        <div className="space-y-3 border-t border-[#242730] pt-3">
+          <div className="text-[11px] font-semibold text-slate-400 tracking-wider">
+            组合宏按键 (最多 5 个键同时触发)
+          </div>
+          <div className="space-y-2">
+            <KeyCodePicker
+              label="宏槽位 1 (主键)"
+              value={element.element_value}
+              onChange={(val) => onUpdate({ element_value: val } as any)}
+            />
+            <KeyCodePicker
+              label="宏槽位 2"
+              value={element.element_up_value}
+              onChange={(val) => onUpdate({ element_up_value: val } as any)}
+            />
+            <KeyCodePicker
+              label="宏槽位 3"
+              value={element.element_down_value}
+              onChange={(val) => onUpdate({ element_down_value: val } as any)}
+            />
+            <KeyCodePicker
+              label="宏槽位 4"
+              value={element.element_left_value}
+              onChange={(val) => onUpdate({ element_left_value: val } as any)}
+            />
+            <KeyCodePicker
+              label="宏槽位 5"
+              value={element.element_right_value}
+              onChange={(val) => onUpdate({ element_right_value: val } as any)}
+            />
           </div>
         </div>
       );
