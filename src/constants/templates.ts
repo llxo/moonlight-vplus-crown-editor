@@ -31,7 +31,7 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
     title: "FPS 战术竞技标准",
     category: "第一人称射击",
     badge: "推荐",
-    description: "左手双轴移动摇杆 + 右手滑动瞄准、跳跃、下蹲与自锁冲刺，适配 Apex、使命召唤等主流射击游戏",
+    description: "双轴摇杆、滑动瞄准与自锁冲刺，适合主流射击游戏",
     meta: {
       name: "FPS 战术竞技",
       summary: "经典 FPS 触控排布，支持划动开镜与自锁冲刺",
@@ -212,7 +212,7 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
     title: "Xbox 经典手柄映射",
     category: "主机与通用控制器",
     badge: "全能",
-    description: "对称双模拟摇杆 + 十字方向键 + ABXY 经典四键 + 肩键，完美适配绝大多数 3A 手柄游戏",
+    description: "经典双摇杆、十字方向键与 ABXY 布局，适合 3A 手柄游戏",
     meta: {
       name: "经典手柄映射",
       summary: "XInput 标准手柄布局，适配艾尔登法环、黑神话等游戏",
@@ -412,7 +412,7 @@ export const PRESET_TEMPLATES: PresetTemplate[] = [
     title: "动作 RPG 与快捷轮盘",
     category: "角色扮演与冒险",
     badge: "轮盘",
-    description: "8 扇区快速选技能/物品轮盘 + 模拟摇杆 + 动作快捷键，兼顾直观触控与多技能释放",
+    description: "8 扇区快速技能轮盘与常用动作键，适合多技能 RPG 游戏",
     meta: {
       name: "动作 RPG 轮盘排布",
       summary: "8 扇区轮盘选技能，适合原神、巫师、暗黑破坏神等",

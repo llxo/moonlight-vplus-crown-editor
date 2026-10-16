@@ -34,7 +34,6 @@ export const GlobalSettingsModal: React.FC = () => {
             </div>
             <div>
               <h3 className="font-bold text-sm text-[#111111]">全局配置与元数据</h3>
-              <span className="text-xs text-[#6b7280]">Moonlight-vplus Profile 全局参数</span>
             </div>
           </div>
           <button

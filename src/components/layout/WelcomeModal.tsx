@@ -15,7 +15,6 @@ import {
   Gamepad2,
   PieChart,
   ArrowRight,
-  ShieldCheck,
   Sparkles,
 } from "lucide-react";
 import { useCrownStore } from "../../store/useCrownStore";
@@ -147,14 +146,7 @@ export const WelcomeModal: React.FC = () => {
                 <span className="rounded-full bg-[#fbf3db] text-[#956400] text-[10px] font-mono px-2 py-0.5 border border-[#eaeaea]">
                   v1.2.0
                 </span>
-                <span className="rounded-full bg-[#edf3ec] text-[#346538] text-[10px] font-mono px-2 py-0.5 border border-[#eaeaea] hidden sm:inline-flex items-center gap-1">
-                  <ShieldCheck className="h-3 w-3" />
-                  协议 Protocol v9
-                </span>
               </div>
-              <p className="text-xs text-[#787774] mt-0.5">
-                v+ 王冠模式虚拟按键可视化排布工具 · 导出 .crown.json 直接传给手机
-              </p>
             </div>
           </div>
 
@@ -176,10 +168,7 @@ export const WelcomeModal: React.FC = () => {
             <div className="md:col-span-2 rounded-xl border border-[#eaeaea] bg-[#ffffff] p-4 space-y-3 shadow-2xs">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider text-[#374151]">
-                  官方推荐排布模版 (点击一键载入)
-                </span>
-                <span className="text-[11px] text-[#787774]">
-                  根据游玩习惯即开即用
+                  推荐模版
                 </span>
               </div>
 
@@ -190,22 +179,17 @@ export const WelcomeModal: React.FC = () => {
                     onClick={() => handleApplyTemplate(tpl)}
                     className="group flex items-start justify-between rounded-lg border border-[#eaeaea] p-3 hover:border-[#111111] hover:bg-[#fbfbfa] transition-all cursor-pointer relative"
                   >
-                    <div className="flex items-start gap-3">
-                      <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-[#f7f6f3] border border-[#eaeaea] group-hover:bg-[#111111] group-hover:text-[#ffffff] transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f7f6f3] border border-[#eaeaea] group-hover:bg-[#111111] group-hover:text-[#ffffff] transition-colors shrink-0">
                         {getTemplateIcon(tpl.id)}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-xs text-[#111111] group-hover:text-[#111111]">
-                            {tpl.title}
-                          </span>
-                          <span className="rounded bg-[#f7f6f3] text-[#4b5563] text-[10px] px-1.5 py-0.2 font-medium border border-[#eaeaea]">
-                            {tpl.category}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-[#787774] mt-1 leading-relaxed line-clamp-2">
-                          {tpl.description}
-                        </p>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-xs text-[#111111]">
+                          {tpl.title}
+                        </span>
+                        <span className="rounded bg-[#f7f6f3] text-[#4b5563] text-[10px] px-1.5 py-0.5 font-medium border border-[#eaeaea]">
+                          {tpl.category}
+                        </span>
                       </div>
                     </div>
 
@@ -250,10 +234,7 @@ export const WelcomeModal: React.FC = () => {
                   <Upload className="h-5 w-5 text-[#4b5563]" />
                 </div>
                 <span className="font-bold text-xs text-[#111111]">
-                  导入已有配置文件
-                </span>
-                <span className="text-[10px] text-[#787774] mt-1 leading-relaxed">
-                  点击浏览或拖拽 .crown.json / raw-payload.json
+                  导入已有配置
                 </span>
               </div>
 
@@ -269,9 +250,6 @@ export const WelcomeModal: React.FC = () => {
                   <div>
                     <span className="font-semibold text-xs text-[#111111] block">
                       纯净空白画布
-                    </span>
-                    <span className="text-[10px] text-[#787774]">
-                      清空现有按键，从零自由排布
                     </span>
                   </div>
                 </div>
@@ -340,7 +318,7 @@ export const WelcomeModal: React.FC = () => {
               onChange={(e) => setDontShowAgain(e.target.checked)}
               className="rounded border-[#dcdbd8] accent-[#111111] cursor-pointer"
             />
-            <span>下次启动不再自动弹出 (可随时在右上角「指南与模版」唤出)</span>
+            <span>下次启动不再自动弹出</span>
           </label>
 
           <button

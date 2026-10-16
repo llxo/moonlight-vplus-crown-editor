@@ -154,9 +154,6 @@ export const ShareLinkModal: React.FC = () => {
             </div>
             <div>
               <h3 className="font-bold text-sm text-[#111111]">24小时短效直链</h3>
-              <span className="text-xs text-[#6b7280]">
-                生成可供外部直接 GET 下载的 JSON 文件链接
-              </span>
             </div>
           </div>
           <button
@@ -172,12 +169,9 @@ export const ShareLinkModal: React.FC = () => {
         <div className="space-y-4 text-xs">
           {/* 加载中状态 */}
           {loading && (
-            <div className="flex flex-col items-center justify-center py-8 space-y-3">
+            <div className="flex flex-col items-center justify-center py-8 space-y-2">
               <RefreshCw className="h-6 w-6 animate-spin text-[#111111]" />
-              <div className="font-medium text-[#374151]">正在打包配置并生成 24 小时直链...</div>
-              <div className="text-[11px] text-[#6b7280]">
-                纯前端计算 SHA-256 / MD5 校验和并分发存储
-              </div>
+              <div className="font-medium text-[#374151]">正在生成直链...</div>
             </div>
           )}
 
@@ -208,11 +202,8 @@ export const ShareLinkModal: React.FC = () => {
             <div className="space-y-3.5">
               {/* 直链 URL 复制卡片 */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#374151] flex items-center justify-between">
-                  <span>文件直链 (Direct Download URL)</span>
-                  <span className="text-[11px] text-[#6b7280] font-normal">
-                    格式: .crown.json
-                  </span>
+                <label className="text-xs font-semibold text-[#374151] block">
+                  文件直链
                 </label>
                 <div className="flex items-center gap-1.5">
                   <input
@@ -261,20 +252,15 @@ export const ShareLinkModal: React.FC = () => {
                   )}
                   <span className="mt-1.5 text-[11px] text-[#6b7280] font-medium flex items-center gap-1">
                     <QrCode className="h-3 w-3" />
-                    手机扫码直接下载
+                    手机扫码下载
                   </span>
                 </div>
 
                 {/* 右列：信息与快捷操作 */}
                 <div className="col-span-3 flex flex-col justify-between pl-1 space-y-2">
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-1.5 text-[#2e7d32] font-semibold text-xs">
-                      <Clock className="h-3.5 w-3.5 shrink-0" />
-                      <span>有效期：24 小时</span>
-                    </div>
-                    <p className="text-[11px] text-[#6b7280] leading-relaxed">
-                      将于 <strong className="text-[#374151]">{formatExpireTime(shareData.expiresAt)}</strong> 自动失效并物理销毁，保护隐私，无冗余残留。
-                    </p>
+                  <div className="flex items-center gap-1.5 text-[#2e7d32] font-semibold text-xs">
+                    <Clock className="h-3.5 w-3.5 shrink-0" />
+                    <span>24小时有效 (至 {formatExpireTime(shareData.expiresAt)})</span>
                   </div>
 
                   <div className="space-y-1.5 pt-1">
@@ -298,11 +284,6 @@ export const ShareLinkModal: React.FC = () => {
                     </button>
                   </div>
                 </div>
-              </div>
-
-              {/* 导入贴士 */}
-              <div className="rounded-lg bg-[#f0f4f8] px-3 py-2 text-[11px] text-[#334e68] leading-relaxed">
-                💡 <strong>使用方法</strong>：将复制的链接发至手机，或手机相机扫描二维码即可直接下载 <code className="font-mono bg-white/70 px-1 py-0.5 rounded">.crown.json</code>，随后在 Moonlight-vplus 王冠模式中选择导入即可生效。
               </div>
             </div>
           )}

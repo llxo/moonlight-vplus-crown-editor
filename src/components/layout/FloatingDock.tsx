@@ -125,7 +125,7 @@ export const FloatingDock: React.FC = () => {
               key={preset.type}
               type="button"
               onClick={() => handleAdd(preset)}
-              onMouseEnter={() => setHoveredHint(`添加 ${preset.name} · ${preset.hint}`)}
+              onMouseEnter={() => setHoveredHint(preset.name)}
               onMouseLeave={() => setHoveredHint(null)}
               className="group flex flex-col items-center justify-center rounded-full p-2 text-[#374151] hover:bg-[#f7f6f3] hover:text-[#111111] transition-all hover:scale-105 active:scale-95"
             >
