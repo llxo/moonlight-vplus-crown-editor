@@ -10,8 +10,22 @@ import { useCrownStore } from "../../store/useCrownStore";
 import {
   CrownElementType,
   CrownColorUtils,
+  CrownStickMoveMode,
   type CrownElement,
 } from "../../crownSchema";
+import {
+  Copy,
+  Trash2,
+  BringToFront,
+  SendToBack,
+  AlignCenter,
+  RotateCcw,
+  CircleDot,
+  Compass,
+  Grid,
+  ShieldAlert,
+  MousePointerClick,
+} from "lucide-react";
 
 export const StageViewport: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -47,11 +61,96 @@ export const StageViewport: React.FC = () => {
     gridSize,
     showSafeArea,
     selectElement,
+    updateElement,
     updateElementTransient,
     pushHistorySnapshot,
+    duplicateSelectedElements,
+    deleteSelectedElements,
+    reorderLayer,
+    addElement,
+    resetViewport,
+    toggleSnapToGrid,
+    toggleSafeArea,
     setZoom,
     setPanOffset,
   } = useCrownStore();
+
+  // 右键菜单状态
+  const [contextMenu, setContextMenu] = useState<{
+    isOpen: boolean;
+    x: number;
+    y: number;
+    targetElementId: number | null;
+    canvasX: number;
+    canvasY: number;
+  }>({
+    isOpen: false,
+    x: 0,
+    y: 0,
+    targetElementId: null,
+    canvasX: 0,
+    canvasY: 0,
+  });
+
+  const closeContextMenu = useCallback(() => {
+    setContextMenu((prev) => (prev.isOpen ? { ...prev, isOpen: false } : prev));
+  }, []);
+
+  // 计算视口屏幕像素坐标对应的画布物理坐标
+  const calculateCanvasCoords = useCallback(
+    (clientX: number, clientY: number) => {
+      if (!containerRef.current) {
+        return {
+          x: Math.round(layoutBasis.widthPx / 2),
+          y: Math.round(layoutBasis.heightPx / 2),
+        };
+      }
+      const rect = containerRef.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2 + panOffsetRef.current.x;
+      const centerY = rect.top + rect.height / 2 + panOffsetRef.current.y;
+
+      const rawX = (clientX - centerX) / zoom + layoutBasis.widthPx / 2;
+      const rawY = (clientY - centerY) / zoom + layoutBasis.heightPx / 2;
+
+      let clampedX = Math.round(rawX);
+      let clampedY = Math.round(rawY);
+
+      if (snapToGrid) {
+        clampedX = Math.round(clampedX / gridSize) * gridSize;
+        clampedY = Math.round(clampedY / gridSize) * gridSize;
+      }
+
+      clampedX = Math.max(50, Math.min(layoutBasis.widthPx - 50, clampedX));
+      clampedY = Math.max(50, Math.min(layoutBasis.heightPx - 50, clampedY));
+
+      return { x: clampedX, y: clampedY };
+    },
+    [layoutBasis, zoom, snapToGrid, gridSize]
+  );
+
+  const openContextMenu = useCallback(
+    (clientX: number, clientY: number, targetId: number | null = null) => {
+      const { x: cx, y: cy } = calculateCanvasCoords(clientX, clientY);
+
+      const MENU_WIDTH = 200;
+      const MENU_HEIGHT = targetId !== null ? 270 : 230;
+
+      const adjustedX =
+        clientX + MENU_WIDTH > window.innerWidth ? clientX - MENU_WIDTH : clientX;
+      const adjustedY =
+        clientY + MENU_HEIGHT > window.innerHeight ? clientY - MENU_HEIGHT : clientY;
+
+      setContextMenu({
+        isOpen: true,
+        x: Math.max(10, adjustedX),
+        y: Math.max(10, adjustedY),
+        targetElementId: targetId,
+        canvasX: cx,
+        canvasY: cy,
+      });
+    },
+    [calculateCanvasCoords]
+  );
 
   // 同步 panOffsetRef 与最新状态
   useEffect(() => {
@@ -146,13 +245,22 @@ export const StageViewport: React.FC = () => {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === "Space") isSpaceDownRef.current = true;
+      if (e.key === "Escape") closeContextMenu();
     };
     const handleKeyUp = (e: KeyboardEvent) => {
       if (e.code === "Space") isSpaceDownRef.current = false;
     };
 
+    const handleOutsidePointerDown = (e: PointerEvent) => {
+      if ((e.target as HTMLElement).closest("[data-crown-context-menu]")) {
+        return;
+      }
+      closeContextMenu();
+    };
+
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("pointerdown", handleOutsidePointerDown);
 
     return () => {
       window.removeEventListener("pointermove", handleGlobalPointerMove);
@@ -160,21 +268,108 @@ export const StageViewport: React.FC = () => {
       window.removeEventListener("pointercancel", handleGlobalPointerUp);
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("pointerdown", handleOutsidePointerDown);
       if (rafIdRef.current !== null) {
         cancelAnimationFrame(rafIdRef.current);
       }
     };
-  }, [handleGlobalPointerMove, handleGlobalPointerUp]);
+  }, [handleGlobalPointerMove, handleGlobalPointerUp, closeContextMenu]);
+
+  // 置于顶层
+  const handleBringToFront = (id: number) => {
+    const maxLayer = elements.reduce((max, el) => Math.max(max, el.element_layer), 50);
+    reorderLayer(id, maxLayer + 1);
+    closeContextMenu();
+  };
+
+  // 置于底层
+  const handleSendToBack = (id: number) => {
+    const minLayer = elements.reduce((min, el) => Math.min(min, el.element_layer), 10);
+    reorderLayer(id, Math.max(1, minLayer - 1));
+    closeContextMenu();
+  };
+
+  // 水平居中
+  const handleCenterHorizontal = (id: number) => {
+    updateElement(id, { element_central_x: Math.round(layoutBasis.widthPx / 2) });
+    closeContextMenu();
+  };
+
+  // 垂直居中
+  const handleCenterVertical = (id: number) => {
+    updateElement(id, { element_central_y: Math.round(layoutBasis.heightPx / 2) });
+    closeContextMenu();
+  };
+
+  // 在右键物理坐标处添加默认按键
+  const handleAddButtonAt = (cx: number, cy: number) => {
+    const newEl: CrownElement = {
+      element_id: Date.now(),
+      config_id: 1710000000000,
+      element_type: CrownElementType.DIGITAL_COMMON_BUTTON,
+      element_text: "A",
+      element_value: "k29",
+      element_width: 120,
+      element_height: 120,
+      element_central_x: cx,
+      element_central_y: cy,
+      element_radius: 60,
+      element_thick: 3,
+      element_layer: 50,
+      element_color: 0xff333333,
+      element_pressed_color: 0xff000000,
+      element_background_color: 0x15000000,
+      normalTextColor: 0xff111111,
+      pressedTextColor: 0xff000000,
+      textSizePercent: 26,
+    };
+    addElement(newEl);
+    selectElement(newEl.element_id);
+    closeContextMenu();
+  };
+
+  // 在右键物理坐标处添加模拟摇杆
+  const handleAddStickAt = (cx: number, cy: number) => {
+    const newEl: CrownElement = {
+      element_id: Date.now(),
+      config_id: 1710000000000,
+      element_type: CrownElementType.ANALOG_STICK,
+      element_value: "LS",
+      element_middle_value: "g64",
+      element_width: 360,
+      element_height: 360,
+      element_central_x: cx,
+      element_central_y: cy,
+      element_radius: 180,
+      element_thick: 3,
+      element_layer: 46,
+      element_color: 0xff444444,
+      element_pressed_color: 0xff111111,
+      element_background_color: 0x15000000,
+      element_sense: 30,
+      element_mode: CrownStickMoveMode.FIXED_ABSOLUTE,
+    };
+    addElement(newEl);
+    selectElement(newEl.element_id);
+    closeContextMenu();
+  };
 
   // 画布背景按下（平移视口：支持左键空白处、右键、中键、空格拖拽）
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
+    // 若点击在右键菜单内部，直接放行，避免阻断菜单项点击事件
+    if ((e.target as HTMLElement).closest("[data-crown-context-menu]")) {
+      return;
+    }
+
+    closeContextMenu();
+
     // 检查是否点击在虚拟按键控件上
     const clickedElement = (e.target as HTMLElement).closest("[data-crown-element]");
     if (clickedElement) {
       return;
     }
 
-    // 只要不是点击按键本身，左键(0)、中键(1)、右键(2)或空格均可自如平移视口
+    // 只要不是点击按键本身，左键(0)、中键(1)、右键(2)或空格均可平移视口
     if (e.button === 0 || e.button === 1 || e.button === 2 || isSpaceDownRef.current) {
       isPanningRef.current = true;
       panHasMovedRef.current = false;
@@ -182,14 +377,44 @@ export const StageViewport: React.FC = () => {
         x: e.clientX - panOffsetRef.current.x,
         y: e.clientY - panOffsetRef.current.y,
       };
-      document.body.style.cursor = "grabbing";
-      e.preventDefault();
+      if (e.button === 0 || e.button === 1 || isSpaceDownRef.current) {
+        document.body.style.cursor = "grabbing";
+      }
+      if (e.button !== 2) {
+        e.preventDefault();
+      }
     }
+  };
+
+  // 画布空白处右键菜单
+  const handleCanvasContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const clickedElement = (e.target as HTMLElement).closest("[data-crown-element]");
+    if (clickedElement) {
+      return;
+    }
+    // 若平移视口发生了位移拖动，则不唤起右键菜单
+    if (panHasMovedRef.current) {
+      return;
+    }
+    openContextMenu(e.clientX, e.clientY, null);
   };
 
   // 单个按键按下（开启拖拽）
   const handleElementMouseDown = (e: React.MouseEvent, el: CrownElement) => {
     e.stopPropagation();
+
+    // 右键点击按键时，不启动拖拽，选中该控件并等待 contextmenu 事件唤出右键菜单
+    if (e.button === 2) {
+      if (!selectedElementIds.includes(el.element_id)) {
+        selectElement(el.element_id);
+      }
+      return;
+    }
+
+    if (e.button !== 0) return;
+
+    closeContextMenu();
     e.preventDefault();
 
     // 选中该元素
@@ -209,6 +434,16 @@ export const StageViewport: React.FC = () => {
       startY: e.clientY,
       hasMoved: false,
     };
+  };
+
+  // 按键右键菜单
+  const handleElementContextMenu = (e: React.MouseEvent, el: CrownElement) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!selectedElementIds.includes(el.element_id)) {
+      selectElement(el.element_id);
+    }
+    openContextMenu(e.clientX, e.clientY, el.element_id);
   };
 
   const renderElement = (el: CrownElement) => {
@@ -238,6 +473,7 @@ export const StageViewport: React.FC = () => {
         key={el.element_id}
         data-crown-element="true"
         onMouseDown={(e) => handleElementMouseDown(e, el)}
+        onContextMenu={(e) => handleElementContextMenu(e, el)}
         style={{
           position: "absolute",
           left: `${left}px`,
@@ -466,7 +702,7 @@ export const StageViewport: React.FC = () => {
       ref={containerRef}
       onWheel={handleWheel}
       onMouseDown={handleCanvasMouseDown}
-      onContextMenu={(e) => e.preventDefault()}
+      onContextMenu={handleCanvasContextMenu}
       className="relative flex-1 overflow-hidden bg-[#f7f6f3] cursor-grab active:cursor-grabbing"
       style={{
         backgroundImage: "radial-gradient(#d5d4d0 1px, transparent 1px)",
@@ -487,12 +723,11 @@ export const StageViewport: React.FC = () => {
         }}
         className="rounded-[36px] border-[8px] border-[#ffffff] bg-[#fafaf9] shadow-[0_16px_50px_-10px_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.06)] select-none"
       >
-        {/* 安全区与摄像头模拟 */}
+        {/* 安全区模拟 (已移除中心上方的摄像头黑圆点) */}
         {showSafeArea && (
           <>
             <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-20 border-r border-dashed border-[#eaeaea] bg-black/[0.015] z-0" />
             <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-20 border-l border-dashed border-[#eaeaea] bg-black/[0.015] z-0" />
-            <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 h-4 w-4 rounded-full bg-[#111111] z-10" />
           </>
         )}
 
@@ -510,8 +745,212 @@ export const StageViewport: React.FC = () => {
         <span>•</span>
         <span>缩放: <strong className="text-[#111111] font-mono font-semibold">{Math.round(zoom * 100)}%</strong></span>
         <span>•</span>
-        <span>按住 <kbd>Space</kbd> 拖动画布</span>
+        <span>右键呼出菜单 / 拖动画布</span>
       </div>
+
+      {/* 极简右键快捷菜单 (Context Menu) */}
+      {contextMenu.isOpen && (
+        <div
+          data-crown-context-menu="true"
+          style={{
+            left: `${contextMenu.x}px`,
+            top: `${contextMenu.y}px`,
+          }}
+          className="fixed z-50 min-w-[190px] rounded-xl border border-[#eaeaea] bg-[#ffffff]/98 p-1.5 shadow-[0_16px_36px_-6px_rgba(0,0,0,0.14),0_0_0_1px_rgba(0,0,0,0.04)] backdrop-blur-sm select-none animate-in fade-in zoom-in-95 duration-100 cursor-default"
+          onContextMenu={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
+          onMouseUp={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          onPointerUp={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {contextMenu.targetElementId !== null ? (
+            /* 针对选中的控件右键菜单 */
+            <div className="flex flex-col gap-0.5">
+              <div className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider text-[#888888]">
+                控件操作
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  duplicateSelectedElements();
+                  closeContextMenu();
+                }}
+                className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <Copy className="h-3.5 w-3.5 text-[#555555]" />
+                  <span>复制 / 克隆</span>
+                </div>
+                <span className="text-[10px] font-mono text-[#888888]">Ctrl+D</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleBringToFront(contextMenu.targetElementId!)}
+                className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <BringToFront className="h-3.5 w-3.5 text-[#555555]" />
+                  <span>置于顶层</span>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSendToBack(contextMenu.targetElementId!)}
+                className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <SendToBack className="h-3.5 w-3.5 text-[#555555]" />
+                  <span>置于底层</span>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleCenterHorizontal(contextMenu.targetElementId!)}
+                className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <AlignCenter className="h-3.5 w-3.5 text-[#555555]" />
+                  <span>水平居中</span>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleCenterVertical(contextMenu.targetElementId!)}
+                className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <AlignCenter className="h-3.5 w-3.5 rotate-90 text-[#555555]" />
+                  <span>垂直居中</span>
+                </div>
+              </button>
+
+              <div className="my-1 border-t border-[#f0f0ee]" />
+
+              <button
+                type="button"
+                onClick={() => {
+                  deleteSelectedElements();
+                  closeContextMenu();
+                }}
+                className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#9f2f2d] hover:bg-[#fdebec] transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <Trash2 className="h-3.5 w-3.5 text-[#9f2f2d]" />
+                  <span>删除控件</span>
+                </div>
+                <span className="text-[10px] font-mono text-[#9f2f2d]/70">Del</span>
+              </button>
+            </div>
+          ) : (
+            /* 画布空白处右键菜单 */
+            <div className="flex flex-col gap-0.5">
+              <div className="px-2.5 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider text-[#888888]">
+                画布快捷操作
+              </div>
+              <button
+                type="button"
+                onClick={() => handleAddButtonAt(contextMenu.canvasX, contextMenu.canvasY)}
+                className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <CircleDot className="h-3.5 w-3.5 text-[#111111]" />
+                  <span>在此添加按键</span>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleAddStickAt(contextMenu.canvasX, contextMenu.canvasY)}
+                className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <Compass className="h-3.5 w-3.5 text-[#111111]" />
+                  <span>在此添加摇杆</span>
+                </div>
+              </button>
+
+              <div className="my-1 border-t border-[#f0f0ee]" />
+
+              <button
+                type="button"
+                onClick={() => {
+                  resetViewport();
+                  closeContextMenu();
+                }}
+                className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <RotateCcw className="h-3.5 w-3.5 text-[#555555]" />
+                  <span>重置视口居中</span>
+                </div>
+                <span className="text-[10px] font-mono text-[#888888]">100%</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  toggleSnapToGrid();
+                  closeContextMenu();
+                }}
+                className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <Grid className="h-3.5 w-3.5 text-[#555555]" />
+                  <span>网格吸附对齐</span>
+                </div>
+                <span
+                  className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
+                    snapToGrid ? "bg-[#111111] text-white" : "bg-[#f0f0ee] text-[#777777]"
+                  }`}
+                >
+                  {snapToGrid ? "开" : "关"}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  toggleSafeArea();
+                  closeContextMenu();
+                }}
+                className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <ShieldAlert className="h-3.5 w-3.5 text-[#555555]" />
+                  <span>模拟边缘安全区</span>
+                </div>
+                <span
+                  className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${
+                    showSafeArea ? "bg-[#111111] text-white" : "bg-[#f0f0ee] text-[#777777]"
+                  }`}
+                >
+                  {showSafeArea ? "开" : "关"}
+                </span>
+              </button>
+
+              {selectedElementIds.length > 0 && (
+                <>
+                  <div className="my-1 border-t border-[#f0f0ee]" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      selectElement(null);
+                      closeContextMenu();
+                    }}
+                    className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#555555] hover:bg-[#f7f6f3] hover:text-[#111111] transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <MousePointerClick className="h-3.5 w-3.5 text-[#555555]" />
+                      <span>取消选中</span>
+                    </div>
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </main>
   );
 };

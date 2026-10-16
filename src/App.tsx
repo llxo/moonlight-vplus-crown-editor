@@ -18,6 +18,7 @@ export default function App() {
     elements,
     loadFromBundleOrPayload,
     deleteSelectedElements,
+    duplicateSelectedElements,
     undo,
     redo,
     canUndo,
@@ -41,6 +42,9 @@ export default function App() {
 
       if (e.key === "Delete" || e.key === "Backspace") {
         deleteSelectedElements();
+      } else if (e.ctrlKey && e.key.toLowerCase() === "d") {
+        e.preventDefault();
+        duplicateSelectedElements();
       } else if (e.ctrlKey && e.key.toLowerCase() === "z") {
         e.preventDefault();
         if (e.shiftKey) {
