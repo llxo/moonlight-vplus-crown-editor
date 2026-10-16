@@ -52,6 +52,7 @@ export interface CrownState {
   showSafeArea: boolean;
   isLayersOpen: boolean;
   isGlobalSettingsOpen: boolean;
+  isWelcomeModalOpen: boolean;
   isDirty: boolean;
   validationStatus: {
     isValidSha256: boolean;
@@ -87,6 +88,9 @@ export interface CrownState {
   setLayersOpen: (open: boolean) => void;
   toggleGlobalSettings: () => void;
   setGlobalSettingsOpen: (open: boolean) => void;
+  toggleWelcomeModal: () => void;
+  setWelcomeModalOpen: (open: boolean) => void;
+  loadBlankProfile: () => void;
 
   // 历史控制
   pushHistorySnapshot: () => void;
@@ -142,6 +146,7 @@ export const useCrownStore = create<CrownState>((set, get) => ({
   showSafeArea: true,
   isLayersOpen: false,
   isGlobalSettingsOpen: false,
+  isWelcomeModalOpen: typeof window !== "undefined" ? localStorage.getItem("moonlight_crown_welcome_dismissed") !== "true" : true,
   isDirty: false,
   validationStatus: {
     isValidSha256: true,
@@ -355,6 +360,24 @@ export const useCrownStore = create<CrownState>((set, get) => ({
   setLayersOpen: (open) => set({ isLayersOpen: open }),
   toggleGlobalSettings: () => set((s) => ({ isGlobalSettingsOpen: !s.isGlobalSettingsOpen })),
   setGlobalSettingsOpen: (open) => set({ isGlobalSettingsOpen: open }),
+  toggleWelcomeModal: () => set((s) => ({ isWelcomeModalOpen: !s.isWelcomeModalOpen })),
+  setWelcomeModalOpen: (open) => set({ isWelcomeModalOpen: open }),
+
+  loadBlankProfile: () => {
+    get().pushHistorySnapshot();
+    set({
+      elements: [],
+      selectedElementIds: [],
+      isDirty: true,
+      meta: {
+        name: "Untitled Profile",
+        summary: "自定义空白按键配置",
+        authorName: "Crown Designer",
+        gameName: "Custom",
+        tags: ["Custom"],
+      },
+    });
+  },
 
   loadFromBundleOrPayload: async (jsonText: string) => {
     const result = await smartImportProfile(jsonText);

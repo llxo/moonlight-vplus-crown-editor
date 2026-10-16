@@ -19,6 +19,7 @@ import {
   Crown,
   Settings,
   ChevronDown,
+  HelpCircle,
 } from "lucide-react";
 import { useCrownStore } from "../../store/useCrownStore";
 
@@ -54,6 +55,7 @@ export const HeaderBar: React.FC = () => {
     loadFromBundleOrPayload,
     exportBundle,
     toggleGlobalSettings,
+    toggleWelcomeModal,
   } = useCrownStore();
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -276,6 +278,15 @@ export const HeaderBar: React.FC = () => {
           accept=".json,.crown.json"
           className="hidden"
         />
+
+        <button
+          onClick={toggleWelcomeModal}
+          className="flex items-center gap-1.5 rounded-md border border-[#eaeaea] bg-[#ffffff] px-2.5 py-1.5 font-medium text-[#2f3437] transition-all hover:bg-[#f7f6f3] hover:border-[#dcdbd8]"
+          title="打开新手指南与精选模版中心"
+        >
+          <HelpCircle className="h-3.5 w-3.5 text-[#4b5563]" />
+          <span>指南与模版</span>
+        </button>
 
         <button
           onClick={toggleGlobalSettings}
