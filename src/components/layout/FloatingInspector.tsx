@@ -1,6 +1,6 @@
 /**
  * @file FloatingInspector.tsx
- * @description 右侧伴随悬浮属性卡片：仅在选中按键时轻量优雅浮现，提供极简几何微调、直接键位录制与颜色配置
+ * @description 右侧伴随悬浮属性卡片：仅在选中按键时轻量优雅浮现，提供几何微调、键位录制与颜色配置
  * @author Moonlight-vplus Architect
  * @license Apache-2.0
  */
@@ -16,12 +16,13 @@ import {
 import { useCrownStore } from "../../store/useCrownStore";
 import {
   CrownElementType,
-  CrownStickMoveMode,
   type CrownElement,
 } from "../../crownSchema";
 import { KeyCodePicker } from "../common/KeyCodePicker";
 import { MacroCombineRecorder } from "../common/MacroCombineRecorder";
 import { CrownColorPicker } from "../common/CrownColorPicker";
+import { NumberField, TextField } from "../common/FormFields";
+import { SpecialElementFields } from "./SpecialElementFields";
 
 export const FloatingInspector: React.FC = () => {
   const {
@@ -33,7 +34,6 @@ export const FloatingInspector: React.FC = () => {
     selectElement,
   } = useCrownStore();
 
-  // 若未选中任何按键，完全不渲染，释放整个屏幕视野
   if (selectedElementIds.length === 0) {
     return null;
   }
@@ -63,9 +63,13 @@ export const FloatingInspector: React.FC = () => {
     }
   };
 
+  const handleUpdate = (patch: Partial<CrownElement>) => {
+    updateElement(selectedElement.element_id, patch);
+  };
+
   return (
     <div className="absolute top-5 right-5 z-20 w-80 max-h-[calc(100vh-90px)] overflow-y-auto rounded-2xl border border-[#eaeaea] bg-[#ffffff] p-4 shadow-[0_16px_40px_-8px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.04)] animate-in fade-in slide-in-from-right-4 select-none space-y-4">
-      {/* 头部摘要与关闭 */}
+      {/* 头部摘要与操作 */}
       <div className="flex items-center justify-between border-b border-[#eaeaea] pb-2.5">
         <div className="flex items-center gap-2">
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[#111111] text-[#ffffff]">
@@ -109,7 +113,7 @@ export const FloatingInspector: React.FC = () => {
         </div>
       </div>
 
-      {/* 核心按键绑定 (单键或快捷键) */}
+      {/* 核心按键绑定 */}
       {"element_value" in selectedElement &&
         selectedElement.element_type !== CrownElementType.WHEEL_PAD &&
         selectedElement.element_type !== CrownElementType.DIGITAL_COMBINE_BUTTON && (
@@ -117,7 +121,7 @@ export const FloatingInspector: React.FC = () => {
             <KeyCodePicker
               label="按键绑定 (直接按下键盘按键录制)"
               value={selectedElement.element_value || ""}
-              onChange={(newVal) => updateElement(selectedElement.element_id, { element_value: newVal } as any)}
+              onChange={(newVal) => handleUpdate({ element_value: newVal } as any)}
             />
           </div>
         )}
@@ -131,7 +135,7 @@ export const FloatingInspector: React.FC = () => {
           leftValue={selectedElement.element_left_value}
           rightValue={selectedElement.element_right_value}
           currentText={selectedElement.element_text}
-          onChange={(slots) => updateElement(selectedElement.element_id, slots as any)}
+          onChange={(slots) => handleUpdate(slots as any)}
         />
       )}
 
@@ -139,16 +143,12 @@ export const FloatingInspector: React.FC = () => {
       {"element_text" in selectedElement &&
         selectedElement.element_type !== CrownElementType.SIMPLIFY_PERFORMANCE &&
         selectedElement.element_type !== CrownElementType.DIGITAL_COMBINE_BUTTON && (
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-[#374151] block">表面文字 (Text)</label>
-            <input
-              type="text"
-              value={selectedElement.element_text || ""}
-              onChange={(e) => updateElement(selectedElement.element_id, { element_text: e.target.value } as any)}
-              className="w-full rounded-md border border-[#eaeaea] bg-[#fbfbfa] px-2.5 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
-              placeholder="按键表面显示文字"
-            />
-          </div>
+          <TextField
+            label="表面文字 (Text)"
+            value={selectedElement.element_text || ""}
+            onChange={(val) => handleUpdate({ element_text: val } as any)}
+            placeholder="按键表面显示文字"
+          />
         )}
 
       {/* 几何尺寸与中心锚点 */}
@@ -164,164 +164,104 @@ export const FloatingInspector: React.FC = () => {
             : "按键尺寸与圆角 (Px)"}
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="text-xs font-medium text-[#4b5563] block mb-1">中心点 X</label>
-            <input
-              type="number"
-              value={selectedElement.element_central_x}
-              onChange={(e) => updateElement(selectedElement.element_id, { element_central_x: Number(e.target.value) })}
-              className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-[#4b5563] block mb-1">中心点 Y</label>
-            <input
-              type="number"
-              value={selectedElement.element_central_y}
-              onChange={(e) => updateElement(selectedElement.element_id, { element_central_y: Number(e.target.value) })}
-              className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
-            />
-          </div>
+          <NumberField
+            label="中心点 X"
+            value={selectedElement.element_central_x}
+            onChange={(val) => handleUpdate({ element_central_x: val })}
+          />
+          <NumberField
+            label="中心点 Y"
+            value={selectedElement.element_central_y}
+            onChange={(val) => handleUpdate({ element_central_y: val })}
+          />
 
           {selectedElement.element_type === CrownElementType.WHEEL_PAD ? (
-            /* 轮盘：肯定为正圆，配置直径与中心半径 */
+            /* 轮盘 */
             <>
-              <div>
-                <label className="text-xs font-medium text-[#4b5563] block mb-1">轮盘直径 (D)</label>
-                <input
-                  type="number"
-                  min="60"
-                  value={selectedElement.element_width}
-                  onChange={(e) => {
-                    const d = Math.max(60, Number(e.target.value));
-                    updateElement(selectedElement.element_id, {
-                      element_width: d,
-                      element_height: d,
-                    });
-                  }}
-                  className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
-                />
-              </div>
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="text-xs font-medium text-[#4b5563]">中心半径 (r)</label>
-                  <span className="text-[10px] font-mono text-[#888888]">
-                    {selectedElement.element_sense || 30}%
-                  </span>
-                </div>
-                <input
-                  type="number"
-                  min="5"
-                  max={Math.max(10, Math.round(selectedElement.element_width / 2 - 5))}
-                  value={Math.round((selectedElement.element_width / 2) * ((selectedElement.element_sense || 30) / 100))}
-                  onChange={(e) => {
-                    const outerR = selectedElement.element_width / 2;
-                    const r = Math.max(5, Math.min(outerR - 5, Number(e.target.value)));
-                    const newSense = Math.max(5, Math.min(85, Math.round((r / outerR) * 100)));
-                    updateElement(selectedElement.element_id, { element_sense: newSense });
-                  }}
-                  className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
-                />
-              </div>
+              <NumberField
+                label="轮盘直径 (D)"
+                min={60}
+                value={selectedElement.element_width}
+                onChange={(d) => handleUpdate({ element_width: d, element_height: d })}
+              />
+              <NumberField
+                label="中心半径 (r)"
+                min={5}
+                max={Math.max(10, Math.round(selectedElement.element_width / 2 - 5))}
+                badge={`${selectedElement.element_sense || 30}%`}
+                value={Math.round((selectedElement.element_width / 2) * ((selectedElement.element_sense || 30) / 100))}
+                onChange={(r) => {
+                  const outerR = selectedElement.element_width / 2;
+                  const newSense = Math.max(5, Math.min(85, Math.round((r / outerR) * 100)));
+                  handleUpdate({ element_sense: newSense });
+                }}
+              />
             </>
           ) : selectedElement.element_type === CrownElementType.ANALOG_STICK ||
             selectedElement.element_type === CrownElementType.INVISIBLE_ANALOG_STICK ||
             selectedElement.element_type === CrownElementType.DIGITAL_STICK ||
             selectedElement.element_type === CrownElementType.INVISIBLE_DIGITAL_STICK ? (
-            /* 摇杆：天然正圆，配置直径与死区半径 */
+            /* 摇杆 */
             <>
-              <div>
-                <label className="text-xs font-medium text-[#4b5563] block mb-1">摇杆直径 (D)</label>
-                <input
-                  type="number"
-                  min="80"
-                  value={selectedElement.element_width}
-                  onChange={(e) => {
-                    const d = Math.max(80, Number(e.target.value));
-                    updateElement(selectedElement.element_id, {
-                      element_width: d,
-                      element_height: d,
-                      element_radius: Math.round(d / 2),
-                    } as any);
-                  }}
-                  className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
-                />
-              </div>
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="text-xs font-medium text-[#4b5563]">死区半径 (r)</label>
-                  <span className="text-[10px] font-mono text-[#888888]">
-                    {selectedElement.element_sense ?? 30}%
-                  </span>
-                </div>
-                <input
-                  type="number"
-                  min="0"
-                  max={Math.max(10, Math.round(selectedElement.element_width / 2 - 5))}
-                  value={Math.round((selectedElement.element_width / 2) * ((selectedElement.element_sense ?? 30) / 100))}
-                  onChange={(e) => {
-                    const outerR = selectedElement.element_width / 2;
-                    const r = Math.max(0, Math.min(outerR - 5, Number(e.target.value)));
-                    const newSense = Math.max(0, Math.min(80, Math.round((r / outerR) * 100)));
-                    updateElement(selectedElement.element_id, { element_sense: newSense });
-                  }}
-                  className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
-                />
-              </div>
+              <NumberField
+                label="摇杆直径 (D)"
+                min={80}
+                value={selectedElement.element_width}
+                onChange={(d) =>
+                  handleUpdate({
+                    element_width: d,
+                    element_height: d,
+                    element_radius: Math.round(d / 2),
+                  } as any)
+                }
+              />
+              <NumberField
+                label="死区半径 (r)"
+                min={0}
+                max={Math.max(10, Math.round(selectedElement.element_width / 2 - 5))}
+                badge={`${selectedElement.element_sense ?? 30}%`}
+                value={Math.round((selectedElement.element_width / 2) * ((selectedElement.element_sense ?? 30) / 100))}
+                onChange={(r) => {
+                  const outerR = selectedElement.element_width / 2;
+                  const newSense = Math.max(0, Math.min(80, Math.round((r / outerR) * 100)));
+                  handleUpdate({ element_sense: newSense });
+                }}
+              />
             </>
           ) : (
-            /* 普通按键、组合键等：创建时为正方形，支持自由调整为长方形，且支持自由调圆角 */
+            /* 普通矩形按键 */
             <>
-              <div>
-                <label className="text-xs font-medium text-[#4b5563] block mb-1">宽度 W</label>
-                <input
-                  type="number"
-                  min="20"
-                  value={selectedElement.element_width}
-                  onChange={(e) => updateElement(selectedElement.element_id, { element_width: Math.max(20, Number(e.target.value)) })}
-                  className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-[#4b5563] block mb-1">高度 H</label>
-                <input
-                  type="number"
-                  min="20"
-                  value={selectedElement.element_height}
-                  onChange={(e) => updateElement(selectedElement.element_id, { element_height: Math.max(20, Number(e.target.value)) })}
-                  className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
-                />
-              </div>
+              <NumberField
+                label="宽度 W"
+                min={20}
+                value={selectedElement.element_width}
+                onChange={(val) => handleUpdate({ element_width: val })}
+              />
+              <NumberField
+                label="高度 H"
+                min={20}
+                value={selectedElement.element_height}
+                onChange={(val) => handleUpdate({ element_height: val })}
+              />
 
               {"element_radius" in selectedElement && (
                 <>
-                  <div className="col-span-2">
-                    <div className="flex justify-between items-center mb-1">
-                      <label className="text-xs font-medium text-[#4b5563]">圆角 Radius (Px)</label>
-                      <span className="text-[10px] font-mono text-[#888888]">
-                        {(selectedElement.element_radius ?? 16) === 0
-                          ? "直角 (0px)"
-                          : (selectedElement.element_radius ?? 16) >=
-                            Math.round(Math.min(selectedElement.element_width, selectedElement.element_height) / 2)
-                          ? "胶囊/全圆"
-                          : `${selectedElement.element_radius ?? 16}px`}
-                      </span>
-                    </div>
-                    <input
-                      type="number"
-                      min="0"
-                      max={Math.round(Math.min(selectedElement.element_width, selectedElement.element_height) / 2)}
-                      value={selectedElement.element_radius ?? 16}
-                      onChange={(e) => {
-                        const maxR = Math.round(
-                          Math.min(selectedElement.element_width, selectedElement.element_height) / 2
-                        );
-                        const r = Math.max(0, Math.min(maxR, Number(e.target.value)));
-                        updateElement(selectedElement.element_id, { element_radius: r } as any);
-                      }}
-                      className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
-                    />
-                  </div>
+                  <NumberField
+                    className="col-span-2"
+                    label="圆角 Radius (Px)"
+                    min={0}
+                    max={Math.round(Math.min(selectedElement.element_width, selectedElement.element_height) / 2)}
+                    badge={
+                      (selectedElement.element_radius ?? 16) === 0
+                        ? "直角 (0px)"
+                        : (selectedElement.element_radius ?? 16) >=
+                          Math.round(Math.min(selectedElement.element_width, selectedElement.element_height) / 2)
+                        ? "胶囊/全圆"
+                        : `${selectedElement.element_radius ?? 16}px`
+                    }
+                    value={selectedElement.element_radius ?? 16}
+                    onChange={(r) => handleUpdate({ element_radius: r } as any)}
+                  />
 
                   {/* 快捷圆角预设 */}
                   <div className="col-span-2 flex items-center gap-1.5 pt-0.5 flex-wrap">
@@ -343,9 +283,7 @@ export const FloatingInspector: React.FC = () => {
                         <button
                           key={preset.label}
                           type="button"
-                          onClick={() =>
-                            updateElement(selectedElement.element_id, { element_radius: preset.val } as any)
-                          }
+                          onClick={() => handleUpdate({ element_radius: preset.val } as any)}
                           className={`px-2 py-0.5 rounded text-[10px] font-mono border transition-colors cursor-pointer ${
                             isActive
                               ? "bg-[#111111] text-white border-[#111111]"
@@ -362,28 +300,21 @@ export const FloatingInspector: React.FC = () => {
             </>
           )}
 
-          <div>
-            <label className="text-xs font-medium text-[#4b5563] block mb-1">图层 Layer</label>
-            <input
-              type="number"
-              value={selectedElement.element_layer}
-              onChange={(e) => updateElement(selectedElement.element_id, { element_layer: Number(e.target.value) })}
-              className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-[#4b5563] block mb-1">描边 Thick</label>
-            <input
-              type="number"
-              value={selectedElement.element_thick}
-              onChange={(e) => updateElement(selectedElement.element_id, { element_thick: Math.max(1, Number(e.target.value)) })}
-              className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none focus:border-[#111111]"
-            />
-          </div>
+          <NumberField
+            label="图层 Layer"
+            value={selectedElement.element_layer}
+            onChange={(val) => handleUpdate({ element_layer: val })}
+          />
+          <NumberField
+            label="描边 Thick"
+            min={1}
+            value={selectedElement.element_thick}
+            onChange={(val) => handleUpdate({ element_thick: val })}
+          />
         </div>
       </div>
 
-      {/* 颜色样式设置 (CrownColorPicker 替换原生丑陋直角弹窗) */}
+      {/* 颜色样式设置 */}
       <div className="space-y-2.5 border-t border-[#eaeaea] pt-3">
         <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#374151]">
           <Palette className="h-3.5 w-3.5 text-[#111111]" />
@@ -393,138 +324,18 @@ export const FloatingInspector: React.FC = () => {
           <CrownColorPicker
             label="描边颜色"
             intColor={selectedElement.element_color}
-            onChange={(newInt) => updateElement(selectedElement.element_id, { element_color: newInt })}
+            onChange={(newInt) => handleUpdate({ element_color: newInt })}
           />
           <CrownColorPicker
             label="背景填充色"
             intColor={selectedElement.element_background_color}
-            onChange={(newInt) => updateElement(selectedElement.element_id, { element_background_color: newInt })}
+            onChange={(newInt) => handleUpdate({ element_background_color: newInt })}
           />
         </div>
       </div>
 
-      {/* 类型专属属性 (模拟摇杆、十字键等) */}
-      {renderSpecialTypeFields(selectedElement, (patch) => updateElement(selectedElement.element_id, patch))}
+      {/* 类型专属属性 (模拟摇杆、十字键、轮盘等) */}
+      <SpecialElementFields element={selectedElement} onUpdate={handleUpdate} />
     </div>
   );
 };
-
-function renderSpecialTypeFields(
-  element: CrownElement,
-  onUpdate: (patch: Partial<CrownElement>) => void
-) {
-  switch (element.element_type) {
-    case CrownElementType.ANALOG_STICK: {
-      return (
-        <div className="space-y-3 border-t border-[#eaeaea] pt-3">
-          <div className="text-xs font-semibold uppercase tracking-wider text-[#374151]">
-            摇杆属性
-          </div>
-          <div>
-            <div className="flex justify-between text-xs text-[#4b5563] mb-1">
-              <span>死区半径比例</span>
-              <span className="font-mono text-[#111111] font-semibold">{element.element_sense}%</span>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="80"
-              value={element.element_sense}
-              onChange={(e) => onUpdate({ element_sense: Number(e.target.value) } as any)}
-              className="w-full accent-[#111111]"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-[#4b5563] block mb-1">摇杆移动模式</label>
-            <select
-              value={element.element_mode}
-              onChange={(e) => onUpdate({ element_mode: Number(e.target.value) } as any)}
-              className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none"
-            >
-              <option value={CrownStickMoveMode.FIXED_ABSOLUTE}>绝对固定位置</option>
-              <option value={CrownStickMoveMode.FOLLOW_FINGER_RELATIVE}>随手指按下动态居中</option>
-            </select>
-          </div>
-          <div>
-            <KeyCodePicker
-              label="摇杆下压键 (L3/R3)"
-              value={element.element_middle_value || "g64"}
-              onChange={(val) => onUpdate({ element_middle_value: val } as any)}
-            />
-          </div>
-        </div>
-      );
-    }
-
-    case CrownElementType.DIGITAL_PAD: {
-      return (
-        <div className="space-y-2.5 border-t border-[#eaeaea] pt-3">
-          <div className="text-xs font-semibold uppercase tracking-wider text-[#374151]">
-            十字键四向绑定
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <KeyCodePicker
-              label="上 (UP)"
-              value={element.element_up_value}
-              onChange={(val) => onUpdate({ element_up_value: val } as any)}
-            />
-            <KeyCodePicker
-              label="下 (DOWN)"
-              value={element.element_down_value}
-              onChange={(val) => onUpdate({ element_down_value: val } as any)}
-            />
-            <KeyCodePicker
-              label="左 (LEFT)"
-              value={element.element_left_value}
-              onChange={(val) => onUpdate({ element_left_value: val } as any)}
-            />
-            <KeyCodePicker
-              label="右 (RIGHT)"
-              value={element.element_right_value}
-              onChange={(val) => onUpdate({ element_right_value: val } as any)}
-            />
-          </div>
-        </div>
-      );
-    }
-
-    case CrownElementType.WHEEL_PAD: {
-      return (
-        <div className="space-y-3 border-t border-[#eaeaea] pt-3">
-          <div className="text-xs font-semibold uppercase tracking-wider text-[#374151]">
-            轮盘扇区配置
-          </div>
-          <div>
-            <div className="flex justify-between text-xs text-[#4b5563] mb-1">
-              <span>扇区数量 (Mode)</span>
-              <span className="font-mono text-[#111111] font-semibold">{element.element_mode || 8} 扇区</span>
-            </div>
-            <input
-              type="number"
-              min="2"
-              max="16"
-              value={element.element_mode || 8}
-              onChange={(e) => onUpdate({ element_mode: Math.max(2, Math.min(16, Number(e.target.value))) } as any)}
-              className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 text-xs text-[#111111] outline-none"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-[#4b5563] block mb-1">
-              扇区键位与名称 (按顺时针，逗号分隔)
-            </label>
-            <textarea
-              rows={2}
-              value={element.element_value || ""}
-              onChange={(e) => onUpdate({ element_value: e.target.value } as any)}
-              className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1 font-mono text-xs text-[#111111] outline-none"
-              placeholder="k8|1,k9|2,k10|3,k11|4"
-            />
-          </div>
-        </div>
-      );
-    }
-
-    default:
-      return null;
-  }
-}

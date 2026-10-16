@@ -751,3 +751,197 @@ export const CrownColorUtils = {
     return uint32 | 0; // 转回 Signed 32-bit Integer
   },
 };
+
+// ============================================================================
+// 5. 虚拟控件默认预设工厂 (Default Preset Factory)
+// ============================================================================
+
+/**
+ * 创建王冠模式各类虚拟控件的默认标准实例（单一真实数据源，避免各处重复硬编码）
+ */
+export function createDefaultCrownElement(
+  type: CrownElementType,
+  centralX: number,
+  centralY: number
+): CrownElement {
+  const base = {
+    element_id: Date.now(),
+    config_id: 1710000000000,
+    element_central_x: centralX,
+    element_central_y: centralY,
+    element_thick: 3,
+    element_layer: 50,
+  };
+
+  switch (type) {
+    case CrownElementType.DIGITAL_COMMON_BUTTON:
+      return {
+        ...base,
+        element_type: CrownElementType.DIGITAL_COMMON_BUTTON,
+        element_text: "A",
+        element_value: "k29",
+        element_width: 120,
+        element_height: 120,
+        element_radius: 16,
+        element_color: 0xff333333,
+        element_pressed_color: 0xff000000,
+        element_background_color: 0x15000000,
+        normalTextColor: 0xff111111,
+        pressedTextColor: 0xff000000,
+        textSizePercent: 26,
+      };
+
+    case CrownElementType.DIGITAL_SWITCH_BUTTON:
+      return {
+        ...base,
+        element_type: CrownElementType.DIGITAL_SWITCH_BUTTON,
+        element_text: "LOCK",
+        element_value: "k62", // Space
+        element_width: 120,
+        element_height: 120,
+        element_radius: 16,
+        element_color: 0xff346538,
+        element_pressed_color: 0xff1e3d22,
+        element_background_color: 0x15346538,
+        normalTextColor: 0xff111111,
+        pressedTextColor: 0xff111111,
+        textSizePercent: 22,
+      };
+
+    case CrownElementType.DIGITAL_MOVABLE_BUTTON:
+      return {
+        ...base,
+        element_type: CrownElementType.DIGITAL_MOVABLE_BUTTON,
+        element_text: "AIM",
+        element_value: "m3",
+        element_width: 140,
+        element_height: 140,
+        element_radius: 70,
+        element_color: 0xff1f6c9f,
+        element_pressed_color: 0xff0f3650,
+        element_background_color: 0x151f6c9f,
+        normalTextColor: 0xff111111,
+        pressedTextColor: 0xff111111,
+        textSizePercent: 24,
+        element_mode: 0,
+        element_sense: 100,
+        extra_attributes: JSON.stringify({ isTrackpadMode: false }),
+      };
+
+    case CrownElementType.ANALOG_STICK:
+      return {
+        ...base,
+        element_type: CrownElementType.ANALOG_STICK,
+        element_value: "LS",
+        element_middle_value: "g64",
+        element_width: 360,
+        element_height: 360,
+        element_radius: 180,
+        element_layer: 46,
+        element_color: 0xff444444,
+        element_pressed_color: 0xff111111,
+        element_background_color: 0x15000000,
+        element_sense: 30,
+        element_mode: CrownStickMoveMode.FIXED_ABSOLUTE,
+      };
+
+    case CrownElementType.DIGITAL_PAD:
+      return {
+        ...base,
+        element_type: CrownElementType.DIGITAL_PAD,
+        element_up_value: "k51", // W
+        element_down_value: "k47", // S
+        element_left_value: "k29", // A
+        element_right_value: "k32", // D
+        element_width: 320,
+        element_height: 320,
+        element_layer: 48,
+        element_color: 0xff444444,
+        element_pressed_color: 0xff111111,
+        element_background_color: 0x18000000,
+      };
+
+    case CrownElementType.DIGITAL_COMBINE_BUTTON:
+      return {
+        ...base,
+        element_type: CrownElementType.DIGITAL_COMBINE_BUTTON,
+        element_text: "Ctrl+C",
+        element_value: "k113", // Ctrl
+        element_up_value: "k31", // C
+        element_down_value: "null",
+        element_left_value: "null",
+        element_right_value: "null",
+        element_width: 120,
+        element_height: 120,
+        element_radius: 16,
+        element_color: 0xff5c3e75,
+        element_pressed_color: 0xff352343,
+        element_background_color: 0x155c3e75,
+        normalTextColor: 0xff111111,
+        pressedTextColor: 0xff111111,
+        textSizePercent: 22,
+      };
+
+    case CrownElementType.WHEEL_PAD:
+      return {
+        ...base,
+        element_type: CrownElementType.WHEEL_PAD,
+        element_text: "RADIAL",
+        element_value: "k8|1,k9|2,k10|3,k11|4,k12|5,k13|6,k14|7,k15|8",
+        element_width: 440,
+        element_height: 440,
+        element_thick: 4,
+        element_layer: 42,
+        element_color: 0xff444444,
+        element_pressed_color: 0xff111111,
+        element_background_color: 0x18000000,
+        element_mode: 8,
+        element_sense: 30,
+        element_flag1: 1,
+        extra_attributes: JSON.stringify({
+          normalTextColor: 0xff111111,
+          pressedTextColor: 0xff111111,
+          centerTextColor: 0xff111111,
+          textSizePercent: 35,
+          centerTextSizePercent: 60,
+          triggerTextSizePercent: 40,
+          previewGroupChildren: true,
+          segmentAlignment: "center",
+        }),
+      };
+
+    case CrownElementType.SIMPLIFY_PERFORMANCE:
+      return {
+        ...base,
+        element_type: CrownElementType.SIMPLIFY_PERFORMANCE,
+        element_text: "FPS: ##帧率## | 延迟: ##网络延时##ms | HH:MM",
+        element_width: 380,
+        element_height: 52,
+        element_radius: 8,
+        element_thick: 18,
+        element_layer: 55,
+        element_color: 0xff111111,
+        element_pressed_color: 0xff111111,
+        element_background_color: 0xe6ffffff,
+      };
+
+    default:
+      // 缺省兜底按键
+      return {
+        ...base,
+        element_type: CrownElementType.DIGITAL_COMMON_BUTTON,
+        element_text: "BTN",
+        element_value: "k29",
+        element_width: 120,
+        element_height: 120,
+        element_radius: 16,
+        element_color: 0xff333333,
+        element_pressed_color: 0xff000000,
+        element_background_color: 0x15000000,
+        normalTextColor: 0xff111111,
+        pressedTextColor: 0xff000000,
+        textSizePercent: 26,
+      };
+  }
+}
+

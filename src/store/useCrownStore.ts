@@ -52,8 +52,6 @@ export interface CrownState {
   showSafeArea: boolean;
   isLayersOpen: boolean;
   isGlobalSettingsOpen: boolean;
-  activeTabLeft: "palette" | "layers";
-  activeTabRight: "element" | "settings";
   isDirty: boolean;
   validationStatus: {
     isValidSha256: boolean;
@@ -89,8 +87,6 @@ export interface CrownState {
   setLayersOpen: (open: boolean) => void;
   toggleGlobalSettings: () => void;
   setGlobalSettingsOpen: (open: boolean) => void;
-  setActiveTabLeft: (tab: "palette" | "layers") => void;
-  setActiveTabRight: (tab: "element" | "settings") => void;
 
   // 历史控制
   pushHistorySnapshot: () => void;
@@ -146,8 +142,6 @@ export const useCrownStore = create<CrownState>((set, get) => ({
   showSafeArea: true,
   isLayersOpen: false,
   isGlobalSettingsOpen: false,
-  activeTabLeft: "palette",
-  activeTabRight: "element",
   isDirty: false,
   validationStatus: {
     isValidSha256: true,
@@ -167,12 +161,10 @@ export const useCrownStore = create<CrownState>((set, get) => ({
       const exists = current.includes(id);
       set({
         selectedElementIds: exists ? current.filter((x) => x !== id) : [...current, id],
-        activeTabRight: "element",
       });
     } else {
       set({
         selectedElementIds: [id],
-        activeTabRight: "element",
       });
     }
   },
@@ -181,9 +173,9 @@ export const useCrownStore = create<CrownState>((set, get) => ({
 
   pushHistorySnapshot: () => {
     const { elements, settings, layoutBasis, historyPast } = get();
-    // 深度克隆保存快照，上限 30 步
+    // 原生结构化深克隆保存快照，上限 30 步
     const snapshot: HistorySnapshot = {
-      elements: JSON.parse(JSON.stringify(elements)),
+      elements: structuredClone(elements),
       settings: { ...settings },
       layoutBasis: { ...layoutBasis },
     };
@@ -197,7 +189,7 @@ export const useCrownStore = create<CrownState>((set, get) => ({
     const previous = historyPast[historyPast.length - 1]!;
     const newPast = historyPast.slice(0, -1);
     const currentSnapshot: HistorySnapshot = {
-      elements: JSON.parse(JSON.stringify(elements)),
+      elements: structuredClone(elements),
       settings: { ...settings },
       layoutBasis: { ...layoutBasis },
     };
@@ -218,7 +210,7 @@ export const useCrownStore = create<CrownState>((set, get) => ({
     const next = historyFuture[0]!;
     const newFuture = historyFuture.slice(1);
     const currentSnapshot: HistorySnapshot = {
-      elements: JSON.parse(JSON.stringify(elements)),
+      elements: structuredClone(elements),
       settings: { ...settings },
       layoutBasis: { ...layoutBasis },
     };
@@ -238,13 +230,7 @@ export const useCrownStore = create<CrownState>((set, get) => ({
 
   updateElement: (id, patch) => {
     get().pushHistorySnapshot();
-    const updated = get().elements.map((el) => {
-      if (el.element_id === id) {
-        return { ...el, ...patch } as CrownElement;
-      }
-      return el;
-    });
-    set({ elements: updated, isDirty: true });
+    get().updateElementTransient(id, patch);
   },
 
   updateElementTransient: (id, patch) => {
@@ -279,7 +265,6 @@ export const useCrownStore = create<CrownState>((set, get) => ({
     set((state) => ({
       elements: [...state.elements, element],
       selectedElementIds: [element.element_id],
-      activeTabRight: "element",
       isDirty: true,
     }));
   },
@@ -370,8 +355,6 @@ export const useCrownStore = create<CrownState>((set, get) => ({
   setLayersOpen: (open) => set({ isLayersOpen: open }),
   toggleGlobalSettings: () => set((s) => ({ isGlobalSettingsOpen: !s.isGlobalSettingsOpen })),
   setGlobalSettingsOpen: (open) => set({ isGlobalSettingsOpen: open }),
-  setActiveTabLeft: (tab) => set({ activeTabLeft: tab }),
-  setActiveTabRight: (tab) => set({ activeTabRight: tab }),
 
   loadFromBundleOrPayload: async (jsonText: string) => {
     const result = await smartImportProfile(jsonText);
