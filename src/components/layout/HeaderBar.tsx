@@ -17,10 +17,8 @@ import {
   Maximize2,
   Check,
   Crown,
-  Settings,
   ChevronDown,
   HelpCircle,
-  Link2,
 } from "lucide-react";
 import { useCrownStore } from "../../store/useCrownStore";
 
@@ -54,10 +52,8 @@ export const HeaderBar: React.FC = () => {
     canUndo,
     canRedo,
     loadFromBundleOrPayload,
-    exportBundle,
-    toggleGlobalSettings,
     toggleWelcomeModal,
-    toggleShareModal,
+    toggleExportModal,
   } = useCrownStore();
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,21 +71,6 @@ export const HeaderBar: React.FC = () => {
     };
     reader.readAsText(file);
     e.target.value = "";
-  };
-
-  const handleExport = async () => {
-    try {
-      const bundle = await exportBundle();
-      const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${bundle.name || "profile"}.crown.json`;
-      link.click();
-      URL.revokeObjectURL(url);
-    } catch (err: any) {
-      alert(`导出分享包失败: ${err.message}`);
-    }
   };
 
   // 点击外部关闭下拉菜单
@@ -265,8 +246,8 @@ export const HeaderBar: React.FC = () => {
         </div>
       </div>
 
-      {/* 右区：功能分层清晰的辅助设置与导入导出操作 */}
-      <div className="flex items-center gap-2">
+      {/* 右区：精简核心业务操作 */}
+      <div className="flex items-center gap-2.5">
         <input
           type="file"
           ref={fileInputRef}
@@ -275,10 +256,9 @@ export const HeaderBar: React.FC = () => {
           className="hidden"
         />
 
-        {/* 轻量辅助按钮 */}
         <button
           onClick={toggleWelcomeModal}
-          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-[#4b5563] hover:text-[#111111] hover:bg-[#f7f6f3] transition-colors"
+          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-[#4b5563] hover:text-[#111111] hover:bg-[#f7f6f3] transition-colors"
           title="指南与模版中心"
         >
           <HelpCircle className="h-4 w-4" />
@@ -286,43 +266,22 @@ export const HeaderBar: React.FC = () => {
         </button>
 
         <button
-          onClick={toggleGlobalSettings}
-          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-[#4b5563] hover:text-[#111111] hover:bg-[#f7f6f3] transition-colors"
-          title="全局触控与按键参数设置"
-        >
-          <Settings className="h-4 w-4" />
-          <span>设置</span>
-        </button>
-
-        <div className="h-4 w-[1px] bg-[#e5e5e5] mx-1" />
-
-        {/* 核心业务操作组 */}
-        <button
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-1.5 rounded-lg border border-[#eaeaea] bg-[#ffffff] px-3 py-1.5 font-medium text-sm text-[#374151] hover:bg-[#f7f6f3] hover:border-[#d4d4d0] transition-all shadow-2xs"
+          className="flex items-center gap-1.5 rounded-lg border border-[#eaeaea] bg-[#ffffff] px-3.5 py-1.5 font-medium text-sm text-[#374151] hover:bg-[#f7f6f3] hover:border-[#d4d4d0] transition-all shadow-2xs"
           title="导入 .crown.json 或 raw-payload.json"
         >
           <Upload className="h-4 w-4 text-[#6b7280]" />
-          <span>导入</span>
+          <span>导入配置</span>
         </button>
 
+        {/* 规范主 CTA 按钮: 纯黑实体背景 #111111, 点击呼出导出与配置核对中心 */}
         <button
-          onClick={toggleShareModal}
-          className="flex items-center gap-1.5 rounded-lg border border-[#eaeaea] bg-[#ffffff] px-3.5 py-1.5 font-medium text-sm text-[#111111] hover:bg-[#f7f6f3] hover:border-[#111111]/40 transition-all active:scale-[0.98] shadow-2xs"
-          title="生成 24 小时短效直链 (供手机直接下载导入)"
-        >
-          <Link2 className="h-4 w-4 text-[#111111]" />
-          <span>分享直链</span>
-        </button>
-
-        {/* 规范主 CTA 按钮: 纯黑实体背景 #111111, 白字, 8px 圆角, 唯此全黑主焦点 */}
-        <button
-          onClick={handleExport}
+          onClick={toggleExportModal}
           className="flex items-center gap-1.5 rounded-lg bg-[#111111] px-4 py-1.5 font-semibold text-sm text-[#ffffff] hover:bg-[#2b2b2b] active:scale-[0.98] transition-all shadow-xs"
-          title="打包导出为 Moonlight-vplus 标准分享包 (.crown.json)"
+          title="核对配置与元数据，支持下载文件与 24h 直链扫码"
         >
           <Download className="h-4 w-4 text-[#ffffff]" />
-          <span>导出分享包</span>
+          <span>导出配置</span>
         </button>
       </div>
     </header>

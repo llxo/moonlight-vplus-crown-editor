@@ -11,6 +11,7 @@ import { FloatingInspector } from "./components/layout/FloatingInspector";
 import { GlobalSettingsModal } from "./components/layout/GlobalSettingsModal";
 import { WelcomeModal } from "./components/layout/WelcomeModal";
 import { ShareLinkModal } from "./components/layout/ShareLinkModal";
+import { ExportModal } from "./components/layout/ExportModal";
 import { StatusBar } from "./components/layout/StatusBar";
 import { useCrownStore } from "./store/useCrownStore";
 import defaultSampleProfile from "../fixtures/minimal-profile.crown.json";
@@ -81,10 +82,13 @@ export default function App() {
         <FloatingInspector />
       </div>
 
-      {/* 全局设置弹层 */}
+      {/* 全局设置弹层 (通过底部 Dock 全局入口随时呼出) */}
       <GlobalSettingsModal />
 
-      {/* 24小时短效直链弹窗 */}
+      {/* 一体化导出与配置核对中心 (带元数据核对、本地下载与24h直链扫码) */}
+      <ExportModal />
+
+      {/* 24小时短效直链独立弹窗 */}
       <ShareLinkModal />
 
       {/* 欢迎引导与快速起步中心 */}

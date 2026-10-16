@@ -19,6 +19,7 @@ import {
   Trash2,
   Copy,
   X,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useCrownStore } from "../../store/useCrownStore";
 import {
@@ -95,6 +96,8 @@ export const FloatingDock: React.FC = () => {
     deleteSelectedElements,
     isLayersOpen,
     toggleLayers,
+    isGlobalSettingsOpen,
+    toggleGlobalSettings,
   } = useCrownStore();
 
   const [hoveredHint, setHoveredHint] = useState<string | null>(null);
@@ -155,6 +158,26 @@ export const FloatingDock: React.FC = () => {
             </div>
             <span className="text-xs font-semibold mt-1">
               图层 ({elements.length})
+            </span>
+          </button>
+
+          {/* 全局触控与元数据胶囊 */}
+          <button
+            type="button"
+            onClick={toggleGlobalSettings}
+            onMouseEnter={() => setHoveredHint("全局触控与元数据")}
+            onMouseLeave={() => setHoveredHint(null)}
+            className={`flex flex-col items-center justify-center rounded-full p-2 transition-all hover:scale-105 active:scale-95 ${
+              isGlobalSettingsOpen ? "bg-[#111111] text-[#ffffff]" : "text-[#374151] hover:bg-[#f7f6f3] hover:text-[#111111]"
+            }`}
+          >
+            <div className={`flex h-8 w-8 items-center justify-center rounded-full border ${
+              isGlobalSettingsOpen ? "bg-[#222222] border-[#333333] text-[#ffffff]" : "bg-[#fbfbfa] border-[#eaeaea]"
+            }`}>
+              <SlidersHorizontal className="h-4.5 w-4.5" />
+            </div>
+            <span className="text-xs font-semibold mt-1">
+              全局
             </span>
           </button>
         </div>
