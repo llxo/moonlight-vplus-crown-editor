@@ -20,6 +20,9 @@ interface SegmentItem {
   label: string;
 }
 
+const DEFAULT_WHEEL_KEYS = ["k51", "k32", "k47", "k29", "k45", "k33", "k46", "k31"];
+const DEFAULT_WHEEL_LABELS = ["W", "D", "S", "A", "Q", "E", "R", "C"];
+
 export const WheelSegmentsEditor: React.FC<WheelSegmentsEditorProps> = ({
   mode,
   value,
@@ -36,8 +39,8 @@ export const WheelSegmentsEditor: React.FC<WheelSegmentsEditorProps> = ({
   for (let i = 0; i < numSegments; i++) {
     const raw = rawParts[i] || "";
     const [c, l] = raw.split("|");
-    const code = c || `k${8 + i}`;
-    const label = l !== undefined ? l : `${i + 1}`;
+    const code = c || DEFAULT_WHEEL_KEYS[i] || `k${8 + i}`;
+    const label = l !== undefined && l !== "" ? l : DEFAULT_WHEEL_LABELS[i] || `${i + 1}`;
     segments.push({ code, label });
   }
 

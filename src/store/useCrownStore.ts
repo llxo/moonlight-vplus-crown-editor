@@ -7,6 +7,7 @@
 
 import { create } from "zustand";
 import {
+  CrownColorUtils,
   type CrownElement,
   type CrownGlobalSettings,
   type CrownLayoutBasis,
@@ -75,6 +76,7 @@ export interface CrownState {
   updateSettings: (patch: Partial<CrownGlobalSettings>) => void;
   updateMeta: (patch: Partial<BundleMetadata>) => void;
   updateLayoutBasis: (patch: Partial<CrownLayoutBasis>) => void;
+  applyAutoColor: (accentHexOrInt: string | number) => void;
 
   // 视口控制
   setZoom: (zoom: number | ((prev: number) => number)) => void;
@@ -339,6 +341,29 @@ export const useCrownStore = create<CrownState>((set, get) => ({
       layoutBasis: { ...state.layoutBasis, ...patch },
       isDirty: true,
     }));
+  },
+
+  applyAutoColor: (accentHexOrInt) => {
+    get().pushHistorySnapshot();
+    const palette = CrownColorUtils.generatePaletteFromAccent(accentHexOrInt);
+    const updated = get().elements.map((el) => {
+      const next = {
+        ...el,
+        element_color: palette.normalColor,
+        element_pressed_color: palette.pressedColor,
+        element_background_color: palette.backgroundColor,
+      } as CrownElement;
+
+      if ("normalTextColor" in next) {
+        (next as any).normalTextColor = palette.normalTextColor;
+      }
+      if ("pressedTextColor" in next) {
+        (next as any).pressedTextColor = palette.pressedTextColor;
+      }
+      return next;
+    });
+
+    set({ elements: updated, isDirty: true });
   },
 
   setZoom: (zoomOrUpdater) => {

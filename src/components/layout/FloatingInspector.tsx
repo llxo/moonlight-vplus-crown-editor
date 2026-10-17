@@ -21,7 +21,7 @@ import {
 import { KeyCodePicker } from "../common/KeyCodePicker";
 import { MacroCombineRecorder } from "../common/MacroCombineRecorder";
 import { CrownColorPicker } from "../common/CrownColorPicker";
-import { NumberField, TextField } from "../common/FormFields";
+import { NumberField, TextField, RangeField } from "../common/FormFields";
 import { SpecialElementFields } from "./SpecialElementFields";
 
 export const FloatingInspector: React.FC = () => {
@@ -57,6 +57,8 @@ export const FloatingInspector: React.FC = () => {
       case CrownElementType.DIGITAL_PAD: return "十字方向键";
       case CrownElementType.ANALOG_STICK: return "模拟摇杆";
       case CrownElementType.DIGITAL_STICK: return "数字摇杆";
+      case CrownElementType.INVISIBLE_ANALOG_STICK: return "隐形模拟摇杆";
+      case CrownElementType.INVISIBLE_DIGITAL_STICK: return "隐形数字摇杆";
       case CrownElementType.WHEEL_PAD: return "轮盘快捷菜单";
       case CrownElementType.SIMPLIFY_PERFORMANCE: return "极简性能条";
       default: return `控件 #${type}`;
@@ -113,10 +115,12 @@ export const FloatingInspector: React.FC = () => {
         </div>
       </div>
 
-      {/* 核心按键绑定 */}
+      {/* 核心按键绑定 (排除组合键、轮盘与模拟摇杆) */}
       {"element_value" in selectedElement &&
         selectedElement.element_type !== CrownElementType.WHEEL_PAD &&
-        selectedElement.element_type !== CrownElementType.DIGITAL_COMBINE_BUTTON && (
+        selectedElement.element_type !== CrownElementType.DIGITAL_COMBINE_BUTTON &&
+        selectedElement.element_type !== CrownElementType.ANALOG_STICK &&
+        selectedElement.element_type !== CrownElementType.INVISIBLE_ANALOG_STICK && (
           <div className="space-y-1">
             <KeyCodePicker
               label="按键绑定 (直接按下键盘按键录制)"
@@ -139,16 +143,29 @@ export const FloatingInspector: React.FC = () => {
         />
       )}
 
-      {/* 表面标签文本 */}
+      {/* 表面标签文本与文字大小 */}
       {"element_text" in selectedElement &&
         selectedElement.element_type !== CrownElementType.SIMPLIFY_PERFORMANCE &&
         selectedElement.element_type !== CrownElementType.DIGITAL_COMBINE_BUTTON && (
-          <TextField
-            label="表面文字 (Text)"
-            value={selectedElement.element_text || ""}
-            onChange={(val) => handleUpdate({ element_text: val } as any)}
-            placeholder="按键表面显示文字"
-          />
+          <div className="space-y-3">
+            <TextField
+              label="表面文字 (Text)"
+              value={selectedElement.element_text || ""}
+              onChange={(val) => handleUpdate({ element_text: val } as any)}
+              placeholder="按键表面显示文字"
+            />
+            {"textSizePercent" in selectedElement && (
+              <RangeField
+                label="文字大小比例 (TextSize%)"
+                value={selectedElement.textSizePercent ?? 26}
+                min={10}
+                max={100}
+                step={1}
+                displayValue={`${selectedElement.textSizePercent ?? 26}%`}
+                onChange={(val) => handleUpdate({ textSizePercent: val } as any)}
+              />
+            )}
+          </div>
         )}
 
       {/* 几何尺寸与中心锚点 */}
@@ -318,11 +335,11 @@ export const FloatingInspector: React.FC = () => {
       <div className="space-y-2.5 border-t border-[#eaeaea] pt-3">
         <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#374151]">
           <Palette className="h-3.5 w-3.5 text-[#111111]" />
-          <span>颜色与透明度</span>
+          <span>颜色与透明度 (ARGB)</span>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <CrownColorPicker
-            label="描边颜色"
+            label="描边常态色"
             intColor={selectedElement.element_color}
             onChange={(newInt) => handleUpdate({ element_color: newInt })}
           />
@@ -331,6 +348,18 @@ export const FloatingInspector: React.FC = () => {
             intColor={selectedElement.element_background_color}
             onChange={(newInt) => handleUpdate({ element_background_color: newInt })}
           />
+          <CrownColorPicker
+            label="描边按下色"
+            intColor={selectedElement.element_pressed_color ?? selectedElement.element_color}
+            onChange={(newInt) => handleUpdate({ element_pressed_color: newInt })}
+          />
+          {"normalTextColor" in selectedElement && (
+            <CrownColorPicker
+              label="文字常态色"
+              intColor={selectedElement.normalTextColor ?? -1}
+              onChange={(newInt) => handleUpdate({ normalTextColor: newInt } as any)}
+            />
+          )}
         </div>
       </div>
 

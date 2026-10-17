@@ -20,6 +20,8 @@ import {
   Copy,
   X,
   SlidersHorizontal,
+  Boxes,
+  Gamepad2,
 } from "lucide-react";
 import { useCrownStore } from "../../store/useCrownStore";
 import {
@@ -60,6 +62,12 @@ const DOCK_PRESETS: DockPreset[] = [
     hint: "模拟摇杆 (双轴线性与死区)",
   },
   {
+    type: CrownElementType.DIGITAL_STICK,
+    name: "数摇",
+    icon: <Gamepad2 className="h-4 w-4 text-[#444444]" />,
+    hint: "数字方向摇杆 (四向离散与中心下压)",
+  },
+  {
     type: CrownElementType.DIGITAL_PAD,
     name: "十字键",
     icon: <Compass className="h-4 w-4 text-[#956400]" />,
@@ -69,7 +77,13 @@ const DOCK_PRESETS: DockPreset[] = [
     type: CrownElementType.DIGITAL_COMBINE_BUTTON,
     name: "组合键",
     icon: <Command className="h-4 w-4 text-[#5c3e75]" />,
-    hint: "组合按键 (如 Ctrl+C、Alt+Tab)",
+    hint: "组合按键宏 (最多5键序列)",
+  },
+  {
+    type: CrownElementType.GROUP_BUTTON,
+    name: "组按键",
+    icon: <Boxes className="h-4 w-4 text-[#2563eb]" />,
+    hint: "抽屉式收纳组按键 (管理关联子按键)",
   },
   {
     type: CrownElementType.WHEEL_PAD,

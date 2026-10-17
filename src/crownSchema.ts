@@ -713,6 +713,14 @@ export function canvasToConfig(
   };
 }
 
+export interface AutoColorPalette {
+  normalColor: number;       // ARGB (边框常态色)
+  pressedColor: number;      // ARGB (边框按下色)
+  backgroundColor: number;   // ARGB (背景填充色)
+  normalTextColor: number;   // ARGB (文字常态色)
+  pressedTextColor: number;  // ARGB (文字按下色)
+}
+
 /**
  * 辅助纯函数：将 Android ARGB 32 位有符号整数与前端十六进制颜色字符串进行互转
  */
@@ -749,6 +757,84 @@ export const CrownColorUtils = {
     }
     const uint32 = ((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff);
     return uint32 | 0; // 转回 Signed 32-bit Integer
+  },
+
+  /**
+   * 基于主色调（Accent Color）使用原生 HSV 算法一键生成整套王冠模式协调配色
+   * @param accentHexOrInt 主题色 (HEX 字符串或 32 位整数)
+   */
+  generatePaletteFromAccent(accentHexOrInt: string | number): AutoColorPalette {
+    const intVal = typeof accentHexOrInt === "string" ? this.rgbaHexToInt(accentHexOrInt) : accentHexOrInt;
+    const uint32 = intVal >>> 0;
+    const rRaw = (uint32 >> 16) & 0xff;
+    const gRaw = (uint32 >> 8) & 0xff;
+    const bRaw = uint32 & 0xff;
+
+    // RGB 转 HSV
+    const rNorm = rRaw / 255;
+    const gNorm = gRaw / 255;
+    const bNorm = bRaw / 255;
+    const max = Math.max(rNorm, gNorm, bNorm);
+    const min = Math.min(rNorm, gNorm, bNorm);
+    const delta = max - min;
+
+    let h = 0;
+    let s = max === 0 ? 0 : delta / max;
+    const v = max;
+
+    if (delta !== 0) {
+      if (max === rNorm) {
+        h = ((gNorm - bNorm) / delta + (gNorm < bNorm ? 6 : 0)) / 6;
+      } else if (max === gNorm) {
+        h = ((bNorm - rNorm) / delta + 2) / 6;
+      } else {
+        h = ((rNorm - gNorm) / delta + 4) / 6;
+      }
+    }
+
+    const clamp = (val: number, cMin: number, cMax: number) => Math.max(cMin, Math.min(cMax, val));
+
+    const hsvToRgb = (hVal: number, sVal: number, vVal: number): [number, number, number] => {
+      let rOut = 0, gOut = 0, bOut = 0;
+      const i = Math.floor(hVal * 6);
+      const f = hVal * 6 - i;
+      const p = vVal * (1 - sVal);
+      const q = vVal * (1 - f * sVal);
+      const t = vVal * (1 - (1 - f) * sVal);
+      switch (i % 6) {
+        case 0: rOut = vVal; gOut = t; bOut = p; break;
+        case 1: rOut = q; gOut = vVal; bOut = p; break;
+        case 2: rOut = p; gOut = vVal; bOut = t; break;
+        case 3: rOut = p; gOut = q; bOut = vVal; break;
+        case 4: rOut = t; gOut = p; bOut = vVal; break;
+        case 5: rOut = vVal; gOut = p; bOut = q; break;
+      }
+      return [Math.round(rOut * 255), Math.round(gOut * 255), Math.round(bOut * 255)];
+    };
+
+    const packArgb = (alpha: number, rgb: [number, number, number]) => {
+      const packed = ((alpha & 0xff) << 24) | ((rgb[0] & 0xff) << 16) | ((rgb[1] & 0xff) << 8) | (rgb[2] & 0xff);
+      return packed | 0;
+    };
+
+    // 1. 背景色：低饱和度、低Alpha (0x24 = 14%)
+    const bgHsv: [number, number, number] = [h, clamp(s * 0.56, 0.16, 0.64), clamp(v * 1.18 + 0.08, 0.72, 0.96)];
+    const backgroundColor = packArgb(0x24, hsvToRgb(...bgHsv));
+
+    // 2. 常态边框：适中饱和度、中Alpha (0x90 = 56%)
+    const normalHsv: [number, number, number] = [h, clamp(s * 0.68, 0.22, 0.64), clamp(v * 1.24 + 0.08, 0.72, 0.98)];
+    const normalColor = packArgb(0x90, hsvToRgb(...normalHsv));
+
+    // 3. 按下边框：高饱和度、高亮度、高Alpha (0xB8 = 72%)
+    const pressedHsv: [number, number, number] = [h, clamp(s * 0.82, 0.30, 0.64), clamp(v * 1.32 + 0.08, 0.72, 1.00)];
+    const pressedColor = packArgb(0xb8, hsvToRgb(...pressedHsv));
+
+    // 4. 文字颜色自适应（依据明度反转黑/白）
+    const luminance = (0.299 * rRaw + 0.587 * gRaw + 0.114 * bRaw) / 255;
+    const normalTextColor = luminance > 0.72 ? packArgb(0xec, [0x1c, 0x22, 0x28]) : packArgb(0xec, [0xff, 0xff, 0xff]);
+    const pressedTextColor = packArgb(0xf6, [0xff, 0xff, 0xff]);
+
+    return { normalColor, pressedColor, backgroundColor, normalTextColor, pressedTextColor };
   },
 };
 
@@ -882,26 +968,107 @@ export function createDefaultCrownElement(
         textSizePercent: 22,
       };
 
+    case CrownElementType.GROUP_BUTTON:
+      return {
+        ...base,
+        element_type: CrownElementType.GROUP_BUTTON,
+        element_text: "GROUP",
+        element_value: "-1",
+        element_width: 140,
+        element_height: 140,
+        element_radius: 20,
+        element_layer: 52,
+        element_color: 0xff2563eb,
+        element_pressed_color: 0xff1d4ed8,
+        element_background_color: 0x182563eb,
+        normalTextColor: 0xff111111,
+        pressedTextColor: 0xff111111,
+        textSizePercent: 24,
+        element_sense: CrownChildVisibility.VISIBLE,
+        element_flag1: 0,
+        extra_attributes: JSON.stringify({
+          movableInNormalMode: true,
+          userHasManuallySet: true,
+          isPermanentlyIndependent: false,
+        }),
+      };
+
+    case CrownElementType.DIGITAL_STICK:
+      return {
+        ...base,
+        element_type: CrownElementType.DIGITAL_STICK,
+        element_up_value: "k51", // W
+        element_down_value: "k47", // S
+        element_left_value: "k29", // A
+        element_right_value: "k32", // D
+        element_middle_value: "g64", // L3
+        element_width: 340,
+        element_height: 340,
+        element_radius: 170,
+        element_layer: 46,
+        element_color: 0xff444444,
+        element_pressed_color: 0xff111111,
+        element_background_color: 0x15000000,
+        element_sense: 30,
+      };
+
+    case CrownElementType.INVISIBLE_ANALOG_STICK:
+      return {
+        ...base,
+        element_type: CrownElementType.INVISIBLE_ANALOG_STICK,
+        element_value: "RS",
+        element_middle_value: "g128", // R3
+        element_width: 400,
+        element_height: 400,
+        element_radius: 200,
+        element_layer: 45,
+        element_thick: 2,
+        element_color: 0x809f2f2d,
+        element_pressed_color: 0xcc9f2f2d,
+        element_background_color: 0x089f2f2d,
+        element_sense: 30,
+      };
+
+    case CrownElementType.INVISIBLE_DIGITAL_STICK:
+      return {
+        ...base,
+        element_type: CrownElementType.INVISIBLE_DIGITAL_STICK,
+        element_up_value: "k51",
+        element_down_value: "k47",
+        element_left_value: "k29",
+        element_right_value: "k32",
+        element_middle_value: "g64",
+        element_width: 400,
+        element_height: 400,
+        element_radius: 200,
+        element_layer: 45,
+        element_thick: 2,
+        element_color: 0x80444444,
+        element_pressed_color: 0xcc111111,
+        element_background_color: 0x08000000,
+        element_sense: 30,
+      };
+
     case CrownElementType.WHEEL_PAD:
       return {
         ...base,
         element_type: CrownElementType.WHEEL_PAD,
-        element_text: "RADIAL",
-        element_value: "k8|1,k9|2,k10|3,k11|4,k12|5,k13|6,k14|7,k15|8",
-        element_width: 440,
-        element_height: 440,
+        element_text: "",
+        element_value: "k51|W,k32|D,k47|S,k29|A,k45|Q,k33|E,k46|R,k31|C",
+        element_width: 320,
+        element_height: 320,
         element_thick: 4,
         element_layer: 42,
-        element_color: 0xff444444,
-        element_pressed_color: 0xff111111,
-        element_background_color: 0x18000000,
+        element_color: 0xffa8b2c0,
+        element_pressed_color: 0xffffffff,
+        element_background_color: 0xaa3a4048,
         element_mode: 8,
         element_sense: 30,
         element_flag1: 1,
         extra_attributes: JSON.stringify({
-          normalTextColor: 0xff111111,
-          pressedTextColor: 0xff111111,
-          centerTextColor: 0xff111111,
+          normalTextColor: 0xffffffff,
+          pressedTextColor: 0xffffffff,
+          centerTextColor: 0xffffffff,
           textSizePercent: 35,
           centerTextSizePercent: 60,
           triggerTextSizePercent: 40,

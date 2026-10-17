@@ -17,6 +17,7 @@ import {
   Crown,
   ChevronDown,
   HelpCircle,
+  Palette,
 } from "lucide-react";
 import { useCrownStore } from "../../store/useCrownStore";
 
@@ -32,7 +33,9 @@ const PRESET_RESOLUTIONS = [
 export const HeaderBar: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isResDropdownOpen, setIsResDropdownOpen] = useState(false);
+  const [isColorDropdownOpen, setIsColorDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const colorDropdownRef = useRef<HTMLDivElement>(null);
 
   const {
     meta,
@@ -40,6 +43,7 @@ export const HeaderBar: React.FC = () => {
     zoom,
     updateMeta,
     updateLayoutBasis,
+    applyAutoColor,
     setZoom,
     resetViewport,
     undo,
@@ -98,12 +102,15 @@ export const HeaderBar: React.FC = () => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setIsResDropdownOpen(false);
       }
+      if (colorDropdownRef.current && !colorDropdownRef.current.contains(e.target as Node)) {
+        setIsColorDropdownOpen(false);
+      }
     };
-    if (isResDropdownOpen) {
+    if (isResDropdownOpen || isColorDropdownOpen) {
       window.addEventListener("mousedown", handleOutsideClick);
     }
     return () => window.removeEventListener("mousedown", handleOutsideClick);
-  }, [isResDropdownOpen]);
+  }, [isResDropdownOpen, isColorDropdownOpen]);
 
   const currentPreset = PRESET_RESOLUTIONS.find(
     (r) =>
@@ -297,6 +304,67 @@ export const HeaderBar: React.FC = () => {
           >
             <Redo2 className="h-4 w-4" />
           </button>
+        </div>
+
+        {/* 一键智能自动配色面板 */}
+        <div className="relative" ref={colorDropdownRef}>
+          <button
+            type="button"
+            onClick={() => setIsColorDropdownOpen(!isColorDropdownOpen)}
+            className="flex items-center gap-1.5 rounded-lg border border-[#eaeaea] bg-[#ffffff] px-2.5 py-1.5 text-xs font-medium text-[#111111] hover:bg-[#fbfbfa] hover:border-[#d4d4d0] transition-all shadow-2xs"
+            title="一键全局配色 (基于主色 HSV 自适应推导)"
+          >
+            <Palette className="h-4 w-4 text-[#6b7280]" />
+            <span>配色</span>
+            <ChevronDown className={`h-3 w-3 text-[#888888] transition-transform duration-150 ${isColorDropdownOpen ? "rotate-180" : ""}`} />
+          </button>
+
+          {isColorDropdownOpen && (
+            <div className="absolute top-full left-0 mt-2 z-40 w-64 rounded-2xl border border-[#eaeaea] bg-[#ffffff] p-3.5 shadow-[0_16px_40px_-8px_rgba(0,0,0,0.12),0_0_0_1px_rgba(0,0,0,0.04)] animate-in fade-in space-y-3 select-none">
+              <div className="text-xs font-bold text-[#374151] flex items-center justify-between">
+                <span>一键智能主题配色</span>
+                <span className="text-[10px] text-[#6b7280] font-normal">基于 HSV 推导</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { name: "极简纯黑", color: "#111111" },
+                  { name: "王冠琥珀", color: "#d97706" },
+                  { name: "电竞深蓝", color: "#2563eb" },
+                  { name: "赛博翠绿", color: "#16a34a" },
+                  { name: "机甲绯红", color: "#dc2626" },
+                  { name: "幻影暗紫", color: "#7c3aed" },
+                ].map((preset) => (
+                  <button
+                    key={preset.name}
+                    type="button"
+                    onClick={() => {
+                      applyAutoColor(preset.color);
+                      setIsColorDropdownOpen(false);
+                    }}
+                    className="flex flex-col items-center gap-1 rounded-lg border border-[#eaeaea] p-1.5 hover:border-[#111111]/40 hover:bg-[#fbfbfa] transition-all cursor-pointer"
+                  >
+                    <div
+                      className="h-5 w-5 rounded-full border border-black/10 shadow-2xs"
+                      style={{ backgroundColor: preset.color }}
+                    />
+                    <span className="text-[11px] font-medium text-[#4b5563] truncate">
+                      {preset.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <div className="border-t border-[#eaeaea] pt-2 flex items-center justify-between">
+                <span className="text-xs text-[#6b7280]">自定义基准主色:</span>
+                <input
+                  type="color"
+                  defaultValue="#2563eb"
+                  onChange={(e) => applyAutoColor(e.target.value)}
+                  className="h-7 w-12 cursor-pointer rounded border border-[#eaeaea] p-0.5 bg-[#fbfbfa]"
+                  title="选取任意颜色实时应用到所有按键"
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
