@@ -14,14 +14,53 @@ const MAX_PAYLOAD_BYTES = 512 * 1024;
 // 格式初验：必须是王冠模式社区分享包或原生 payload 格式
 function isValidCrownProfile(bundle: any): boolean {
   if (!bundle || typeof bundle !== "object") return false;
-  // 1. 标准社区分享包
-  if (bundle.kind === "moonlight-vplus-crown-profile-bundle" && Array.isArray(bundle.elements)) {
-    return true;
+
+  // 1. 标准社区分享包 (.crown.json)
+  if (
+    bundle.kind === "crown-profile-bundle" ||
+    bundle.kind === "moonlight-vplus-crown-profile-bundle"
+  ) {
+    if (bundle.profile) {
+      if (typeof bundle.profile.payload === "string" && bundle.profile.payload.trim()) {
+        try {
+          const inner = JSON.parse(bundle.profile.payload);
+          if (inner && typeof inner === "object") {
+            return Boolean(inner.elements !== undefined || inner.settings !== undefined);
+          }
+        } catch {
+          return false;
+        }
+      }
+      if (typeof bundle.profile.payload === "object" && bundle.profile.payload !== null) {
+        return Boolean(bundle.profile.payload.elements !== undefined || bundle.profile.payload.settings !== undefined);
+      }
+    }
+    if (bundle.elements !== undefined) {
+      return Array.isArray(bundle.elements) || typeof bundle.elements === "string";
+    }
+    return false;
   }
-  // 2. 原始 payload 或导出配置
-  if (bundle.elements && (Array.isArray(bundle.elements) || typeof bundle.elements === "string")) {
-    return true;
+
+  // 2. 原始 payload 或导出配置（直接包含 elements 数组或序列化字符串）
+  if (bundle.elements !== undefined) {
+    return Array.isArray(bundle.elements) || typeof bundle.elements === "string";
   }
+
+  // 3. 包含 profile 对象（兼容无显式 kind 的载荷）
+  if (bundle.profile && typeof bundle.profile === "object") {
+    if (typeof bundle.profile.payload === "string") {
+      try {
+        const inner = JSON.parse(bundle.profile.payload);
+        return Boolean(inner && (inner.elements !== undefined || inner.settings !== undefined));
+      } catch {
+        return false;
+      }
+    }
+    if (typeof bundle.profile.payload === "object" && bundle.profile.payload !== null) {
+      return Boolean(bundle.profile.payload.elements !== undefined || bundle.profile.payload.settings !== undefined);
+    }
+  }
+
   return false;
 }
 

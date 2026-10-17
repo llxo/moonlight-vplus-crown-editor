@@ -50,7 +50,28 @@ async function runVerification() {
     throw new Error("二次打包回环测试未通过");
   }
 
-  console.log("🎉 所有编解码与哈希校验回环测试全部通过！");
+  // 4. 测试 24小时直链服务 (api/share) 对导出 bundle 的接收与校验
+  const { default: shareHandler } = await import(/* @vite-ignore */ "../api/share" as any);
+  const shareReq = new Request("http://localhost:3000/api/share", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ bundle: reEncodedBundle }),
+  });
+  const shareRes = await shareHandler(shareReq);
+  const shareData = await shareRes.json();
+  const shareSuccess = shareRes.status === 200 && Boolean(shareData.directUrl);
+  console.log("4. api/share 直链生成校验结果:", shareSuccess ? "✅ PASS" : "❌ FAIL");
+  if (!shareSuccess) {
+    throw new Error(`api/share 直链生成失败: ${JSON.stringify(shareData)}`);
+  }
+
+  // 清理临时文件（若存在）
+  const tempTestFile = path.resolve(process.cwd(), "test-share.ts");
+  if (fs.existsSync(tempTestFile)) {
+    fs.unlinkSync(tempTestFile);
+  }
+
+  console.log("🎉 所有编解码、哈希校验与直链服务回归测试全部通过！");
 }
 
 runVerification().catch((err) => {
