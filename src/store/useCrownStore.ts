@@ -114,7 +114,7 @@ const DEFAULT_LAYOUT_BASIS: CrownLayoutBasis = {
 
 const DEFAULT_SETTINGS: CrownGlobalSettings = {
   config_id: Date.now(),
-  config_name: "FPS-Default",
+  config_name: "Untitled Profile",
   touch_enable: "true",
   touch_mode: "true",
   touch_sense: 100,
@@ -126,11 +126,11 @@ const DEFAULT_SETTINGS: CrownGlobalSettings = {
 
 export const useCrownStore = create<CrownState>((set, get) => ({
   meta: {
-    name: "FPS-Default",
-    summary: "王冠模式触控按键排布",
+    name: "Untitled Profile",
+    summary: "自定义空白按键配置",
     authorName: "Crown Designer",
-    gameName: "General PC Game",
-    tags: ["FPS", "Crown"],
+    gameName: "Custom",
+    tags: ["Custom"],
     appVersionName: "1.2.0",
   },
   layoutBasis: { ...DEFAULT_LAYOUT_BASIS },

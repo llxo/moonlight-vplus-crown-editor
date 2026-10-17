@@ -269,14 +269,7 @@ export const WelcomeModal: React.FC = () => {
             <span className="text-xs font-bold uppercase tracking-wider text-[#374151] block">
               常用快捷键速查
             </span>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 text-xs">
-              <div className="rounded-lg border border-[#eaeaea] bg-[#fbfbfa] p-2.5 space-y-1">
-                <div className="text-xs text-[#6b7280]">画布平移</div>
-                <div className="font-mono text-xs font-semibold text-[#111111]">
-                  <kbd className="rounded border border-[#dcdbd8] bg-[#ffffff] px-1.5 py-0.5">Space</kbd> + 拖拽
-                </div>
-              </div>
-
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 text-xs">
               <div className="rounded-lg border border-[#eaeaea] bg-[#fbfbfa] p-2.5 space-y-1">
                 <div className="text-xs text-[#6b7280]">视口缩放</div>
                 <div className="font-mono text-xs font-semibold text-[#111111]">

@@ -14,12 +14,9 @@ import { ShareLinkModal } from "./components/layout/ShareLinkModal";
 import { ExportModal } from "./components/layout/ExportModal";
 import { StatusBar } from "./components/layout/StatusBar";
 import { useCrownStore } from "./store/useCrownStore";
-import defaultSampleProfile from "../fixtures/minimal-profile.crown.json";
 
 export default function App() {
   const {
-    elements,
-    loadFromBundleOrPayload,
     deleteSelectedElements,
     duplicateSelectedElements,
     undo,
@@ -27,13 +24,6 @@ export default function App() {
     canUndo,
     canRedo,
   } = useCrownStore();
-
-  // 初次启动加载默认示例
-  useEffect(() => {
-    if (elements.length === 0) {
-      loadFromBundleOrPayload(JSON.stringify(defaultSampleProfile)).catch(console.error);
-    }
-  }, []);
 
   // 全局键盘快捷键响应 (Delete, Ctrl+Z, Ctrl+Y)
   useEffect(() => {
