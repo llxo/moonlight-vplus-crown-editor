@@ -25,6 +25,25 @@ export const SpecialElementFields: React.FC<SpecialElementFieldsProps> = ({
   onUpdate,
 }) => {
   switch (element.element_type) {
+    case CrownElementType.DIGITAL_MOVABLE_BUTTON: {
+      return (
+        <div className="space-y-3 border-t border-[#eaeaea] pt-3">
+          <div className="text-xs font-semibold uppercase tracking-wider text-[#374151]">
+            滑动视角属性
+          </div>
+          <RangeField
+            label="视角滑动灵敏度"
+            value={element.element_sense ?? 100}
+            min={0}
+            max={500}
+            step={1}
+            displayValue={element.element_sense ?? 100}
+            onChange={(val) => onUpdate({ element_sense: val } as any)}
+          />
+        </div>
+      );
+    }
+
     case CrownElementType.ANALOG_STICK: {
       return (
         <div className="space-y-3 border-t border-[#eaeaea] pt-3">

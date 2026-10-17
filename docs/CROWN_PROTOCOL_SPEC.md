@@ -85,7 +85,7 @@ Moonlight-vplus 的按键配置在存储与分发上分为**外层分发包 (Cro
 | `config_name` | `String` | `TEXT` | `"default"` | 配置显示名称 (1~10 字符) |
 | `touch_enable` | `Boolean` | `TEXT` | `"true"` | 触控输入使能 (`"true"` / `"false"`) |
 | `touch_mode` | `Boolean` | `TEXT` | `"true"` | 触控板模式 (`"true"` 触控板, `"false"` 经典/多点) |
-| `touch_sense` | `Int` | `INTEGER` | `100` | 触控滑动灵敏度 (1~200) |
+| `touch_sense` | `Int` | `INTEGER` | `100` | 触控滑动灵敏度 (1~500)<br>UI 规范: `min: 1`, `max: 500`, `step: 1`, `defaultValue: 100` |
 | `game_vibrator` | `Boolean` | `TEXT` | `"false"` | 游戏手柄马达震动使能 |
 | `button_vibrator`| `Boolean` | `TEXT` | `"false"` | 虚拟按键按压触觉反馈使能 |
 | `mouse_wheel_speed` | `Int` | `INTEGER` | `20` | 滚轮滚动速度，实际间隔为 `120 - mouse_wheel_speed` ms |
@@ -140,7 +140,7 @@ $$\text{element\_height} = \text{round}\left( \frac{\text{canvas.height}}{S_y} \
 | :--- | :---: | :--- |
 | **普通按键 (DigitalCommonButton)** | `0` | `element_value`: 按键编码<br>`element_text`: 显示文本<br>`element_radius`: 圆角半径<br>`normalTextColor`, `pressedTextColor`, `textSizePercent` |
 | **自锁开关 (DigitalSwitchButton)** | `1` | 同普通按键，具备点击自锁/解锁状态转换 |
-| **滑动视角按键 (DigitalMovableButton)** | `2` | `element_mode`: 是否开启摇杆视角 (0/1)<br>`element_sense`: 视角灵敏度 (默认 100)<br>`extra_attributes`: JSON 包含 `{"isTrackpadMode": boolean}` (触控板模式下绑定 m1) |
+| **滑动视角按键 (DigitalMovableButton)** | `2` | `element_mode`: 是否开启摇杆视角 (0/1)<br>`element_sense`: 视角灵敏度 (0~500, 默认 100)<br>UI 规范: `min: 0`, `max: 500`, `step: 1`, `defaultValue: 100`<br>`extra_attributes`: JSON 包含 `{"isTrackpadMode": boolean}` (触控板模式下绑定 m1) |
 | **组合按键 (DigitalCombineButton)** | `3` | **复用 5 列存储按键序列**：<br>`element_value`: 槽位 1<br>`element_up_value`: 槽位 2<br>`element_down_value`: 槽位 3<br>`element_left_value`: 槽位 4<br>`element_right_value`: 槽位 5 (未用填 `"null"`) |
 | **组按键 (GroupButton)** | `4` | `element_value`: 逗号分隔的子元素 ID 列表 (如 `"101,102"`)<br>`element_sense`: 子按键默认可见性 (`0` VISIBLE, `4` INVISIBLE, `8` GONE)<br>`element_flag1`: 按钮自身是否隐藏 (1 是, 0 否)<br>`extra_attributes`: JSON 包含 `movableInNormalMode`, `userHasManuallySet`, `isPermanentlyIndependent` |
 | **十字键 (DigitalPad)** | `20` | `element_up_value`: 上方向键值<br>`element_down_value`: 下方向键值<br>`element_left_value`: 左方向键值<br>`element_right_value`: 右方向键值 |
@@ -189,3 +189,15 @@ $$\text{element\_height} = \text{round}\left( \frac{\text{canvas.height}}{S_y} \
   - `EMS`: 进入编辑排布模式
   - `MMO`: 仅鼠标移动模式开关
   - `gb<elementId>`: 触发指定组按键的展开/收起
+
+---
+
+## 6. 前端 UI 组件输入约束规范 (UI Control Constraints)
+
+在编写前端可视化编辑器的 UI 输入组件（如 Slider 拖动条、NumberInput 数字框）时，遵循以下数值约束：
+
+| 字段名称 | 适用上下文 | 控件类型码 | 最小值 (min) | 最大值 (max) | 步长 (step) | 默认值 (defaultValue) | 详细说明 |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| `touch_sense` | 全局配置 (`settings`) | - | `1` | `500` | `1` | `100` | 全局触控滑动灵敏度 |
+| `element_sense` | 单按键控件 (`elements`) | `2` | `0` | `500` | `1` | `100` | 滑动视角按键 (DigitalMovableButton) 视角滑动灵敏度 |
+

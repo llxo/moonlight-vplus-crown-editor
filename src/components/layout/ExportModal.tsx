@@ -249,8 +249,9 @@ export const ExportModal: React.FC = () => {
               </div>
               <input
                 type="range"
-                min="10"
-                max="200"
+                min="1"
+                max="500"
+                step="1"
                 value={settings.touch_sense}
                 onChange={(e) => updateSettings({ touch_sense: Number(e.target.value) })}
                 className="w-full accent-[#111111] h-2 bg-[#eaeaea] rounded-lg cursor-pointer"

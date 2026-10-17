@@ -88,6 +88,7 @@ interface RangeFieldProps {
   onChange: (val: number) => void;
   min?: number;
   max?: number;
+  step?: number;
   displayValue?: string | number;
 }
 
@@ -97,6 +98,7 @@ export const RangeField: React.FC<RangeFieldProps> = ({
   onChange,
   min = 0,
   max = 100,
+  step = 1,
   displayValue,
 }) => {
   return (
@@ -111,6 +113,7 @@ export const RangeField: React.FC<RangeFieldProps> = ({
         type="range"
         min={min}
         max={max}
+        step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         className="w-full accent-[#111111] h-2 bg-[#eaeaea] rounded-lg cursor-pointer"
