@@ -16,6 +16,9 @@ import {
   PieChart,
   ArrowRight,
   Sparkles,
+  Monitor,
+  Copy,
+  Check,
 } from "lucide-react";
 import { useCrownStore } from "../../store/useCrownStore";
 import { PRESET_TEMPLATES, type PresetTemplate } from "../../constants/templates";
@@ -32,6 +35,37 @@ export const WelcomeModal: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dontShowAgain, setDontShowAgain] = useState(false);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const [isMobileUser, setIsMobileUser] = useState(false);
+  const [hasCopiedUrl, setHasCopiedUrl] = useState(false);
+
+  useEffect(() => {
+    if (typeof navigator !== "undefined") {
+      const isMobile = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(
+        navigator.userAgent || ""
+      );
+      setIsMobileUser(isMobile);
+    }
+  }, []);
+
+  const handleCopyCurrentUrl = async () => {
+    if (typeof window === "undefined") return;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(window.location.href);
+      } else {
+        const input = document.createElement("input");
+        input.value = window.location.href;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        document.body.removeChild(input);
+      }
+      setHasCopiedUrl(true);
+      setTimeout(() => setHasCopiedUrl(false), 2000);
+    } catch {
+      // 容错处理
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -178,6 +212,46 @@ export const WelcomeModal: React.FC = () => {
 
         {/* 主体 Bento 便当盒区域 */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#fafaf9]">
+          {/* 手机 UA 移动端访问提醒卡片 */}
+          {isMobileUser && (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5 rounded-xl border border-[#edd99d] bg-[#fbf3db] p-4 text-[#956400] animate-in fade-in duration-150">
+              <div className="flex items-start gap-3.5">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#ffffff] border border-[#edd99d]/60 text-[#956400] shadow-2xs">
+                  <Monitor className="h-5 w-5" />
+                </div>
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-sm text-[#734c00]">
+                      请在电脑浏览器使用
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#956400]/90 leading-relaxed">
+                    移动端未做适配，建议在电脑浏览器中打开使用。
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleCopyCurrentUrl}
+                className="shrink-0 flex items-center gap-1.5 rounded-lg border border-[#edd99d] bg-[#ffffff] px-3 py-1.5 text-xs font-semibold text-[#734c00] hover:bg-[#fef9ee] active:scale-95 transition-all shadow-2xs cursor-pointer"
+                title="复制当前网址发送给电脑"
+              >
+                {hasCopiedUrl ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-[#346538]" />
+                    <span className="text-[#346538]">已复制网址</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3.5 w-3.5 text-[#956400]" />
+                    <span>复制网页链接</span>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
           {/* 1. 精选推荐模版 (横排三列，高度一致自洽，绝无留白与空洞) */}
           <div className="space-y-2.5">
             <div className="text-xs font-bold uppercase tracking-wider text-[#374151]">
