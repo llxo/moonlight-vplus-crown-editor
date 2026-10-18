@@ -292,13 +292,13 @@ export const WelcomeModal: React.FC = () => {
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
                   placeholder="搜索游戏、配置或作者..."
-                  className="w-full rounded-lg border border-[#eaeaea] bg-[#ffffff] pl-8 pr-7 py-1 text-xs text-[#111111] placeholder:text-[#999999] outline-none focus:border-[#111111] transition-all"
+                  className="h-8 w-full rounded-lg border border-[#eaeaea] bg-[#ffffff] pl-8 pr-7 text-xs text-[#111111] placeholder:text-[#999999] outline-none focus:border-[#111111] transition-all"
                 />
                 {searchKeyword && (
                   <button
                     type="button"
                     onClick={() => setSearchKeyword("")}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[#999999] hover:text-[#111111]"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[#999999] hover:text-[#111111] cursor-pointer"
                     title="清空搜索"
                   >
                     <X className="h-3.5 w-3.5" />
@@ -314,21 +314,21 @@ export const WelcomeModal: React.FC = () => {
                 <span>正在加载社区模版列表...</span>
               </div>
             ) : filteredProfiles.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 max-h-[330px] overflow-y-auto pr-1">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 max-h-[340px] overflow-y-auto pr-1">
                 {filteredProfiles.map((tpl) => {
                   const isLoading = loadingProfilePath === tpl.url;
                   return (
                     <div
                       key={tpl.bundleId || tpl.url}
                       onClick={() => !isLoading && handleApplyCommunityProfile(tpl)}
-                      className="group flex flex-col justify-between rounded-xl border border-[#eaeaea] bg-[#ffffff] p-3.5 hover:border-[#111111] hover:shadow-xs hover:bg-[#fbfbfa] transition-all cursor-pointer relative"
+                      className="group flex flex-col justify-between rounded-xl border border-[#eaeaea] bg-[#ffffff] p-4 hover:border-[#111111] hover:shadow-xs hover:bg-[#fbfbfa] transition-all cursor-pointer relative"
                     >
-                      <div className="space-y-2">
+                      <div className="space-y-2.5">
                         <div className="flex items-center justify-between gap-1.5">
-                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#f7f6f3] border border-[#eaeaea] group-hover:bg-[#111111] group-hover:text-[#ffffff] transition-colors">
-                            <Gamepad2 className="h-3.5 w-3.5" />
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#f7f6f3] border border-[#eaeaea] group-hover:bg-[#111111] group-hover:text-[#ffffff] transition-colors">
+                            <Gamepad2 className="h-4 w-4" />
                           </div>
-                          <span className="rounded bg-[#f7f6f3] text-[#4b5563] text-[11px] px-2 py-0.5 font-medium border border-[#eaeaea] truncate max-w-[130px]">
+                          <span className="rounded bg-[#f7f6f3] text-[#4b5563] text-xs px-2.5 py-0.5 font-medium border border-[#eaeaea] truncate max-w-[130px]">
                             {tpl.game || "通用"}
                           </span>
                         </div>
@@ -340,7 +340,7 @@ export const WelcomeModal: React.FC = () => {
                           <div className="flex items-center justify-between text-xs text-[#6b7280] mt-1">
                             <span className="truncate max-w-[100px]">@{tpl.author || "社区"}</span>
                             {tpl.layoutBasis && (
-                              <span className="font-mono text-[11px] text-[#888888]">
+                              <span className="font-mono text-xs text-[#888888]">
                                 {tpl.layoutBasis.widthPx < tpl.layoutBasis.heightPx
                                   ? `${tpl.layoutBasis.heightPx}×${tpl.layoutBasis.widthPx}`
                                   : `${tpl.layoutBasis.widthPx}×${tpl.layoutBasis.heightPx}`}
@@ -348,14 +348,14 @@ export const WelcomeModal: React.FC = () => {
                             )}
                           </div>
                           {tpl.summary && (
-                            <p className="text-[11px] text-[#787774] line-clamp-1 mt-1" title={tpl.summary}>
+                            <p className="text-xs text-[#787774] line-clamp-1 mt-1.5 leading-relaxed" title={tpl.summary}>
                               {tpl.summary}
                             </p>
                           )}
                         </div>
                       </div>
 
-                      <div className="mt-3 pt-2 border-t border-[#f0f0f0] flex items-center justify-between text-xs text-[#111111]">
+                      <div className="mt-3.5 pt-2.5 border-t border-[#f0f0f0] flex items-center justify-between text-xs text-[#111111]">
                         <span className="font-medium text-[#4b5563] group-hover:text-[#111111]">
                           {isLoading ? "载入中..." : "载入配置"}
                         </span>
@@ -411,8 +411,8 @@ export const WelcomeModal: React.FC = () => {
                 accept=".json,.crown.json"
                 className="hidden"
               />
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f7f6f3] border border-[#eaeaea] group-hover:border-[#111111]/30 transition-colors">
-                <Upload className="h-5 w-5 text-[#374151]" />
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#f7f6f3] border border-[#eaeaea] group-hover:border-[#111111]/30 transition-colors">
+                <Upload className="h-4.5 w-4.5 text-[#374151]" />
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-sm text-[#111111]">
@@ -430,8 +430,8 @@ export const WelcomeModal: React.FC = () => {
               className="group flex items-center justify-between rounded-xl border border-[#eaeaea] bg-[#ffffff] p-4 hover:border-[#111111] hover:bg-[#fbfbfa] transition-all cursor-pointer"
             >
               <div className="flex items-center gap-3.5">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f7f6f3] border border-[#eaeaea] group-hover:border-[#111111]/30 transition-colors">
-                  <FilePlus className="h-5 w-5 text-[#111111]" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#f7f6f3] border border-[#eaeaea] group-hover:border-[#111111]/30 transition-colors">
+                  <FilePlus className="h-4.5 w-4.5 text-[#111111]" />
                 </div>
                 <div className="flex flex-col">
                   <span className="font-bold text-sm text-[#111111]">
