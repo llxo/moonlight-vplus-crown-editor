@@ -5,23 +5,27 @@
  * @license Apache-2.0
  */
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   Crown,
   X,
   Upload,
   FilePlus,
-  Compass,
   Gamepad2,
-  PieChart,
   ArrowRight,
-  Sparkles,
   Monitor,
   Copy,
   Check,
+  Search,
+  Loader2,
+  ExternalLink,
 } from "lucide-react";
 import { useCrownStore } from "../../store/useCrownStore";
-import { PRESET_TEMPLATES, type PresetTemplate } from "../../constants/templates";
+import {
+  fetchCommunityProfileIndex,
+  fetchCommunityProfileJson,
+  type CommunityProfileItem,
+} from "../../constants/templates";
 
 export const WelcomeModal: React.FC = () => {
   const {
@@ -29,7 +33,6 @@ export const WelcomeModal: React.FC = () => {
     setWelcomeModalOpen,
     loadBlankProfile,
     loadFromBundleOrPayload,
-    pushHistorySnapshot,
   } = useCrownStore();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -37,6 +40,19 @@ export const WelcomeModal: React.FC = () => {
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [isMobileUser, setIsMobileUser] = useState(false);
   const [hasCopiedUrl, setHasCopiedUrl] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [loadingProfilePath, setLoadingProfilePath] = useState<string | null>(null);
+  const [profiles, setProfiles] = useState<CommunityProfileItem[]>([]);
+  const [isLoadingIndex, setIsLoadingIndex] = useState(false);
+
+  useEffect(() => {
+    if (!isWelcomeModalOpen) return;
+    setIsLoadingIndex(true);
+    fetchCommunityProfileIndex()
+      .then((list) => setProfiles(list))
+      .catch((err) => console.error("加载模版清单失败:", err))
+      .finally(() => setIsLoadingIndex(false));
+  }, [isWelcomeModalOpen]);
 
   useEffect(() => {
     if (typeof navigator !== "undefined") {
@@ -73,6 +89,17 @@ export const WelcomeModal: React.FC = () => {
     }
   }, [isWelcomeModalOpen]);
 
+  const handleClose = () => {
+    if (typeof window !== "undefined") {
+      if (dontShowAgain) {
+        localStorage.setItem("moonlight_crown_welcome_dismissed", "true");
+      } else {
+        localStorage.removeItem("moonlight_crown_welcome_dismissed");
+      }
+    }
+    setWelcomeModalOpen(false);
+  };
+
   // ESC 键关闭
   useEffect(() => {
     if (!isWelcomeModalOpen) return;
@@ -85,37 +112,32 @@ export const WelcomeModal: React.FC = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isWelcomeModalOpen, dontShowAgain]);
 
-  if (!isWelcomeModalOpen) {
-    return null;
-  }
-
-  const handleClose = () => {
-    if (typeof window !== "undefined") {
-      if (dontShowAgain) {
-        localStorage.setItem("moonlight_crown_welcome_dismissed", "true");
-      } else {
-        localStorage.removeItem("moonlight_crown_welcome_dismissed");
-      }
-    }
-    setWelcomeModalOpen(false);
-  };
-
-  const handleApplyTemplate = (tpl: PresetTemplate) => {
-    pushHistorySnapshot();
-    useCrownStore.setState({
-      elements: tpl.elements,
-      selectedElementIds: [],
-      isDirty: true,
-      meta: {
-        ...useCrownStore.getState().meta,
-        ...tpl.meta,
-      },
-      settings: {
-        ...useCrownStore.getState().settings,
-        ...tpl.settings,
-      },
+  const filteredProfiles = useMemo(() => {
+    const kw = searchKeyword.trim().toLowerCase();
+    if (!kw) return profiles;
+    return profiles.filter((p) => {
+      return (
+        p.name.toLowerCase().includes(kw) ||
+        p.game.toLowerCase().includes(kw) ||
+        p.author.toLowerCase().includes(kw) ||
+        p.summary.toLowerCase().includes(kw) ||
+        (Array.isArray(p.tags) && p.tags.some((t) => t.toLowerCase().includes(kw)))
+      );
     });
-    handleClose();
+  }, [searchKeyword, profiles]);
+
+  const handleApplyCommunityProfile = async (tpl: CommunityProfileItem) => {
+    try {
+      const targetUrl = tpl.url;
+      setLoadingProfilePath(targetUrl);
+      const jsonText = await fetchCommunityProfileJson(targetUrl);
+      await loadFromBundleOrPayload(jsonText);
+      handleClose();
+    } catch (err: any) {
+      alert(`载入配置失败: ${err.message || "网络异常，请重试"}`);
+    } finally {
+      setLoadingProfilePath(null);
+    }
   };
 
   const handleCreateBlank = () => {
@@ -142,18 +164,9 @@ export const WelcomeModal: React.FC = () => {
     }
   };
 
-  const getTemplateIcon = (id: string) => {
-    switch (id) {
-      case "fps-tactical":
-        return <Compass className="h-5 w-5 text-[#1f6c9f]" />;
-      case "gamepad-classic":
-        return <Gamepad2 className="h-5 w-5 text-[#956400]" />;
-      case "rpg-wheel":
-        return <PieChart className="h-5 w-5 text-[#5c3e75]" />;
-      default:
-        return <Sparkles className="h-5 w-5 text-[#111111]" />;
-    }
-  };
+  if (!isWelcomeModalOpen) {
+    return null;
+  }
 
   return (
     <div
@@ -252,45 +265,122 @@ export const WelcomeModal: React.FC = () => {
             </div>
           )}
 
-          {/* 1. 精选推荐模版 (横排三列，高度一致自洽，绝无留白与空洞) */}
-          <div className="space-y-2.5">
-            <div className="text-xs font-bold uppercase tracking-wider text-[#374151]">
-              精选推荐模版
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {PRESET_TEMPLATES.map((tpl) => (
-                <div
-                  key={tpl.id}
-                  onClick={() => handleApplyTemplate(tpl)}
-                  className="group flex flex-col justify-between rounded-xl border border-[#eaeaea] bg-[#ffffff] p-4 hover:border-[#111111] hover:shadow-xs hover:bg-[#fbfbfa] transition-all cursor-pointer relative"
+          {/* 1. 官方社区模版库 */}
+          <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2">
+                <a
+                  href="https://github.com/qiin2333/crown-profiles"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-[#374151] hover:text-[#111111] transition-colors group/link cursor-pointer"
+                  title="访问官方社区配置仓库 (qiin2333/crown-profiles)"
                 >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f7f6f3] border border-[#eaeaea] group-hover:bg-[#111111] group-hover:text-[#ffffff] transition-colors">
-                        {getTemplateIcon(tpl.id)}
-                      </div>
-                      <span className="rounded bg-[#f7f6f3] text-[#4b5563] text-xs px-2 py-0.5 font-medium border border-[#eaeaea]">
-                        {tpl.category}
-                      </span>
-                    </div>
+                  <span className="group-hover/link:underline underline-offset-2">官方社区模版库</span>
+                  <ExternalLink className="h-3 w-3 text-[#999999] group-hover/link:text-[#111111] transition-colors" />
+                </a>
+                <span className="rounded-full bg-[#f0f0ee] text-[#6b7280] text-[11px] font-mono px-2 py-0.5 border border-[#eaeaea]">
+                  {isLoadingIndex ? "加载中..." : `已收录 ${profiles.length} 套配置`}
+                </span>
+              </div>
 
-                    <div>
-                      <h4 className="font-bold text-sm text-[#111111] group-hover:text-[#111111]">
-                        {tpl.title}
-                      </h4>
-                      <span className="text-xs text-[#6b7280] font-mono mt-1 block">
-                        含 {tpl.elements.length} 个控件
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-[#f0f0f0] flex items-center justify-between text-xs text-[#111111]">
-                    <span className="font-medium text-[#4b5563] group-hover:text-[#111111]">载入模版</span>
-                    <ArrowRight className="h-4 w-4 text-[#787774] group-hover:text-[#111111] group-hover:translate-x-0.5 transition-all" />
-                  </div>
-                </div>
-              ))}
+              {/* 即时搜索框 */}
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#999999]" />
+                <input
+                  type="text"
+                  value={searchKeyword}
+                  onChange={(e) => setSearchKeyword(e.target.value)}
+                  placeholder="搜索游戏、配置或作者..."
+                  className="w-full rounded-lg border border-[#eaeaea] bg-[#ffffff] pl-8 pr-7 py-1 text-xs text-[#111111] placeholder:text-[#999999] outline-none focus:border-[#111111] transition-all"
+                />
+                {searchKeyword && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchKeyword("")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[#999999] hover:text-[#111111]"
+                    title="清空搜索"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
             </div>
+
+            {/* 卡片网格列表 */}
+            {isLoadingIndex ? (
+              <div className="flex items-center justify-center p-12 text-xs text-[#787774] gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-[#111111]" />
+                <span>正在加载社区模版列表...</span>
+              </div>
+            ) : filteredProfiles.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 max-h-[330px] overflow-y-auto pr-1">
+                {filteredProfiles.map((tpl) => {
+                  const isLoading = loadingProfilePath === tpl.url;
+                  return (
+                    <div
+                      key={tpl.bundleId || tpl.url}
+                      onClick={() => !isLoading && handleApplyCommunityProfile(tpl)}
+                      className="group flex flex-col justify-between rounded-xl border border-[#eaeaea] bg-[#ffffff] p-3.5 hover:border-[#111111] hover:shadow-xs hover:bg-[#fbfbfa] transition-all cursor-pointer relative"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-1.5">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#f7f6f3] border border-[#eaeaea] group-hover:bg-[#111111] group-hover:text-[#ffffff] transition-colors">
+                            <Gamepad2 className="h-3.5 w-3.5" />
+                          </div>
+                          <span className="rounded bg-[#f7f6f3] text-[#4b5563] text-[11px] px-2 py-0.5 font-medium border border-[#eaeaea] truncate max-w-[130px]">
+                            {tpl.game || "通用"}
+                          </span>
+                        </div>
+
+                        <div>
+                          <h4 className="font-bold text-sm text-[#111111] truncate" title={tpl.name}>
+                            {tpl.name}
+                          </h4>
+                          <div className="flex items-center justify-between text-xs text-[#6b7280] mt-1">
+                            <span className="truncate max-w-[100px]">@{tpl.author || "社区"}</span>
+                            {tpl.layoutBasis && (
+                              <span className="font-mono text-[11px] text-[#888888]">
+                                {tpl.layoutBasis.widthPx < tpl.layoutBasis.heightPx
+                                  ? `${tpl.layoutBasis.heightPx}×${tpl.layoutBasis.widthPx}`
+                                  : `${tpl.layoutBasis.widthPx}×${tpl.layoutBasis.heightPx}`}
+                              </span>
+                            )}
+                          </div>
+                          {tpl.summary && (
+                            <p className="text-[11px] text-[#787774] line-clamp-1 mt-1" title={tpl.summary}>
+                              {tpl.summary}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-3 pt-2 border-t border-[#f0f0f0] flex items-center justify-between text-xs text-[#111111]">
+                        <span className="font-medium text-[#4b5563] group-hover:text-[#111111]">
+                          {isLoading ? "载入中..." : "载入配置"}
+                        </span>
+                        {isLoading ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin text-[#111111]" />
+                        ) : (
+                          <ArrowRight className="h-3.5 w-3.5 text-[#787774] group-hover:text-[#111111] group-hover:translate-x-0.5 transition-all" />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#e5e5e5] bg-[#ffffff] p-8 text-center text-xs text-[#787774]">
+                <span>未找到与 "{searchKeyword}" 相关的社区配置</span>
+                <button
+                  type="button"
+                  onClick={() => setSearchKeyword("")}
+                  className="mt-2 font-medium text-[#111111] underline underline-offset-2 cursor-pointer"
+                >
+                  清除搜索条件
+                </button>
+              </div>
+            )}
           </div>
 
           {/* 2. 快捷通道：导入已有配置 & 空白起步 (双列并排，完美对称) */}

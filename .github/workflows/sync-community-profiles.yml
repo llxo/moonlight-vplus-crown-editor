@@ -1,0 +1,117 @@
+name: Sync Community Profiles
+
+on:
+  schedule:
+    # 每周一 UTC 00:00 (北京时间周一上午 08:00) 自动同步
+    - cron: '0 0 * * 1'
+  workflow_dispatch: # 支持在 GitHub 网页一键手动触发
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check upstream commit SHA
+        id: check_sha
+        run: |
+          REMOTE_SHA=$(git ls-remote https://github.com/qiin2333/crown-profiles.git HEAD | awk '{print $1}')
+          echo "Remote commit SHA: $REMOTE_SHA"
+          
+          LOCAL_SHA=""
+          if [ -f "public/profiles/.upstream-commit" ]; then
+            LOCAL_SHA=$(cat public/profiles/.upstream-commit | tr -d '[:space:]')
+          fi
+          echo "Local commit SHA:  $LOCAL_SHA"
+          
+          if [ "$REMOTE_SHA" = "$LOCAL_SHA" ] && [ -n "$LOCAL_SHA" ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "Upstream repository has not changed since last sync ($REMOTE_SHA). Skipping."
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "target_sha=$REMOTE_SHA" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Sync and normalize profiles from official repository
+        if: steps.check_sha.outputs.has_changes == 'true'
+        run: |
+          echo "Cloning official crown-profiles repository..."
+          git clone --depth 1 https://github.com/qiin2333/crown-profiles.git temp-repo
+          
+          echo "Syncing profiles and index to public/profiles/..."
+          rm -rf public/profiles
+          mkdir -p public/profiles
+          cp -r temp-repo/profiles/* public/profiles/
+          cp temp-repo/index/v1.json public/profiles/index.json
+          rm -rf temp-repo
+          
+          echo "${{ steps.check_sha.outputs.target_sha }}" > public/profiles/.upstream-commit
+
+          echo "Normalizing layoutBasis (correcting portrait orientation to landscape)..."
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+            const dir = path.resolve('public/profiles');
+
+            function fixLayout(lb) {
+              if (lb && typeof lb === 'object' && lb.widthPx && lb.heightPx) {
+                if (lb.widthPx < lb.heightPx) {
+                  const w = lb.widthPx;
+                  lb.widthPx = lb.heightPx;
+                  lb.heightPx = w;
+                  lb.orientation = 'landscape';
+                  return true;
+                }
+              }
+              return false;
+            }
+
+            function walk(d) {
+              for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+                const p = path.join(d, e.name);
+                if (e.isDirectory()) {
+                  walk(p);
+                } else if (e.name.endsWith('.crown.json')) {
+                  const data = JSON.parse(fs.readFileSync(p, 'utf-8'));
+                  if (fixLayout(data.layoutBasis)) {
+                    fs.writeFileSync(p, JSON.stringify(data, null, 2) + '\n', 'utf-8');
+                  }
+                }
+              }
+            }
+
+            walk(dir);
+
+            const indexPath = path.join(dir, 'index.json');
+            if (fs.existsSync(indexPath)) {
+              const idx = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
+              if (Array.isArray(idx.profiles)) {
+                idx.profiles.forEach(p => fixLayout(p.layoutBasis));
+              }
+              fs.writeFileSync(indexPath, JSON.stringify(idx, null, 2) + '\n', 'utf-8');
+            }
+          "
+          echo "Sync and normalization completed."
+
+      - name: Commit and Push if updated
+        if: steps.check_sha.outputs.has_changes == 'true'
+        run: |
+          if [ -n "$(git status --porcelain public/profiles)" ]; then
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add public/profiles
+            git commit -m "chore(profiles): 自动同步官方社区 Crown 模版库并纠正横屏画幅"
+            git push
+            echo "Successfully updated and pushed normalized community profiles."
+          else
+            echo "No changes detected in community profiles."
+          fi

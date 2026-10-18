@@ -29,3 +29,4 @@ src/fix-fixtures.ts
 
 .agents/
 skills-lock.json
+.temp-crown-profiles/

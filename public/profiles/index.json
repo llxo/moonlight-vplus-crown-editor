@@ -1,0 +1,475 @@
+{
+  "kind": "crown-profile-index",
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-09T21:35:31Z",
+  "profiles": [
+    {
+      "bundleId": "crown.crown-profile.3dc63735",
+      "name": "手柄",
+      "summary": "",
+      "author": "qmy666999",
+      "game": "2400*1080",
+      "tags": [],
+      "updatedAt": "2026-08-03T03:18:19Z",
+      "url": "../profiles/2400-1080/crown-profile-3dc63735.crown.json",
+      "layoutBasis": {
+        "widthPx": 2400,
+        "heightPx": 1080,
+        "densityDpi": 420,
+        "density": 2.625,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.crown-profile.55b589be",
+      "name": "通用游戏按键",
+      "summary": "",
+      "author": "qmy666999",
+      "game": "2400*1080",
+      "tags": [],
+      "updatedAt": "2026-08-03T03:18:46Z",
+      "url": "../profiles/2400-1080/crown-profile-55b589be.crown.json",
+      "layoutBasis": {
+        "widthPx": 2400,
+        "heightPx": 1080,
+        "densityDpi": 420,
+        "density": 2.625,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.3.4e18adb5",
+      "name": "无主之地3",
+      "summary": "手机键鼠配置，分辨率1900*864",
+      "author": "HAHA8688",
+      "game": "无主之地3",
+      "tags": [],
+      "updatedAt": "2026-07-05T10:30:40Z",
+      "url": "../profiles/3/3-4e18adb5.crown.json",
+      "layoutBasis": {
+        "widthPx": 3168,
+        "heightPx": 1440,
+        "densityDpi": 640,
+        "density": 4,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.cod.cabedebd",
+      "name": "COD完全版",
+      "summary": "COD7-9",
+      "author": "BOB",
+      "game": "COD",
+      "tags": [],
+      "updatedAt": "2026-09-15T12:49:51Z",
+      "url": "../profiles/cod/cod-cabedebd.crown.json",
+      "layoutBasis": {
+        "widthPx": 2340,
+        "heightPx": 1080,
+        "densityDpi": 450,
+        "density": 2.8125,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.cod7-9.dae9004b",
+      "name": "COD7-9",
+      "summary": "跟手机玩差不多",
+      "author": "Bob",
+      "game": "COD使命召唤",
+      "tags": [
+        "FPS"
+      ],
+      "updatedAt": "2026-09-15T12:02:09Z",
+      "url": "../profiles/cod/cod7-9-dae9004b.crown.json",
+      "layoutBasis": {
+        "widthPx": 2340,
+        "heightPx": 1080,
+        "densityDpi": 450,
+        "density": 2.8125,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.1.0.22892740",
+      "name": "异环1.0",
+      "summary": "大部分场景均可使用",
+      "author": "枫",
+      "game": "异环",
+      "tags": [
+        "异环"
+      ],
+      "updatedAt": "2026-09-04T17:32:56Z",
+      "url": "../profiles/crown-profile/1.0-22892740.crown.json",
+      "layoutBasis": {
+        "widthPx": 2712,
+        "heightPx": 1220,
+        "densityDpi": 520,
+        "density": 3.25,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.1080p.c63edf7f",
+      "name": "低遮挡手柄(1080p)",
+      "summary": "该手柄布局适用手机(2400*1080)，在设置16:9画面串流时不遮挡显示画面，左右摇杆为自由摇杆在屏幕中央，左右肩键为透明按键在上方按按就能出现。左上角按钮可隐藏手柄按键",
+      "author": "gmaox",
+      "game": "支持手柄均可",
+      "tags": [],
+      "updatedAt": "2026-07-03T04:37:42Z",
+      "url": "../profiles/crown-profile/1080p-c63edf7f.crown.json",
+      "layoutBasis": {
+        "widthPx": 2400,
+        "heightPx": 1080,
+        "densityDpi": 450,
+        "density": 2.8125,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.16-9.05cf8cdf",
+      "name": "16：9掌机用系统快捷键",
+      "summary": "四个隐形按键设置在屏幕四个角落，分别是tab，alt，F4，win＋D。其中win＋D可以一键回到桌面，而alt与tab组合可以快速切换窗口，与F4组合可以一键关闭当前窗口。",
+      "author": "EDAxios",
+      "game": "高效切换和关闭窗口，回到桌面",
+      "tags": [],
+      "updatedAt": "2026-07-04T09:49:25Z",
+      "url": "../profiles/crown-profile/16-9-05cf8cdf.crown.json",
+      "layoutBasis": {
+        "widthPx": 1866,
+        "heightPx": 1080,
+        "densityDpi": 360,
+        "density": 2.25,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.2.0.608ee074",
+      "name": "原神2.0",
+      "summary": "更新了枪战和大世界按键切换",
+      "author": "枫",
+      "game": "原神",
+      "tags": [
+        "原神"
+      ],
+      "updatedAt": "2026-08-29T01:27:36Z",
+      "url": "../profiles/crown-profile/2.0-608ee074.crown.json",
+      "layoutBasis": {
+        "widthPx": 2712,
+        "heightPx": 1220,
+        "densityDpi": 520,
+        "density": 3.25,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.crown-profile.0bc71a71",
+      "name": "通用",
+      "summary": "由于作者是用k50做的，别的设备可能会有点大小边界的问题。几乎完美利用手机串流的黑边作为功能区，解决了黑边既没用又突兀的感觉。\n功能介绍：边界分为上下左右4块区域，左上角可移动左键，右上角可移动右键，左下角方向键，右下角移动鼠标。点击串流简化信息（有个隐形手柄）",
+      "author": "anyi3007",
+      "game": "通用",
+      "tags": [],
+      "updatedAt": "2026-07-01T04:36:17Z",
+      "url": "../profiles/crown-profile/crown-profile-0bc71a71.crown.json",
+      "layoutBasis": {
+        "widthPx": 2322,
+        "heightPx": 1080,
+        "densityDpi": 420,
+        "density": 2.625,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.crown-profile.1aa6d1db",
+      "name": "怪物猎人荒野太刀",
+      "summary": "",
+      "author": "luoluo2333",
+      "game": "怪物猎人荒野太刀",
+      "tags": [],
+      "updatedAt": "2026-08-25T13:30:33Z",
+      "url": "../profiles/crown-profile/crown-profile-1aa6d1db.crown.json",
+      "layoutBasis": {
+        "widthPx": 3168,
+        "heightPx": 1440,
+        "densityDpi": 640,
+        "density": 4,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.crown-profile.5745c797",
+      "name": "原神手机端",
+      "summary": "尽力还原了手机端操作，有部分操作需要关闭王冠才能操作（比如命座升级），小地图如果不能打开可以把触控模式改一下。缺点就是每次点小地图，菜单......界面都会平A",
+      "author": "枫",
+      "game": "原神",
+      "tags": [
+        "原神",
+        "红米K70至尊",
+        "2712*1220"
+      ],
+      "updatedAt": "2026-08-07T17:33:07Z",
+      "url": "../profiles/crown-profile/crown-profile-5745c797.crown.json",
+      "layoutBasis": {
+        "widthPx": 2712,
+        "heightPx": 1220,
+        "densityDpi": 520,
+        "density": 3.25,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.crown-profile.66f61513",
+      "name": "通用低分辨率",
+      "summary": "上一套布局的k50低分辨率版。也是我主用的布局。由于作者是用k50做的，别的设备可能会有点大小边界的问题。几乎完美利用手机串流的黑边作为功能区，解决了黑边既没用又突兀的感觉。\n功能介绍：边界分为上下左右4块区域，左上角可移动左键，右上角可移动右键，左下角方向键，右下角移动鼠标。点击串流简化信息（有个隐形手柄）",
+      "author": "anyi3007",
+      "game": "通用",
+      "tags": [],
+      "updatedAt": "2026-07-01T04:39:06Z",
+      "url": "../profiles/crown-profile/crown-profile-66f61513.crown.json",
+      "layoutBasis": {
+        "widthPx": 2322,
+        "heightPx": 1080,
+        "densityDpi": 420,
+        "density": 2.625,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.crown-profile.d20c7108",
+      "name": "我的世界通用版",
+      "summary": "",
+      "author": "qmy666999",
+      "game": "我的世界",
+      "tags": [],
+      "updatedAt": "2026-08-24T15:35:20Z",
+      "url": "../profiles/crown-profile/crown-profile-d20c7108.crown.json",
+      "layoutBasis": {
+        "widthPx": 2400,
+        "heightPx": 1080,
+        "densityDpi": 420,
+        "density": 2.625,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.desktop-daily-duo.6c4dfd13",
+      "name": "desktop-daily-duo",
+      "summary": "自用，日常非游戏应用，键盘输入和基础快捷操作。利用了21:9串流笔记本16:10的空隙。",
+      "author": "phixt",
+      "game": "非游戏（",
+      "tags": [],
+      "updatedAt": "2026-07-14T06:08:46Z",
+      "url": "../profiles/crown-profile/desktop-daily-duo-6c4dfd13.crown.json",
+      "layoutBasis": {
+        "widthPx": 2376,
+        "heightPx": 1080,
+        "densityDpi": 480,
+        "density": 3,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.dnf.811c7c05",
+      "name": "DNF常用按键",
+      "summary": "刷图日常足够使用，打团和高难度不太建议",
+      "author": "小林不知道诶",
+      "game": "地下城与勇士",
+      "tags": [
+        "dnf"
+      ],
+      "updatedAt": "2026-07-02T17:39:24Z",
+      "url": "../profiles/crown-profile/dnf-811c7c05.crown.json",
+      "layoutBasis": {
+        "widthPx": 2640,
+        "heightPx": 1216,
+        "densityDpi": 476,
+        "density": 2.9750001430511475,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.find-n5.1cd4cf15",
+      "name": "适用于find n5的手柄",
+      "summary": "比较通用，适用于三指操作",
+      "author": "凯旋穷叭叭",
+      "game": "手柄通用",
+      "tags": [
+        "手柄"
+      ],
+      "updatedAt": "2026-07-03T04:11:12Z",
+      "url": "../profiles/crown-profile/find-n5-1cd4cf15.crown.json",
+      "layoutBasis": {
+        "widthPx": 2480,
+        "heightPx": 2248,
+        "densityDpi": 442,
+        "density": 2.762500047683716,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.greenhell.4c945472",
+      "name": "GreenHell",
+      "summary": "手机键鼠配置，分辨率为1900*864，作者使用oneplus13",
+      "author": "HAHA8688",
+      "game": "绿色地狱",
+      "tags": [],
+      "updatedAt": "2026-07-05T10:29:19Z",
+      "url": "../profiles/crown-profile/greenhell-4c945472.crown.json",
+      "layoutBasis": {
+        "widthPx": 3168,
+        "heightPx": 1440,
+        "densityDpi": 640,
+        "density": 4,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.lsaac-rebirth.349f34f6",
+      "name": "lsaac Rebirth",
+      "summary": "以撒的结合重生常用按键布局",
+      "author": "小林不知道诶",
+      "game": "以撒的结合：重生",
+      "tags": [
+        "isaac"
+      ],
+      "updatedAt": "2026-07-02T17:41:38Z",
+      "url": "../profiles/crown-profile/lsaac-rebirth-349f34f6.crown.json",
+      "layoutBasis": {
+        "widthPx": 2640,
+        "heightPx": 1216,
+        "densityDpi": 476,
+        "density": 2.9750001430511475,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.gal-1080p.2be2d3fd",
+      "name": "gal-1080p",
+      "summary": "",
+      "author": "chanjifu92",
+      "game": "galgame",
+      "tags": [
+        "2340＊1080分辨率"
+      ],
+      "updatedAt": "2026-07-14T08:25:50Z",
+      "url": "../profiles/galgame/gal-1080p-2be2d3fd.crown.json",
+      "layoutBasis": {
+        "widthPx": 2250,
+        "heightPx": 1080,
+        "densityDpi": 374,
+        "density": 2.3375000953674316,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.galgame.4f9e8fa8",
+      "name": "galgame",
+      "summary": "",
+      "author": "chanjifu92",
+      "game": "galgame",
+      "tags": [
+        "galgame"
+      ],
+      "updatedAt": "2026-07-05T06:35:50Z",
+      "url": "../profiles/galgame/galgame-4f9e8fa8.crown.json",
+      "layoutBasis": {
+        "widthPx": 2800,
+        "heightPx": 1272,
+        "densityDpi": 476,
+        "density": 2.9750001430511475,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.3.dcdb5160",
+      "name": "无主之地3",
+      "summary": "",
+      "author": "Blackscriptss",
+      "game": "",
+      "tags": [],
+      "updatedAt": "2026-10-09T21:35:31Z",
+      "url": "../profiles/general/3-dcdb5160.crown.json",
+      "layoutBasis": {
+        "widthPx": 2400,
+        "heightPx": 1080,
+        "densityDpi": 338,
+        "density": 2.112499952316284,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.f1-f12.82d486da",
+      "name": "补充一些键盘没有f1到f12",
+      "summary": "补充一些键盘没有f1到f12，适用于用16：10的平板串流16：9的电脑，使用时请把屏幕位置设置到最上方",
+      "author": "SquirrelLuo",
+      "game": "",
+      "tags": [],
+      "updatedAt": "2026-06-27T08:09:40Z",
+      "url": "../profiles/general/f1-f12-82d486da.crown.json",
+      "layoutBasis": {
+        "widthPx": 2560,
+        "heightPx": 1600,
+        "densityDpi": 320,
+        "density": 2,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.crown-profile.9090a8d0",
+      "name": "某个适配我的世界的配置",
+      "summary": "有一些模组相关的配置，比如EmoteCraft，需要进按键绑定里重新绑定一下\n此配置在Honor 9X上创建",
+      "author": "tiaoling233",
+      "game": "我的世界(Minecraft)",
+      "tags": [],
+      "updatedAt": "2026-07-24T13:42:08Z",
+      "url": "../profiles/minecraft/crown-profile-9090a8d0.crown.json",
+      "layoutBasis": {
+        "widthPx": 2224,
+        "heightPx": 1080,
+        "densityDpi": 480,
+        "density": 3,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.minecraft.3c2f1342",
+      "name": "Minecraft",
+      "summary": "我的世界按键适配，适用于小米平板5Pro或其他同分辨率平板，游戏视频设置中界面尺寸建议选择4，只添加了部分常用按键，原版功能基本齐全",
+      "author": "Zellon0w0",
+      "game": "Minecraft",
+      "tags": [
+        "Minecraft",
+        "XiaomiPad5Pro"
+      ],
+      "updatedAt": "2026-07-31T15:26:16Z",
+      "url": "../profiles/minecraft/minecraft-3c2f1342.crown.json",
+      "layoutBasis": {
+        "widthPx": 2560,
+        "heightPx": 1600,
+        "densityDpi": 360,
+        "density": 2.25,
+        "orientation": "landscape"
+      }
+    },
+    {
+      "bundleId": "crown.windows.8d9f84e4",
+      "name": "Windows日常多按钮多功能",
+      "summary": "有各种方便的快捷按钮，还有手柄按键。可以自由的单独显示和隐藏各种按钮和手柄。也有全按钮隐藏的纯洁观看模式",
+      "author": "Link-HXX",
+      "game": "Windows桌面",
+      "tags": [
+        "desktop",
+        "Windows"
+      ],
+      "updatedAt": "2026-06-29T22:00:53Z",
+      "url": "../profiles/windows/windows-8d9f84e4.crown.json",
+      "layoutBasis": {
+        "widthPx": 2772,
+        "heightPx": 1240,
+        "densityDpi": 620,
+        "density": 3.875,
+        "orientation": "landscape"
+      }
+    }
+  ]
+}
