@@ -1,17 +1,15 @@
 /**
  * @file GroupButtonWidgetManager.tsx
- * @description 组按键 (GroupButton) 专属子控件绑定管理器：直观绑定/解绑画布控件，支持所见即所得悬停高亮与展开收纳行为控制
+ * @description 组按键 (GroupButton) 专属子控件绑定管理器：极简画布直选拾取模式，占用极小空间，支持所见即所得实时绑定与展开收纳行为控制
  * @author Moonlight-vplus Architect
  * @license Apache-2.0
  */
 
 import React, { useState, useMemo } from "react";
 import {
-  FolderKanban,
+  Crosshair,
+  Check,
   X,
-  Search,
-  CheckSquare,
-  Square,
   AlertCircle,
   ChevronDown,
   ChevronUp,
@@ -34,9 +32,15 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
   element,
   onUpdate,
 }) => {
-  const { elements, setHoveredElement } = useCrownStore();
-  const [searchQuery, setSearchQuery] = useState("");
+  const {
+    elements,
+    setHoveredElement,
+    pickingGroupId,
+    setPickingGroupId,
+  } = useCrownStore();
+
   const [showRawIds, setShowRawIds] = useState(false);
+  const isPicking = pickingGroupId === element.element_id;
 
   // 解析当前组按键已绑定的子控件 ID 列表
   const boundIds = useMemo(() => {
@@ -48,37 +52,6 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
       .map((s: string) => Number(s))
       .filter((n: number) => !isNaN(n));
   }, [element.element_value, element.element_id]);
-
-  // 画布上的所有其他可选控件（排除自身和其它组按键）
-  const candidateElements = useMemo(() => {
-    return elements.filter(
-      (el) =>
-        el.element_id !== element.element_id &&
-        el.element_type !== CrownElementType.GROUP_BUTTON
-    );
-  }, [elements, element.element_id]);
-
-  // 检查某个控件是否被其它组按键包含
-  const otherGroupsChildMap = useMemo(() => {
-    const map = new Map<number, string>();
-    elements.forEach((el) => {
-      if (
-        el.element_type === CrownElementType.GROUP_BUTTON &&
-        el.element_id !== element.element_id &&
-        "element_value" in el &&
-        el.element_value &&
-        el.element_value !== "-1"
-      ) {
-        const ids = el.element_value
-          .split(",")
-          .map((s: string) => Number(s.trim()))
-          .filter((n: number) => !isNaN(n));
-        const groupName = ("element_text" in el && el.element_text) || `组#${el.element_id}`;
-        ids.forEach((id: number) => map.set(id, groupName));
-      }
-    });
-    return map;
-  }, [elements, element.element_id]);
 
   // 已绑定的具体控件对象及失效 ID 识别
   const { boundElements, orphanIds } = useMemo(() => {
@@ -102,24 +75,12 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
     onUpdate({ element_value: valueStr });
   };
 
-  const toggleElementBinding = (id: number) => {
-    if (boundIds.includes(id)) {
-      updateBoundIds(boundIds.filter((x: number) => x !== id));
-    } else {
-      updateBoundIds([...boundIds, id]);
-    }
-  };
-
   const removeBinding = (id: number) => {
     updateBoundIds(boundIds.filter((x: number) => x !== id));
   };
 
   const removeOrphanIds = () => {
     updateBoundIds(boundIds.filter((id: number) => !orphanIds.includes(id)));
-  };
-
-  const selectAllCandidates = () => {
-    updateBoundIds(candidateElements.map((el) => el.element_id));
   };
 
   const clearAllBindings = () => {
@@ -150,22 +111,22 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
     let typeName = "按键";
     switch (el.element_type) {
       case CrownElementType.DIGITAL_COMMON_BUTTON:
-        typeName = "普通按键";
+        typeName = "普通键";
         break;
       case CrownElementType.DIGITAL_SWITCH_BUTTON:
-        typeName = "自锁开关";
+        typeName = "开关";
         break;
       case CrownElementType.DIGITAL_MOVABLE_BUTTON:
-        typeName = "滑动视角";
+        typeName = "视角";
         break;
       case CrownElementType.DIGITAL_COMBINE_BUTTON:
         typeName = "组合键";
         break;
       case CrownElementType.DIGITAL_PAD:
-        typeName = "十字方向键";
+        typeName = "十字键";
         break;
       case CrownElementType.ANALOG_STICK:
-        typeName = "模拟摇杆";
+        typeName = "摇杆";
         break;
       case CrownElementType.DIGITAL_STICK:
         typeName = "数字摇杆";
@@ -177,13 +138,13 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
         typeName = "隐形数字摇杆";
         break;
       case CrownElementType.WHEEL_PAD:
-        typeName = "轮盘菜单";
+        typeName = "轮盘";
         break;
       case CrownElementType.SIMPLIFY_PERFORMANCE:
-        typeName = "性能面板";
+        typeName = "性能条";
         break;
       default:
-        typeName = `控件 #${el.element_type}`;
+        typeName = `#${el.element_type}`;
     }
 
     let mainTitle = "";
@@ -195,54 +156,47 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
       el.element_value !== "-1" &&
       el.element_value !== "null"
     ) {
-      mainTitle = getKeyHumanLabel(el.element_value).label;
+      mainTitle = getKeyHumanLabel(el.element_value).label.split(" ")[0] || el.element_value;
     } else {
       mainTitle = typeName;
     }
 
-    return {
-      typeName,
-      mainTitle,
-      coords: `(${el.element_central_x}, ${el.element_central_y})`,
-      size: `${el.element_width}×${el.element_height}`,
-    };
+    return { typeName, mainTitle };
   };
 
-  // 过滤后的候选列表
-  const filteredCandidates = useMemo(() => {
-    if (!searchQuery.trim()) return candidateElements;
-    const query = searchQuery.trim().toLowerCase();
-    return candidateElements.filter((el) => {
-      const info = getWidgetInfo(el);
-      return (
-        info.mainTitle.toLowerCase().includes(query) ||
-        info.typeName.toLowerCase().includes(query) ||
-        String(el.element_id).includes(query) ||
-        ("element_value" in el && String(el.element_value).toLowerCase().includes(query))
-      );
-    });
-  }, [candidateElements, searchQuery]);
-
   return (
-    <div className="space-y-3.5 border-t border-[#eaeaea] pt-3.5 select-none">
-      {/* 头部功能介绍 */}
-      <div className="flex items-start gap-2.5 rounded-xl bg-blue-50/70 p-3 border border-blue-100">
-        <FolderKanban className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
-        <div className="text-xs">
-          <div className="font-semibold text-blue-950">
-            组按键子控件绑定管理
-          </div>
-          <div className="text-blue-800/80 leading-relaxed mt-0.5">
-            组按键自身为抽屉收纳容器，在下方勾选画布上的控件加入该组，点击组按键可展开/收起这些子控件。
-          </div>
+    <div className="space-y-3 border-t border-[#eaeaea] pt-3 select-none">
+      {/* 1. 画布直接点选启动按钮 (所见即所得拾取模式) */}
+      <div>
+        {isPicking ? (
+          <button
+            type="button"
+            onClick={() => setPickingGroupId(null)}
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white shadow-md hover:bg-blue-700 transition-all cursor-pointer animate-pulse"
+          >
+            <Check className="h-4 w-4" />
+            <span>正在点选画布控件... (点击完成)</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setPickingGroupId(element.element_id)}
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#111111] px-3 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#2a2a2a] transition-all cursor-pointer group"
+          >
+            <Crosshair className="h-4 w-4 text-blue-400 group-hover:scale-110 transition-transform" />
+            <span>🎯 在画布上直接点选子控件</span>
+          </button>
+        )}
+        <div className="text-[11px] text-[#888888] text-center mt-1">
+          点击后在画布上直接点击任意控件即可加入或移出
         </div>
       </div>
 
-      {/* 1. 已绑定的子控件清单 */}
-      <div className="space-y-2">
+      {/* 2. 已绑定子控件轻量胶囊流 (高度紧凑，仅占用极小空间) */}
+      <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold text-[#111111]">
-            已绑定子控件 ({boundElements.length} 个)
+            已收纳控件 ({boundElements.length} 项)
           </span>
           {boundIds.length > 0 && (
             <button
@@ -250,17 +204,17 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
               onClick={clearAllBindings}
               className="text-[11px] font-medium text-[#9f2f2d] hover:underline cursor-pointer"
             >
-              清空全部
+              清空
             </button>
           )}
         </div>
 
         {boundElements.length === 0 && orphanIds.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-[#d4d4d0] bg-[#fafaf9] p-3.5 text-center text-xs text-[#888888]">
-            暂未绑定任何子控件。请在下方列表中勾选画布上的控件。
+          <div className="rounded-lg border border-dashed border-[#d4d4d0] bg-[#fafaf9] p-2 text-center text-xs text-[#888888]">
+            暂无子控件，点击上方按钮直接点选
           </div>
         ) : (
-          <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-1 rounded-lg border border-[#f0f0ee] bg-[#fafaf9]">
+          <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto p-1 rounded-lg border border-[#f0f0ee] bg-[#fafaf9]">
             {boundElements.map((child) => {
               const info = getWidgetInfo(child);
               return (
@@ -268,9 +222,9 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
                   key={child.element_id}
                   onMouseEnter={() => setHoveredElement(child.element_id)}
                   onMouseLeave={() => setHoveredElement(null)}
-                  className="group flex items-center gap-1.5 rounded-lg border border-[#e5e7eb] bg-[#ffffff] px-2.5 py-1 text-xs shadow-xs hover:border-blue-400 hover:bg-blue-50/40 transition-colors"
+                  className="group flex items-center gap-1 rounded-md border border-[#e5e7eb] bg-[#ffffff] px-2 py-0.5 text-xs shadow-2xs hover:border-blue-400 hover:bg-blue-50/40 transition-colors"
                 >
-                  <span className="font-bold text-[#111111]">{info.mainTitle}</span>
+                  <span className="font-semibold text-[#111111]">{info.mainTitle}</span>
                   <span className="text-[10px] text-[#6b7280]">({info.typeName})</span>
                   <button
                     type="button"
@@ -278,8 +232,8 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
                       e.stopPropagation();
                       removeBinding(child.element_id);
                     }}
-                    className="rounded p-0.5 text-[#9ca3af] hover:bg-[#fee2e2] hover:text-[#dc2626] transition-colors cursor-pointer"
-                    title="从该组移除"
+                    className="rounded p-0.5 text-[#9ca3af] hover:text-[#dc2626] transition-colors cursor-pointer"
+                    title="移除"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -287,17 +241,16 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
               );
             })}
 
-            {/* 失效按键提示 */}
             {orphanIds.length > 0 && (
-              <div className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 text-xs text-amber-800">
-                <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                <span>有 {orphanIds.length} 个已删除控件残留</span>
+              <div className="flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[11px] text-amber-800">
+                <AlertCircle className="h-3 w-3 shrink-0" />
+                <span>{orphanIds.length} 项已失效</span>
                 <button
                   type="button"
                   onClick={removeOrphanIds}
-                  className="text-[11px] font-bold text-amber-900 underline ml-1 cursor-pointer"
+                  className="font-bold underline ml-0.5 cursor-pointer"
                 >
-                  一键清理
+                  清理
                 </button>
               </div>
             )}
@@ -305,140 +258,37 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
         )}
       </div>
 
-      {/* 2. 画布控件选择器列表 */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-[#111111]">
-            选择画布控件加入该组
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={selectAllCandidates}
-              className="text-[11px] font-medium text-blue-600 hover:underline cursor-pointer"
-            >
-              全选
-            </button>
-          </div>
-        </div>
-
-        {/* 快捷搜索框 (控件大于4个时呈现) */}
-        {candidateElements.length > 4 && (
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[#9ca3af]" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="搜索按键名称、键码或类型..."
-              className="w-full rounded-lg border border-[#e5e7eb] bg-[#ffffff] pl-8 pr-3 py-1.5 text-xs text-[#111111] placeholder:text-[#9ca3af] outline-none focus:border-[#111111]"
-            />
-          </div>
-        )}
-
-        {candidateElements.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-[#d4d4d0] bg-[#fafaf9] p-4 text-center text-xs text-[#888888]">
-            画布上暂无其他控件，请先通过底部工具栏添加按键或摇杆。
-          </div>
-        ) : (
-          <div className="max-h-48 overflow-y-auto space-y-1 rounded-xl border border-[#e5e7eb] bg-[#ffffff] p-1.5 divide-y divide-[#f3f4f6]">
-            {filteredCandidates.map((cand) => {
-              const isBound = boundIds.includes(cand.element_id);
-              const info = getWidgetInfo(cand);
-              const otherGroup = otherGroupsChildMap.get(cand.element_id);
-
-              return (
-                <div
-                  key={cand.element_id}
-                  onClick={() => toggleElementBinding(cand.element_id)}
-                  onMouseEnter={() => setHoveredElement(cand.element_id)}
-                  onMouseLeave={() => setHoveredElement(null)}
-                  className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors pt-2.5 ${
-                    isBound
-                      ? "bg-blue-50/70 border-l-2 border-blue-600"
-                      : "hover:bg-[#f9fafb]"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                    <div className="text-blue-600 shrink-0">
-                      {isBound ? (
-                        <CheckSquare className="h-4 w-4 text-blue-600" />
-                      ) : (
-                        <Square className="h-4 w-4 text-[#9ca3af]" />
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-semibold text-xs text-[#111111] truncate">
-                          {info.mainTitle}
-                        </span>
-                        <span className="rounded bg-[#f3f4f6] px-1.5 py-0.2 text-[10px] text-[#4b5563] shrink-0 font-medium">
-                          {info.typeName}
-                        </span>
-                      </div>
-                      <div className="text-[10px] text-[#888888] font-mono leading-tight mt-0.5 truncate">
-                        坐标 {info.coords} · {info.size}
-                        {otherGroup && (
-                          <span className="text-amber-700 ml-1 font-sans">
-                            (已属于: {otherGroup})
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <span
-                    className={`text-[11px] font-semibold shrink-0 px-2 py-0.5 rounded ${
-                      isBound
-                        ? "bg-blue-600 text-[#ffffff]"
-                        : "text-[#6b7280] group-hover:text-[#111111]"
-                    }`}
-                  >
-                    {isBound ? "已加入" : "添加"}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* 3. 组展开与收纳行为设置 */}
-      <div className="space-y-2.5 border-t border-[#eaeaea] pt-3">
-        <div className="text-xs font-semibold uppercase tracking-wider text-[#374151]">
-          抽屉展开与行为配置
-        </div>
-
+      {/* 3. 抽屉行为与常态可见性配置 */}
+      <div className="space-y-2 border-t border-[#eaeaea] pt-2.5">
         <div>
           <label className="text-xs font-medium text-[#4b5563] block mb-1">
             子按键常态显示模式
           </label>
           <select
             value={element.element_sense ?? CrownChildVisibility.VISIBLE}
-            onChange={(e) => onUpdate({ element_sense: Number(e.target.value) as CrownChildVisibility })}
-            className="w-full rounded-lg border border-[#e5e7eb] bg-[#ffffff] px-2.5 py-1.5 text-xs text-[#111111] outline-none focus:border-[#111111]"
+            onChange={(e) =>
+              onUpdate({
+                element_sense: Number(e.target.value) as CrownChildVisibility,
+              })
+            }
+            className="w-full rounded-lg border border-[#e5e7eb] bg-[#ffffff] px-2 py-1.5 text-xs text-[#111111] outline-none focus:border-[#111111]"
           >
             <option value={CrownChildVisibility.VISIBLE}>
               常态全部展开显示 (VISIBLE)
             </option>
             <option value={CrownChildVisibility.GONE}>
-              常态隐藏收起不占位 (GONE - 推荐)
+              常态隐藏收起 (GONE - 推荐)
             </option>
             <option value={CrownChildVisibility.INVISIBLE}>
-              常态不可见但保留占位 (INVISIBLE)
+              常态占位但不渲染 (INVISIBLE)
             </option>
           </select>
         </div>
 
-        <div className="flex items-center justify-between py-1">
-          <div>
-            <div className="text-xs font-medium text-[#111111]">
-              普通模式下拖动整组
-            </div>
-            <div className="text-[11px] text-[#888888]">
-              移动组按键时带动所有子控件同时平移
-            </div>
-          </div>
+        <div className="flex items-center justify-between py-0.5">
+          <span className="text-xs font-medium text-[#111111]">
+            移动组按键时带动子控件平移
+          </span>
           <input
             type="checkbox"
             checked={parsedExtra.movableInNormalMode}
@@ -447,15 +297,10 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
           />
         </div>
 
-        <div className="flex items-center justify-between py-1">
-          <div>
-            <div className="text-xs font-medium text-[#111111]">
-              隐藏组按钮自身
-            </div>
-            <div className="text-[11px] text-[#888888]">
-              仅由 gb{element.element_id} 宏动作触发，自身不显示
-            </div>
-          </div>
+        <div className="flex items-center justify-between py-0.5">
+          <span className="text-xs font-medium text-[#111111]">
+            隐藏组按键自身 (仅由宏触发)
+          </span>
           <input
             type="checkbox"
             checked={element.element_flag1 === 1}
@@ -466,7 +311,7 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
       </div>
 
       {/* 4. 底层原始 ID 列表查看（可折叠） */}
-      <div className="border-t border-[#eaeaea] pt-2">
+      <div className="border-t border-[#eaeaea] pt-1">
         <button
           type="button"
           onClick={() => setShowRawIds((prev) => !prev)}
@@ -485,9 +330,6 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
               className="w-full font-mono text-[11px] rounded border border-[#e5e7eb] bg-[#f9fafb] px-2 py-1 text-[#374151] outline-none"
               placeholder="逗号分隔的 ID 列表"
             />
-            <span className="text-[10px] text-[#9ca3af] block">
-              对应 CROWN 协议 element_value 字段，手动修改会同步刷新上方勾选项。
-            </span>
           </div>
         )}
       </div>

@@ -18,6 +18,7 @@ interface CrownElementItemProps {
   isSelected: boolean;
   isContextTarget?: boolean;
   isGroupChild?: boolean;
+  isPickingMode?: boolean;
   isBeingDragged: boolean;
   onMouseDown: (e: React.MouseEvent, el: CrownElement) => void;
   onContextMenu: (e: React.MouseEvent, el: CrownElement) => void;
@@ -28,6 +29,7 @@ export const CrownElementItem: React.FC<CrownElementItemProps> = ({
   isSelected,
   isContextTarget = false,
   isGroupChild = false,
+  isPickingMode = false,
   isBeingDragged,
   onMouseDown,
   onContextMenu,
@@ -75,30 +77,45 @@ export const CrownElementItem: React.FC<CrownElementItemProps> = ({
         zIndex: isBeingDragged ? 9999 : el.element_layer,
         willChange: isBeingDragged ? "left, top" : "auto",
       }}
-      className={`group select-none flex items-center justify-center cursor-move transition-colors duration-100 ${
+      className={`group select-none flex items-center justify-center transition-colors duration-100 ${
+        isPickingMode ? "cursor-pointer" : "cursor-move"
+      } ${
         isSelected
           ? "ring-2 ring-[#111111] ring-offset-2 ring-offset-[#fafaf9] shadow-xs"
           : isContextTarget
           ? "ring-2 ring-blue-500/80 ring-offset-2 ring-offset-[#fafaf9] shadow-xs"
           : isGroupChild
-          ? "ring-2 ring-blue-500/80 ring-dashed ring-offset-2 ring-offset-[#fafaf9] shadow-xs"
+          ? isPickingMode
+            ? "ring-2 ring-blue-500/80 ring-dashed ring-offset-2 ring-offset-[#fafaf9] hover:ring-rose-500 hover:ring-solid shadow-xs"
+            : "ring-2 ring-blue-500/80 ring-dashed ring-offset-2 ring-offset-[#fafaf9] shadow-xs"
+          : isPickingMode
+          ? "hover:ring-2 hover:ring-blue-500 hover:scale-[1.02] transition-transform"
           : "hover:ring-1 hover:ring-[#111111]/30"
       }`}
     >
       <CrownElementContent element={el} borderColor={borderColor} bgColor={bgColor} />
 
       {/* 选中、右键目标或所属组按键子项时的尺寸标注浮标 */}
-      {(isSelected || isContextTarget || isGroupChild) && (
+      {(isSelected || isContextTarget || isGroupChild || (isPickingMode && !isSelected)) && (
         <div
           className={`absolute -top-7 left-1/2 -translate-x-1/2 rounded px-2.5 py-0.5 text-xs font-mono font-semibold text-[#ffffff] pointer-events-none whitespace-nowrap shadow-sm flex items-center gap-1 ${
             isSelected
               ? "bg-[#111111]"
               : isContextTarget
               ? "bg-blue-600"
-              : "bg-blue-600/90"
+              : isGroupChild
+              ? isPickingMode
+                ? "bg-blue-600/95 group-hover:bg-rose-600"
+                : "bg-blue-600/90"
+              : "bg-[#111111]/75"
           }`}
         >
-          {isGroupChild && !isSelected && !isContextTarget && <span>📁 组内子项 · </span>}
+          {isGroupChild && !isSelected && !isContextTarget && (
+            <span>{isPickingMode ? "📁 组内 (点击移出) · " : "📁 组内子项 · "}</span>
+          )}
+          {isPickingMode && !isSelected && !isGroupChild && (
+            <span>+ 点击加入 · </span>
+          )}
           <span>{el.element_width} × {el.element_height} (L{el.element_layer})</span>
         </div>
       )}

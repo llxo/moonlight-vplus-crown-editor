@@ -8,6 +8,7 @@
 import { create } from "zustand";
 import {
   CrownColorUtils,
+  CrownElementType,
   type CrownElement,
   type CrownGlobalSettings,
   type CrownLayoutBasis,
@@ -54,6 +55,7 @@ export interface CrownState {
   isWelcomeModalOpen: boolean;
   isShareModalOpen: boolean;
   isExportModalOpen: boolean;
+  pickingGroupId: number | null;
   isDirty: boolean;
   validationStatus: {
     isValidSha256: boolean;
@@ -67,6 +69,8 @@ export interface CrownState {
   // Actions
   selectElement: (id: number | null, multi?: boolean) => void;
   setHoveredElement: (id: number | null) => void;
+  setPickingGroupId: (id: number | null) => void;
+  toggleChildInGroup: (groupId: number, childId: number) => void;
   updateElement: (id: number, patch: Partial<CrownElement>) => void;
   updateElementTransient: (id: number, patch: Partial<CrownElement>) => void;
   updateElementsBatch: (patches: Array<{ id: number; patch: Partial<CrownElement> }>) => void;
@@ -152,6 +156,7 @@ export const useCrownStore = create<CrownState>((set, get) => ({
   isWelcomeModalOpen: typeof window !== "undefined" ? localStorage.getItem("moonlight_crown_welcome_dismissed") !== "true" : true,
   isShareModalOpen: false,
   isExportModalOpen: false,
+  pickingGroupId: null,
   isDirty: false,
   validationStatus: {
     isValidSha256: true,
@@ -163,7 +168,7 @@ export const useCrownStore = create<CrownState>((set, get) => ({
 
   selectElement: (id, multi = false) => {
     if (id === null) {
-      set({ selectedElementIds: [] });
+      set({ selectedElementIds: [], pickingGroupId: null });
       return;
     }
     const current = get().selectedElementIds;
@@ -171,15 +176,47 @@ export const useCrownStore = create<CrownState>((set, get) => ({
       const exists = current.includes(id);
       set({
         selectedElementIds: exists ? current.filter((x) => x !== id) : [...current, id],
+        pickingGroupId: null,
       });
     } else {
       set({
         selectedElementIds: [id],
+        pickingGroupId: get().pickingGroupId === id ? get().pickingGroupId : null,
       });
     }
   },
 
   setHoveredElement: (id) => set({ hoveredElementId: id }),
+
+  setPickingGroupId: (id) => set({ pickingGroupId: id }),
+
+  toggleChildInGroup: (groupId, childId) => {
+    const groupEl = get().elements.find((el) => el.element_id === groupId);
+    if (!groupEl || groupEl.element_type !== CrownElementType.GROUP_BUTTON) return;
+
+    get().pushHistorySnapshot();
+    const curVal = ("element_value" in groupEl && groupEl.element_value) || "";
+    let ids = curVal
+      .split(",")
+      .map((s: string) => s.trim())
+      .filter((s: string) => s && s !== "-1" && s !== String(groupId))
+      .map((s: string) => Number(s))
+      .filter((n: number) => !isNaN(n));
+
+    if (ids.includes(childId)) {
+      ids = ids.filter((id: number) => id !== childId);
+    } else {
+      ids.push(childId);
+    }
+
+    const newVal = ids.length > 0 ? ids.join(",") : "-1";
+    set((state) => ({
+      elements: state.elements.map((el) =>
+        el.element_id === groupId ? { ...el, element_value: newVal } : el
+      ),
+      isDirty: true,
+    }));
+  },
 
   pushHistorySnapshot: () => {
     const { elements, settings, layoutBasis, historyPast } = get();

@@ -59,6 +59,9 @@ export const StageViewport: React.FC = () => {
     resetViewport,
     setZoom,
     setPanOffset,
+    pickingGroupId,
+    setPickingGroupId,
+    toggleChildInGroup,
   } = useCrownStore();
 
   // 右键菜单状态
@@ -253,7 +256,13 @@ export const StageViewport: React.FC = () => {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === "Space") isSpaceDownRef.current = true;
-      if (e.key === "Escape") closeContextMenu();
+      if (e.key === "Escape") {
+        if (pickingGroupId !== null) {
+          setPickingGroupId(null);
+          return;
+        }
+        closeContextMenu();
+      }
     };
     const handleKeyUp = (e: KeyboardEvent) => {
       if (e.code === "Space") isSpaceDownRef.current = false;
@@ -381,6 +390,18 @@ export const StageViewport: React.FC = () => {
   const handleElementMouseDown = (e: React.MouseEvent, el: CrownElement) => {
     e.stopPropagation();
 
+    // 拾取模式下，点击任何画布按键均直接切换该子控件加入/移出本组
+    if (pickingGroupId !== null) {
+      e.preventDefault();
+      if (el.element_id !== pickingGroupId) {
+        toggleChildInGroup(pickingGroupId, el.element_id);
+      } else {
+        // 点击了正在配置的组按键自身，完成点选
+        setPickingGroupId(null);
+      }
+      return;
+    }
+
     // 右键由 onContextMenu 统一处理，此处不触发选中，避免强行呼出属性控制板
     if (e.button === 2) {
       return;
@@ -474,12 +495,36 @@ export const StageViewport: React.FC = () => {
             isSelected={selectedElementIds.includes(el.element_id)}
             isContextTarget={contextMenu.isOpen && contextMenu.targetElementId === el.element_id}
             isGroupChild={activeGroupChildIds.has(el.element_id)}
+            isPickingMode={pickingGroupId !== null}
             isBeingDragged={activeDragElementId === el.element_id}
             onMouseDown={handleElementMouseDown}
             onContextMenu={handleElementContextMenu}
           />
         ))}
       </div>
+
+      {/* 画布直选子控件悬浮 HUD 状态条 */}
+      {pickingGroupId !== null && (
+        <div className="absolute top-5 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3.5 rounded-full border border-blue-500/40 bg-[#111111]/92 px-5 py-2.5 text-white shadow-2xl backdrop-blur-md animate-in fade-in zoom-in-95 duration-150 select-none">
+          <span className="flex h-2.5 w-2.5 rounded-full bg-blue-400 animate-ping" />
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold tracking-wide text-white">
+              🎯 正在点选子控件
+            </span>
+            <span className="text-[11px] text-[#aaaaaa]">
+              点击画布控件添加/移出 · 再次点击组按键或按 Esc 完成
+            </span>
+          </div>
+          <div className="h-3 w-[1px] bg-white/20 ml-0.5 mr-0.5" />
+          <button
+            type="button"
+            onClick={() => setPickingGroupId(null)}
+            className="rounded-full bg-blue-600 px-3.5 py-1 text-xs font-semibold text-white hover:bg-blue-500 transition-colors cursor-pointer shadow-xs"
+          >
+            完成点选 (Esc)
+          </button>
+        </div>
+      )}
 
       {/* 视口浮动状态标签 */}
       <div className="pointer-events-none absolute bottom-4 left-4 flex items-center gap-2 rounded-md border border-[#d4d4d0] bg-[#ffffff] px-3 py-1.5 text-xs text-[#374151] shadow-xs">
