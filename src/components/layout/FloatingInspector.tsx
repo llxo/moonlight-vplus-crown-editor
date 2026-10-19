@@ -23,6 +23,7 @@ import { MacroCombineRecorder } from "../common/MacroCombineRecorder";
 import { CrownColorPicker } from "../common/CrownColorPicker";
 import { NumberField, TextField, RangeField } from "../common/FormFields";
 import { SpecialElementFields } from "./SpecialElementFields";
+import { GroupButtonWidgetManager } from "./GroupButtonWidgetManager";
 
 export const FloatingInspector: React.FC = () => {
   const {
@@ -119,10 +120,11 @@ export const FloatingInspector: React.FC = () => {
         </div>
       </div>
 
-      {/* 核心按键绑定 (排除组合键、轮盘与模拟摇杆) */}
+      {/* 核心按键绑定 (排除组合键、组按键、轮盘与模拟摇杆) */}
       {"element_value" in selectedElement &&
         selectedElement.element_type !== CrownElementType.WHEEL_PAD &&
         selectedElement.element_type !== CrownElementType.DIGITAL_COMBINE_BUTTON &&
+        selectedElement.element_type !== CrownElementType.GROUP_BUTTON &&
         selectedElement.element_type !== CrownElementType.ANALOG_STICK &&
         selectedElement.element_type !== CrownElementType.INVISIBLE_ANALOG_STICK && (
           <div className="space-y-1">
@@ -133,6 +135,14 @@ export const FloatingInspector: React.FC = () => {
             />
           </div>
         )}
+
+      {/* 组按键专属子控件绑定管理器 */}
+      {selectedElement.element_type === CrownElementType.GROUP_BUTTON && (
+        <GroupButtonWidgetManager
+          element={selectedElement}
+          onUpdate={handleUpdate}
+        />
+      )}
 
       {/* 组合键专属录制器 */}
       {selectedElement.element_type === CrownElementType.DIGITAL_COMBINE_BUTTON && (

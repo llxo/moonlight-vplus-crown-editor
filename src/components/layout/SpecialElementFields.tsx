@@ -9,7 +9,6 @@ import React from "react";
 import {
   CrownElementType,
   CrownStickMoveMode,
-  CrownChildVisibility,
   type CrownElement,
 } from "../../crownSchema";
 import { KeyCodePicker } from "../common/KeyCodePicker";
@@ -238,70 +237,9 @@ export const SpecialElementFields: React.FC<SpecialElementFieldsProps> = ({
       );
     }
 
-    case CrownElementType.GROUP_BUTTON: {
-      let parsedExtra = { movableInNormalMode: true, userHasManuallySet: true, isPermanentlyIndependent: false };
-      try {
-        if (element.extra_attributes) {
-          parsedExtra = { ...parsedExtra, ...JSON.parse(element.extra_attributes) };
-        }
-      } catch {
-        // ignore
-      }
-
-      const updateExtra = (patch: Partial<typeof parsedExtra>) => {
-        const next = { ...parsedExtra, ...patch };
-        onUpdate({ extra_attributes: JSON.stringify(next) } as any);
-      };
-
-      return (
-        <div className="space-y-3 border-t border-[#eaeaea] pt-3">
-          <div className="text-xs font-semibold uppercase tracking-wider text-[#374151]">
-            组按键行为与子按键管理
-          </div>
-          <div>
-            <label className="text-xs font-medium text-[#4b5563] block mb-1">
-              子按键常态可见性
-            </label>
-            <select
-              value={element.element_sense ?? CrownChildVisibility.VISIBLE}
-              onChange={(e) => onUpdate({ element_sense: Number(e.target.value) } as any)}
-              className="w-full rounded border border-[#eaeaea] bg-[#fbfbfa] px-2 py-1.5 text-xs text-[#111111] outline-none"
-            >
-              <option value={CrownChildVisibility.VISIBLE}>全部可见 (VISIBLE)</option>
-              <option value={CrownChildVisibility.INVISIBLE}>不可见但占位 (INVISIBLE)</option>
-              <option value={CrownChildVisibility.GONE}>隐藏不占位 (GONE)</option>
-            </select>
-          </div>
-
-          <div className="flex items-center justify-between py-1">
-            <span className="text-xs font-medium text-[#4b5563]">普通模式下允许拖动整个组</span>
-            <input
-              type="checkbox"
-              checked={parsedExtra.movableInNormalMode}
-              onChange={(e) => updateExtra({ movableInNormalMode: e.target.checked })}
-              className="h-4 w-4 rounded accent-[#111111] cursor-pointer"
-            />
-          </div>
-
-          <div className="flex items-center justify-between py-1">
-            <span className="text-xs font-medium text-[#4b5563]">展开按钮自身是否隐藏</span>
-            <input
-              type="checkbox"
-              checked={element.element_flag1 === 1}
-              onChange={(e) => onUpdate({ element_flag1: e.target.checked ? 1 : 0 } as any)}
-              className="h-4 w-4 rounded accent-[#111111] cursor-pointer"
-            />
-          </div>
-
-          <TextField
-            label="关联子按键 ID 列表 (逗号分隔)"
-            value={element.element_value === "-1" ? "" : element.element_value}
-            onChange={(val) => onUpdate({ element_value: val.trim() || "-1" } as any)}
-            placeholder="例如: 1710000000001, 1710000000002"
-          />
-        </div>
-      );
-    }
+    case CrownElementType.GROUP_BUTTON:
+      // 组按键子控件绑定及抽屉展开行为已由 FloatingInspector 核心区域的 GroupButtonWidgetManager 统一管理
+      return null;
 
     case CrownElementType.SIMPLIFY_PERFORMANCE: {
       const templatePresets = [

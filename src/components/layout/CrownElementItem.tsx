@@ -17,6 +17,7 @@ interface CrownElementItemProps {
   element: CrownElement;
   isSelected: boolean;
   isContextTarget?: boolean;
+  isGroupChild?: boolean;
   isBeingDragged: boolean;
   onMouseDown: (e: React.MouseEvent, el: CrownElement) => void;
   onContextMenu: (e: React.MouseEvent, el: CrownElement) => void;
@@ -26,6 +27,7 @@ export const CrownElementItem: React.FC<CrownElementItemProps> = ({
   element: el,
   isSelected,
   isContextTarget = false,
+  isGroupChild = false,
   isBeingDragged,
   onMouseDown,
   onContextMenu,
@@ -78,19 +80,26 @@ export const CrownElementItem: React.FC<CrownElementItemProps> = ({
           ? "ring-2 ring-[#111111] ring-offset-2 ring-offset-[#fafaf9] shadow-xs"
           : isContextTarget
           ? "ring-2 ring-blue-500/80 ring-offset-2 ring-offset-[#fafaf9] shadow-xs"
+          : isGroupChild
+          ? "ring-2 ring-blue-500/80 ring-dashed ring-offset-2 ring-offset-[#fafaf9] shadow-xs"
           : "hover:ring-1 hover:ring-[#111111]/30"
       }`}
     >
       <CrownElementContent element={el} borderColor={borderColor} bgColor={bgColor} />
 
-      {/* 选中或右键目标时的尺寸标注小浮标 */}
-      {(isSelected || isContextTarget) && (
+      {/* 选中、右键目标或所属组按键子项时的尺寸标注浮标 */}
+      {(isSelected || isContextTarget || isGroupChild) && (
         <div
-          className={`absolute -top-7 left-1/2 -translate-x-1/2 rounded px-2.5 py-0.5 text-xs font-mono font-semibold text-[#ffffff] pointer-events-none whitespace-nowrap shadow-sm ${
-            isSelected ? "bg-[#111111]" : "bg-blue-600"
+          className={`absolute -top-7 left-1/2 -translate-x-1/2 rounded px-2.5 py-0.5 text-xs font-mono font-semibold text-[#ffffff] pointer-events-none whitespace-nowrap shadow-sm flex items-center gap-1 ${
+            isSelected
+              ? "bg-[#111111]"
+              : isContextTarget
+              ? "bg-blue-600"
+              : "bg-blue-600/90"
           }`}
         >
-          {el.element_width} × {el.element_height} (L{el.element_layer})
+          {isGroupChild && !isSelected && !isContextTarget && <span>📁 组内子项 · </span>}
+          <span>{el.element_width} × {el.element_height} (L{el.element_layer})</span>
         </div>
       )}
     </div>

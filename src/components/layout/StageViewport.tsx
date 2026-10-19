@@ -5,7 +5,7 @@
  * @license Apache-2.0
  */
 
-import React, { useRef, useState, useEffect, useCallback } from "react";
+import React, { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { useCrownStore } from "../../store/useCrownStore";
 import {
   CrownElementType,
@@ -144,6 +144,22 @@ export const StageViewport: React.FC = () => {
     const delta = e.deltaY > 0 ? -0.06 : 0.06;
     setZoom((prev) => Math.max(0.15, Math.min(2.5, Number((prev + delta).toFixed(2)))));
   };
+
+  // 计算当前选中的组按键所绑定的子控件集合，以便在画布上直观显示关联虚线框与指示标签
+  const activeGroupChildIds = useMemo(() => {
+    if (selectedElementIds.length !== 1) return new Set<number>();
+    const selectedEl = elements.find((el) => el.element_id === selectedElementIds[0]);
+    if (!selectedEl || selectedEl.element_type !== CrownElementType.GROUP_BUTTON) {
+      return new Set<number>();
+    }
+    const ids = (selectedEl.element_value || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s && s !== "-1" && s !== String(selectedEl.element_id))
+      .map(Number)
+      .filter((n) => !isNaN(n));
+    return new Set<number>(ids);
+  }, [selectedElementIds, elements]);
 
   // 全局指针移动处理函数（零延迟，使用 rAF 保持与显示器刷新率 1:1 同步）
   const handleGlobalPointerMove = useCallback(
@@ -457,6 +473,7 @@ export const StageViewport: React.FC = () => {
             element={el}
             isSelected={selectedElementIds.includes(el.element_id)}
             isContextTarget={contextMenu.isOpen && contextMenu.targetElementId === el.element_id}
+            isGroupChild={activeGroupChildIds.has(el.element_id)}
             isBeingDragged={activeDragElementId === el.element_id}
             onMouseDown={handleElementMouseDown}
             onContextMenu={handleElementContextMenu}
