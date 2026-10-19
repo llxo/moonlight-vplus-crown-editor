@@ -40,6 +40,7 @@ export interface CrownState {
   // 数据核心层
   meta: BundleMetadata;
   layoutBasis: CrownLayoutBasis;
+  statusBarInset: number;
   settings: CrownGlobalSettings;
   elements: CrownElement[];
 
@@ -136,6 +137,7 @@ export const useCrownStore = create<CrownState>((set, get) => ({
     appVersionName: "1.2.0",
   },
   layoutBasis: { ...DEFAULT_LAYOUT_BASIS },
+  statusBarInset: 0,
   settings: { ...DEFAULT_SETTINGS },
   elements: [],
 
@@ -339,6 +341,7 @@ export const useCrownStore = create<CrownState>((set, get) => ({
     get().pushHistorySnapshot();
     set((state) => ({
       layoutBasis: { ...state.layoutBasis, ...patch },
+      statusBarInset: 0,
       isDirty: true,
     }));
   },
@@ -427,6 +430,7 @@ export const useCrownStore = create<CrownState>((set, get) => ({
         tags: result.metadata.tags || ["Crown"],
       },
       layoutBasis: result.layoutBasis,
+      statusBarInset: result.statusBarInset || 0,
       settings: result.parsedProfile.settings,
       elements: result.parsedProfile.elements,
       selectedElementIds: [],

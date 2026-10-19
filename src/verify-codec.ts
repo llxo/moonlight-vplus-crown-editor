@@ -65,6 +65,33 @@ async function runVerification() {
     throw new Error(`api/share 直链生成失败: ${JSON.stringify(shareData)}`);
   }
 
+  // 5. 测试左侧状态栏占位自动推断能力 (gal-1080p 与 通用低分辨率/红米K50)
+  const galPath = path.resolve(process.cwd(), "public/profiles/galgame/gal-1080p-2be2d3fd.crown.json");
+  if (fs.existsSync(galPath)) {
+    const galContent = fs.readFileSync(galPath, "utf-8");
+    const galResult = await smartImportProfile(galContent);
+    console.log("5.1. gal-1080p 左侧状态栏占位推导测试:");
+    console.log("   - 还原物理全屏画布:", `${galResult.layoutBasis.widthPx} × ${galResult.layoutBasis.heightPx}`);
+    console.log("   - 左侧状态栏占位:", `${galResult.statusBarInset}px`);
+    console.log("   - 状态栏避让标志:", galResult.isCutoutDetected ? "✅ DETECTED" : "❌ NONE");
+    if (galResult.layoutBasis.widthPx !== 2340 || galResult.statusBarInset !== 90) {
+      throw new Error(`gal-1080p 状态栏占位推导错误: 期望 2340 物理宽与 90px 占位，实际获得 ${galResult.layoutBasis.widthPx} 和 ${galResult.statusBarInset}`);
+    }
+  }
+
+  const k50Path = path.resolve(process.cwd(), "public/profiles/crown-profile/crown-profile-66f61513.crown.json");
+  if (fs.existsSync(k50Path)) {
+    const k50Content = fs.readFileSync(k50Path, "utf-8");
+    const k50Result = await smartImportProfile(k50Content);
+    console.log("5.2. 通用低分辨率 (红米K50) 左侧状态栏占位推导测试:");
+    console.log("   - 还原物理全屏画布:", `${k50Result.layoutBasis.widthPx} × ${k50Result.layoutBasis.heightPx}`);
+    console.log("   - 左侧状态栏占位:", `${k50Result.statusBarInset}px`);
+    console.log("   - 状态栏避让标志:", k50Result.isCutoutDetected ? "✅ DETECTED" : "❌ NONE");
+    if (k50Result.layoutBasis.widthPx !== 2400 || k50Result.statusBarInset !== 78) {
+      throw new Error(`通用低分辨率 状态栏占位推导错误: 期望 2400 物理宽与 78px 占位，实际获得 ${k50Result.layoutBasis.widthPx} 和 ${k50Result.statusBarInset}`);
+    }
+  }
+
   // 清理临时文件（若存在）
   const tempTestFile = path.resolve(process.cwd(), "test-share.ts");
   if (fs.existsSync(tempTestFile)) {

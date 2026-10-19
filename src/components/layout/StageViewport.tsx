@@ -41,6 +41,7 @@ export const StageViewport: React.FC = () => {
 
   const {
     layoutBasis,
+    statusBarInset,
     zoom,
     panOffset,
     elements,
@@ -405,6 +406,28 @@ export const StageViewport: React.FC = () => {
         <div className="pointer-events-none absolute left-1/2 top-0 bottom-0 w-[1px] bg-black/[0.04] z-0" />
         <div className="pointer-events-none absolute top-1/2 left-0 right-0 h-[1px] bg-black/[0.04] z-0" />
 
+        {/* 状态栏辅助遮罩提示 */}
+        {statusBarInset > 0 && (
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: `${statusBarInset}px`,
+            }}
+            className="pointer-events-none border-r-2 border-dashed border-amber-400/80 bg-amber-500/[0.04] flex items-center justify-center overflow-hidden z-0"
+            title={`状态栏区域占位: ${statusBarInset}px`}
+          >
+            <div className="flex items-center gap-2 -rotate-90 whitespace-nowrap rounded-full border border-amber-400/80 bg-amber-100/90 px-5 py-2 shadow-sm backdrop-blur-xs select-none">
+              <span className="h-3 w-3 rounded-full bg-amber-500" />
+              <span className="font-mono text-[20px] font-bold tracking-wide text-amber-950">
+                状态栏占位 {statusBarInset}px
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* 渲染所有按键元素 */}
         {elements.map((el) => (
           <CrownElementItem
@@ -421,6 +444,14 @@ export const StageViewport: React.FC = () => {
       {/* 视口浮动状态标签 */}
       <div className="pointer-events-none absolute bottom-4 left-4 flex items-center gap-2 rounded-md border border-[#d4d4d0] bg-[#ffffff] px-3 py-1.5 text-xs text-[#374151] shadow-xs">
         <span>画布基准: <strong className="text-[#111111] font-mono font-semibold">{layoutBasis.widthPx} × {layoutBasis.heightPx}</strong></span>
+        {statusBarInset > 0 && (
+          <>
+            <span>•</span>
+            <span className="text-amber-800 bg-amber-50 border border-amber-200/60 px-1.5 py-0.5 rounded font-mono font-medium">
+              状态栏(自动补全): {statusBarInset}px
+            </span>
+          </>
+        )}
         <span>•</span>
         <span>缩放: <strong className="text-[#111111] font-mono font-semibold">{Math.round(zoom * 100)}%</strong></span>
         <span>•</span>
