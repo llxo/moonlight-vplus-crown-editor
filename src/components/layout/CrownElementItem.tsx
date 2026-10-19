@@ -16,6 +16,7 @@ import { getKeyHumanLabel } from "../../utils/keyMapping";
 interface CrownElementItemProps {
   element: CrownElement;
   isSelected: boolean;
+  isContextTarget?: boolean;
   isBeingDragged: boolean;
   onMouseDown: (e: React.MouseEvent, el: CrownElement) => void;
   onContextMenu: (e: React.MouseEvent, el: CrownElement) => void;
@@ -24,6 +25,7 @@ interface CrownElementItemProps {
 export const CrownElementItem: React.FC<CrownElementItemProps> = ({
   element: el,
   isSelected,
+  isContextTarget = false,
   isBeingDragged,
   onMouseDown,
   onContextMenu,
@@ -74,14 +76,20 @@ export const CrownElementItem: React.FC<CrownElementItemProps> = ({
       className={`group select-none flex items-center justify-center cursor-move transition-colors duration-100 ${
         isSelected
           ? "ring-2 ring-[#111111] ring-offset-2 ring-offset-[#fafaf9] shadow-xs"
+          : isContextTarget
+          ? "ring-2 ring-blue-500/80 ring-offset-2 ring-offset-[#fafaf9] shadow-xs"
           : "hover:ring-1 hover:ring-[#111111]/30"
       }`}
     >
       <CrownElementContent element={el} borderColor={borderColor} bgColor={bgColor} />
 
-      {/* 选中时的尺寸标注小浮标 */}
-      {isSelected && (
-        <div className="absolute -top-7 left-1/2 -translate-x-1/2 rounded bg-[#111111] px-2.5 py-0.5 text-xs font-mono font-semibold text-[#ffffff] pointer-events-none whitespace-nowrap shadow-sm">
+      {/* 选中或右键目标时的尺寸标注小浮标 */}
+      {(isSelected || isContextTarget) && (
+        <div
+          className={`absolute -top-7 left-1/2 -translate-x-1/2 rounded px-2.5 py-0.5 text-xs font-mono font-semibold text-[#ffffff] pointer-events-none whitespace-nowrap shadow-sm ${
+            isSelected ? "bg-[#111111]" : "bg-blue-600"
+          }`}
+        >
           {el.element_width} × {el.element_height} (L{el.element_layer})
         </div>
       )}

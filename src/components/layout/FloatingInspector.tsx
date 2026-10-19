@@ -70,7 +70,11 @@ export const FloatingInspector: React.FC = () => {
   };
 
   return (
-    <div className="absolute top-5 right-5 z-20 w-[320px] 2xl:w-[350px] max-h-[calc(100vh-90px)] overflow-y-auto rounded-2xl border border-[#eaeaea] bg-[#ffffff] p-4.5 2xl:p-5 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.04)] animate-in fade-in slide-in-from-right-4 select-none space-y-4">
+    <div
+      data-crown-inspector="true"
+      onContextMenu={(e) => e.stopPropagation()}
+      className="absolute top-5 right-5 z-20 w-[320px] 2xl:w-[350px] max-h-[calc(100vh-90px)] overflow-y-auto rounded-2xl border border-[#eaeaea] bg-[#ffffff] p-4.5 2xl:p-5 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.04)] animate-in fade-in slide-in-from-right-4 select-none space-y-4"
+    >
       {/* 头部摘要与操作 */}
       <div className="flex items-center justify-between border-b border-[#eaeaea] pb-3">
         <div className="flex items-center gap-2.5">

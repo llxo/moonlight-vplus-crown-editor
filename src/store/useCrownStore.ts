@@ -71,6 +71,8 @@ export interface CrownState {
   updateElementTransient: (id: number, patch: Partial<CrownElement>) => void;
   updateElementsBatch: (patches: Array<{ id: number; patch: Partial<CrownElement> }>) => void;
   addElement: (element: CrownElement) => void;
+  deleteElement: (id: number) => void;
+  duplicateElement: (id: number) => void;
   deleteSelectedElements: () => void;
   duplicateSelectedElements: () => void;
   reorderLayer: (id: number, targetLayer: number) => void;
@@ -273,6 +275,32 @@ export const useCrownStore = create<CrownState>((set, get) => ({
     set((state) => ({
       elements: [...state.elements, element],
       selectedElementIds: [element.element_id],
+      isDirty: true,
+    }));
+  },
+
+  deleteElement: (id) => {
+    get().pushHistorySnapshot();
+    set((state) => ({
+      elements: state.elements.filter((el) => el.element_id !== id),
+      selectedElementIds: state.selectedElementIds.filter((selId) => selId !== id),
+      isDirty: true,
+    }));
+  },
+
+  duplicateElement: (id) => {
+    const el = get().elements.find((item) => item.element_id === id);
+    if (!el) return;
+    get().pushHistorySnapshot();
+    const newId = Date.now();
+    const cloned = {
+      ...el,
+      element_id: newId,
+      element_central_x: Math.min(get().layoutBasis.widthPx - 30, el.element_central_x + 30),
+      element_central_y: Math.min(get().layoutBasis.heightPx - 30, el.element_central_y + 30),
+    } as CrownElement;
+    set((state) => ({
+      elements: [...state.elements, cloned],
       isDirty: true,
     }));
   },

@@ -50,6 +50,8 @@ export const StageViewport: React.FC = () => {
     updateElement,
     updateElementTransient,
     pushHistorySnapshot,
+    duplicateElement,
+    deleteElement,
     duplicateSelectedElements,
     deleteSelectedElements,
     reorderLayer,
@@ -104,18 +106,25 @@ export const StageViewport: React.FC = () => {
     (clientX: number, clientY: number, targetId: number | null = null) => {
       const { x: cx, y: cy } = calculateCanvasCoords(clientX, clientY);
 
-      const MENU_WIDTH = 200;
-      const MENU_HEIGHT = targetId !== null ? 270 : 230;
+      const MENU_WIDTH = 220;
+      const MENU_HEIGHT = targetId !== null ? 310 : 230;
 
-      const adjustedX =
-        clientX + MENU_WIDTH > window.innerWidth ? clientX - MENU_WIDTH : clientX;
-      const adjustedY =
-        clientY + MENU_HEIGHT > window.innerHeight ? clientY - MENU_HEIGHT : clientY;
+      let adjustedX = clientX;
+      if (clientX + MENU_WIDTH > window.innerWidth - 12) {
+        adjustedX = clientX - MENU_WIDTH;
+      }
+      adjustedX = Math.max(12, adjustedX);
+
+      let adjustedY = clientY;
+      if (clientY + MENU_HEIGHT > window.innerHeight - 12) {
+        adjustedY = clientY - MENU_HEIGHT;
+      }
+      adjustedY = Math.max(12, adjustedY);
 
       setContextMenu({
         isOpen: true,
-        x: Math.max(10, adjustedX),
-        y: Math.max(10, adjustedY),
+        x: adjustedX,
+        y: adjustedY,
         targetElementId: targetId,
         canvasX: cx,
         canvasY: cy,
@@ -281,6 +290,24 @@ export const StageViewport: React.FC = () => {
     closeContextMenu();
   };
 
+  const handleDeleteItem = (id?: number) => {
+    if (typeof id === "number") {
+      deleteElement(id);
+    } else {
+      deleteSelectedElements();
+    }
+    closeContextMenu();
+  };
+
+  const handleDuplicateItem = (id?: number) => {
+    if (typeof id === "number") {
+      duplicateElement(id);
+    } else {
+      duplicateSelectedElements();
+    }
+    closeContextMenu();
+  };
+
   const handleAddButtonAt = (cx: number, cy: number) => {
     const newEl = createDefaultCrownElement(CrownElementType.DIGITAL_COMMON_BUTTON, cx, cy);
     addElement(newEl);
@@ -338,10 +365,8 @@ export const StageViewport: React.FC = () => {
   const handleElementMouseDown = (e: React.MouseEvent, el: CrownElement) => {
     e.stopPropagation();
 
+    // 右键由 onContextMenu 统一处理，此处不触发选中，避免强行呼出属性控制板
     if (e.button === 2) {
-      if (!selectedElementIds.includes(el.element_id)) {
-        selectElement(el.element_id);
-      }
       return;
     }
 
@@ -366,13 +391,10 @@ export const StageViewport: React.FC = () => {
     };
   };
 
-  // 按键右键菜单
+  // 按键右键菜单：仅弹出快捷菜单，不触发 selectElement，不抢先呼出属性控制板
   const handleElementContextMenu = (e: React.MouseEvent, el: CrownElement) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!selectedElementIds.includes(el.element_id)) {
-      selectElement(el.element_id);
-    }
     openContextMenu(e.clientX, e.clientY, el.element_id);
   };
 
@@ -434,6 +456,7 @@ export const StageViewport: React.FC = () => {
             key={el.element_id}
             element={el}
             isSelected={selectedElementIds.includes(el.element_id)}
+            isContextTarget={contextMenu.isOpen && contextMenu.targetElementId === el.element_id}
             isBeingDragged={activeDragElementId === el.element_id}
             onMouseDown={handleElementMouseDown}
             onContextMenu={handleElementContextMenu}
@@ -463,12 +486,13 @@ export const StageViewport: React.FC = () => {
         menu={contextMenu}
         hasSelectedElements={selectedElementIds.length > 0}
         onClose={closeContextMenu}
-        onDuplicate={duplicateSelectedElements}
+        onDuplicate={handleDuplicateItem}
         onBringToFront={handleBringToFront}
         onSendToBack={handleSendToBack}
         onCenterHorizontal={handleCenterHorizontal}
         onCenterVertical={handleCenterVertical}
-        onDelete={deleteSelectedElements}
+        onDelete={handleDeleteItem}
+        onSelectElement={(id) => selectElement(id)}
         onAddButton={handleAddButtonAt}
         onAddStick={handleAddStickAt}
         onResetViewport={resetViewport}

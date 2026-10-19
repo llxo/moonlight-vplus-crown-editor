@@ -6,6 +6,7 @@
  */
 
 import React from "react";
+import { createPortal } from "react-dom";
 import {
   Copy,
   Trash2,
@@ -16,6 +17,7 @@ import {
   CircleDot,
   Compass,
   MousePointerClick,
+  SlidersHorizontal,
 } from "lucide-react";
 
 export interface ContextMenuState {
@@ -31,12 +33,13 @@ interface StageContextMenuProps {
   menu: ContextMenuState;
   hasSelectedElements: boolean;
   onClose: () => void;
-  onDuplicate: () => void;
+  onDuplicate: (id?: number) => void;
   onBringToFront: (id: number) => void;
   onSendToBack: (id: number) => void;
   onCenterHorizontal: (id: number) => void;
   onCenterVertical: (id: number) => void;
-  onDelete: () => void;
+  onDelete: (id?: number) => void;
+  onSelectElement?: (id: number) => void;
   onAddButton: (cx: number, cy: number) => void;
   onAddStick: (cx: number, cy: number) => void;
   onResetViewport: () => void;
@@ -53,6 +56,7 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
   onCenterHorizontal,
   onCenterVertical,
   onDelete,
+  onSelectElement,
   onAddButton,
   onAddStick,
   onResetViewport,
@@ -62,14 +66,14 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
     return null;
   }
 
-  return (
+  const menuContent = (
     <div
       data-crown-context-menu="true"
       style={{
         left: `${menu.x}px`,
         top: `${menu.y}px`,
       }}
-      className="fixed z-50 min-w-[220px] rounded-2xl border border-[#eaeaea] bg-[#ffffff]/98 p-1.5 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.18),0_0_0_1px_rgba(0,0,0,0.05)] backdrop-blur-md select-none animate-in fade-in zoom-in-95 duration-100 cursor-default"
+      className="fixed z-[9999] min-w-[220px] rounded-2xl border border-[#eaeaea] bg-[#ffffff]/98 p-1.5 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.18),0_0_0_1px_rgba(0,0,0,0.05)] backdrop-blur-md select-none animate-in fade-in zoom-in-95 duration-100 cursor-default"
       onContextMenu={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -81,28 +85,51 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
       onClick={(e) => e.stopPropagation()}
     >
       {menu.targetElementId !== null ? (
-        /* 针对选中的控件右键菜单 */
+        /* 针对右键指向的控件快捷菜单 */
         <div className="flex flex-col gap-0.5">
           <div className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#888888]">
-            控件操作
+            按键快捷操作
           </div>
+
+          {/* 编辑属性（可一键展开控制板） */}
           <button
             type="button"
             onClick={() => {
-              onDuplicate();
+              if (onSelectElement && menu.targetElementId !== null) {
+                onSelectElement(menu.targetElementId);
+              }
+              onClose();
+            }}
+            className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+          >
+            <div className="flex items-center gap-2.5">
+              <SlidersHorizontal className="h-4 w-4 text-[#555555]" />
+              <span>编辑属性 (打开控制板)</span>
+            </div>
+          </button>
+
+          <div className="my-1 border-t border-[#f0f0ee]" />
+
+          <button
+            type="button"
+            onClick={() => {
+              onDuplicate(menu.targetElementId!);
               onClose();
             }}
             className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
               <Copy className="h-4 w-4 text-[#555555]" />
-              <span>克隆控件</span>
+              <span>克隆此按键</span>
             </div>
             <span className="text-xs font-mono font-semibold text-[#888888]">Ctrl+D</span>
           </button>
           <button
             type="button"
-            onClick={() => onBringToFront(menu.targetElementId!)}
+            onClick={() => {
+              onBringToFront(menu.targetElementId!);
+              onClose();
+            }}
             className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
@@ -112,7 +139,10 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => onSendToBack(menu.targetElementId!)}
+            onClick={() => {
+              onSendToBack(menu.targetElementId!);
+              onClose();
+            }}
             className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
@@ -122,7 +152,10 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => onCenterHorizontal(menu.targetElementId!)}
+            onClick={() => {
+              onCenterHorizontal(menu.targetElementId!);
+              onClose();
+            }}
             className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
@@ -132,7 +165,10 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => onCenterVertical(menu.targetElementId!)}
+            onClick={() => {
+              onCenterVertical(menu.targetElementId!);
+              onClose();
+            }}
             className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
@@ -146,14 +182,14 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
           <button
             type="button"
             onClick={() => {
-              onDelete();
+              onDelete(menu.targetElementId!);
               onClose();
             }}
             className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#9f2f2d] hover:bg-[#fdebec] transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2.5">
               <Trash2 className="h-4 w-4 text-[#9f2f2d]" />
-              <span>删除控件</span>
+              <span>删除此按键</span>
             </div>
             <span className="text-xs font-mono font-semibold text-[#9f2f2d]/70">Del</span>
           </button>
@@ -223,4 +259,6 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
       )}
     </div>
   );
+
+  return createPortal(menuContent, document.body);
 };
