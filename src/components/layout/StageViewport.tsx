@@ -33,6 +33,7 @@ export const StageViewport: React.FC = () => {
     initialCentralY: number;
     startX: number;
     startY: number;
+    isDragging: boolean;
     hasMoved: boolean;
   } | null>(null);
 
@@ -199,19 +200,37 @@ export const StageViewport: React.FC = () => {
   // 全局指针移动处理函数（零延迟，使用 rAF 保持与显示器刷新率 1:1 同步）
   const handleGlobalPointerMove = useCallback(
     (e: PointerEvent) => {
-      // 1. 画布视口平移
+      // 1. 画布视口平移（增加 4px 防抖死区，避免右键点击时微小抖动误触发平移）
       if (isPanningRef.current) {
-        panHasMovedRef.current = true;
         const deltaX = e.clientX - panStartRef.current.x;
         const deltaY = e.clientY - panStartRef.current.y;
-        setPanOffset({ x: deltaX, y: deltaY });
+        const dist = Math.hypot(deltaX - panOffsetRef.current.x, deltaY - panOffsetRef.current.y);
+
+        if (dist >= 4) {
+          panHasMovedRef.current = true;
+          setPanOffset({ x: deltaX, y: deltaY });
+        }
         return;
       }
 
-      // 2. 控件物理拖拽
-      if (isDraggingElementRef.current && dragInfoRef.current) {
-        const { elementId, initialCentralX, initialCentralY, startX, startY } = dragInfoRef.current;
-        dragInfoRef.current.hasMoved = true;
+      // 2. 控件物理拖拽（带 5px 距离防抖死区，彻底杜绝点击选择或打开菜单时误移动按键）
+      if (dragInfoRef.current) {
+        const { elementId, initialCentralX, initialCentralY, startX, startY, isDragging } = dragInfoRef.current;
+        const screenDist = Math.hypot(e.clientX - startX, e.clientY - startY);
+
+        // 如果移动距离尚未达到 5px 防抖阈值，视为静态点击，绝不移动控件
+        if (!isDragging) {
+          if (screenDist < 5) {
+            return;
+          }
+          // 首次突破防抖死区：正式确认激活拖拽！
+          dragInfoRef.current.isDragging = true;
+          dragInfoRef.current.hasMoved = true;
+          isDraggingElementRef.current = true;
+          setActiveDragElementId(elementId);
+          pushHistorySnapshot();
+          document.body.style.cursor = "grabbing";
+        }
 
         if (rafIdRef.current !== null) {
           cancelAnimationFrame(rafIdRef.current);
@@ -233,9 +252,10 @@ export const StageViewport: React.FC = () => {
             element_central_y: newY,
           });
         });
+        return;
       }
     },
-    [zoom, layoutBasis, updateElementTransient, setPanOffset]
+    [zoom, layoutBasis, updateElementTransient, setPanOffset, pushHistorySnapshot]
   );
 
   // 全局指针释放
@@ -253,7 +273,7 @@ export const StageViewport: React.FC = () => {
       document.body.style.cursor = "";
     }
 
-    if (isDraggingElementRef.current && dragInfoRef.current?.hasMoved) {
+    if (isDraggingElementRef.current || dragInfoRef.current?.hasMoved) {
       document.body.style.cursor = "";
     }
 
@@ -445,17 +465,16 @@ export const StageViewport: React.FC = () => {
     e.preventDefault();
 
     selectElement(el.element_id, e.shiftKey || e.ctrlKey);
-    pushHistorySnapshot();
 
-    isDraggingElementRef.current = true;
-    setActiveDragElementId(el.element_id);
-
+    // 记录初始按下状态，暂不激活拖拽，等待移动超过 5px 防抖阈值才确认拖拽
+    isDraggingElementRef.current = false;
     dragInfoRef.current = {
       elementId: el.element_id,
       initialCentralX: el.element_central_x,
       initialCentralY: el.element_central_y,
       startX: e.clientX,
       startY: e.clientY,
+      isDragging: false,
       hasMoved: false,
     };
   };
