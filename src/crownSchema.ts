@@ -984,7 +984,7 @@ export function createDefaultCrownElement(
         normalTextColor: 0xff111111,
         pressedTextColor: 0xff111111,
         textSizePercent: 24,
-        element_sense: CrownChildVisibility.VISIBLE,
+        element_sense: CrownChildVisibility.GONE,
         element_flag1: 0,
         extra_attributes: JSON.stringify({
           movableInNormalMode: true,

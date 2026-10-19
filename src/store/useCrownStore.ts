@@ -9,6 +9,7 @@ import { create } from "zustand";
 import {
   CrownColorUtils,
   CrownElementType,
+  CrownChildVisibility,
   type CrownElement,
   type CrownGlobalSettings,
   type CrownLayoutBasis,
@@ -56,6 +57,7 @@ export interface CrownState {
   isShareModalOpen: boolean;
   isExportModalOpen: boolean;
   pickingGroupId: number | null;
+  editorGroupExpandOverrides: Record<number, boolean>;
   isDirty: boolean;
   validationStatus: {
     isValidSha256: boolean;
@@ -70,6 +72,8 @@ export interface CrownState {
   selectElement: (id: number | null, multi?: boolean) => void;
   setHoveredElement: (id: number | null) => void;
   setPickingGroupId: (id: number | null) => void;
+  setGroupExpanded: (groupId: number, expanded: boolean) => void;
+  isGroupExpanded: (groupId: number) => boolean;
   toggleChildInGroup: (groupId: number, childId: number) => void;
   updateElement: (id: number, patch: Partial<CrownElement>) => void;
   updateElementTransient: (id: number, patch: Partial<CrownElement>) => void;
@@ -157,6 +161,7 @@ export const useCrownStore = create<CrownState>((set, get) => ({
   isShareModalOpen: false,
   isExportModalOpen: false,
   pickingGroupId: null,
+  editorGroupExpandOverrides: {},
   isDirty: false,
   validationStatus: {
     isValidSha256: true,
@@ -189,6 +194,29 @@ export const useCrownStore = create<CrownState>((set, get) => ({
   setHoveredElement: (id) => set({ hoveredElementId: id }),
 
   setPickingGroupId: (id) => set({ pickingGroupId: id }),
+
+  setGroupExpanded: (groupId, expanded) => {
+    set((state) => ({
+      editorGroupExpandOverrides: {
+        ...state.editorGroupExpandOverrides,
+        [groupId]: expanded,
+      },
+    }));
+  },
+
+  isGroupExpanded: (groupId) => {
+    const state = get();
+    if (state.pickingGroupId === groupId) return true;
+    const override = state.editorGroupExpandOverrides[groupId];
+    if (override !== undefined) return override;
+
+    const el = state.elements.find((item) => item.element_id === groupId);
+    if (!el || el.element_type !== CrownElementType.GROUP_BUTTON) return true;
+
+    // 常态隐藏收起 (GONE: 8) 或 常态占位 (INVISIBLE: 4) 默认在画布收起隐藏
+    // 只有常态全部展开 (VISIBLE: 0) 默认在画布展开
+    return el.element_sense === CrownChildVisibility.VISIBLE;
+  },
 
   toggleChildInGroup: (groupId, childId) => {
     const groupEl = get().elements.find((el) => el.element_id === groupId);

@@ -13,6 +13,8 @@ import {
   AlertCircle,
   ChevronDown,
   ChevronUp,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import {
   CrownElementType,
@@ -37,10 +39,13 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
     setHoveredElement,
     pickingGroupId,
     setPickingGroupId,
+    isGroupExpanded,
+    setGroupExpanded,
   } = useCrownStore();
 
   const [showRawIds, setShowRawIds] = useState(false);
   const isPicking = pickingGroupId === element.element_id;
+  const isExpanded = isGroupExpanded(element.element_id);
 
   // 解析当前组按键已绑定的子控件 ID 列表
   const boundIds = useMemo(() => {
@@ -180,7 +185,10 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
         ) : (
           <button
             type="button"
-            onClick={() => setPickingGroupId(element.element_id)}
+            onClick={() => {
+              setGroupExpanded(element.element_id, true);
+              setPickingGroupId(element.element_id);
+            }}
             className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#111111] px-3 py-2 text-xs font-semibold text-white shadow-xs hover:bg-[#2a2a2a] transition-all cursor-pointer group"
           >
             <Crosshair className="h-4 w-4 text-blue-400 group-hover:scale-110 transition-transform" />
@@ -189,6 +197,43 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
         )}
         <div className="text-[11px] text-[#888888] text-center mt-1">
           点击后在画布上直接点击任意控件即可加入或移出
+        </div>
+      </div>
+
+      {/* 2. 画布显隐状态两档开关 (展开编辑 / 常态收起) */}
+      <div className="space-y-1">
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-semibold text-[#111111]">画布显隐状态</span>
+          <span className="text-[11px] text-[#888888]">
+            {isExpanded ? "已在画布展开呈现" : "已在画布收起隐藏"}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 p-1 rounded-xl bg-[#f0f0ee] border border-[#e5e7eb]">
+          <button
+            type="button"
+            onClick={() => setGroupExpanded(element.element_id, true)}
+            className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              isExpanded
+                ? "bg-[#ffffff] text-[#111111] shadow-xs"
+                : "text-[#6b7280] hover:text-[#111111]"
+            }`}
+          >
+            <Eye className="h-3.5 w-3.5 text-blue-600" />
+            <span>展开编辑</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setGroupExpanded(element.element_id, false)}
+            className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              !isExpanded
+                ? "bg-[#ffffff] text-[#111111] shadow-xs"
+                : "text-[#6b7280] hover:text-[#111111]"
+            }`}
+          >
+            <EyeOff className="h-3.5 w-3.5 text-[#6b7280]" />
+            <span>常态收起</span>
+          </button>
         </div>
       </div>
 
@@ -265,12 +310,15 @@ export const GroupButtonWidgetManager: React.FC<GroupButtonWidgetManagerProps> =
             子按键常态显示模式
           </label>
           <select
-            value={element.element_sense ?? CrownChildVisibility.VISIBLE}
-            onChange={(e) =>
+            value={element.element_sense ?? CrownChildVisibility.GONE}
+            onChange={(e) => {
+              const newSense = Number(e.target.value) as CrownChildVisibility;
               onUpdate({
-                element_sense: Number(e.target.value) as CrownChildVisibility,
-              })
-            }
+                element_sense: newSense,
+              });
+              // 切换常态显示模式时，自动对齐画布展开/收起状态
+              setGroupExpanded(element.element_id, newSense === CrownChildVisibility.VISIBLE);
+            }}
             className="w-full rounded-lg border border-[#e5e7eb] bg-[#ffffff] px-2 py-1.5 text-xs text-[#111111] outline-none focus:border-[#111111]"
           >
             <option value={CrownChildVisibility.VISIBLE}>

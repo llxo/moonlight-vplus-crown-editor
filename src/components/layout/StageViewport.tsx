@@ -9,6 +9,7 @@ import React, { useRef, useState, useEffect, useCallback, useMemo } from "react"
 import { useCrownStore } from "../../store/useCrownStore";
 import {
   CrownElementType,
+  CrownChildVisibility,
   createDefaultCrownElement,
   type CrownElement,
 } from "../../crownSchema";
@@ -62,6 +63,7 @@ export const StageViewport: React.FC = () => {
     pickingGroupId,
     setPickingGroupId,
     toggleChildInGroup,
+    editorGroupExpandOverrides,
   } = useCrownStore();
 
   // 右键菜单状态
@@ -147,6 +149,36 @@ export const StageViewport: React.FC = () => {
     const delta = e.deltaY > 0 ? -0.06 : 0.06;
     setZoom((prev) => Math.max(0.15, Math.min(2.5, Number((prev + delta).toFixed(2)))));
   };
+
+  // 计算在画布上当前需要隐藏的所有子控件 ID 集合（遵循 GONE/INVISIBLE 默认在画布收起隐藏规范）
+  const hiddenChildElementIds = useMemo(() => {
+    const set = new Set<number>();
+    elements.forEach((el) => {
+      if (
+        el.element_type === CrownElementType.GROUP_BUTTON &&
+        el.element_value &&
+        el.element_value !== "-1"
+      ) {
+        // 判断当前组是否在画布展开
+        const isExpanded =
+          pickingGroupId === el.element_id ||
+          (editorGroupExpandOverrides[el.element_id] !== undefined
+            ? editorGroupExpandOverrides[el.element_id]
+            : el.element_sense === CrownChildVisibility.VISIBLE);
+
+        if (!isExpanded) {
+          const childIds = el.element_value
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => s && s !== "-1" && s !== String(el.element_id))
+            .map(Number)
+            .filter((n) => !isNaN(n));
+          childIds.forEach((id) => set.add(id));
+        }
+      }
+    });
+    return set;
+  }, [elements, editorGroupExpandOverrides, pickingGroupId]);
 
   // 计算当前选中的组按键所绑定的子控件集合，以便在画布上直观显示关联虚线框与指示标签
   const activeGroupChildIds = useMemo(() => {
@@ -488,19 +520,26 @@ export const StageViewport: React.FC = () => {
         )}
 
         {/* 渲染所有按键元素 */}
-        {elements.map((el) => (
-          <CrownElementItem
-            key={el.element_id}
-            element={el}
-            isSelected={selectedElementIds.includes(el.element_id)}
-            isContextTarget={contextMenu.isOpen && contextMenu.targetElementId === el.element_id}
-            isGroupChild={activeGroupChildIds.has(el.element_id)}
-            isPickingMode={pickingGroupId !== null}
-            isBeingDragged={activeDragElementId === el.element_id}
-            onMouseDown={handleElementMouseDown}
-            onContextMenu={handleElementContextMenu}
-          />
-        ))}
+        {elements.map((el) => {
+          // 如果该控件属于当前已收起的组按键，且未被独立选中，则在画布上隐蔽让出视野
+          if (hiddenChildElementIds.has(el.element_id) && !selectedElementIds.includes(el.element_id)) {
+            return null;
+          }
+
+          return (
+            <CrownElementItem
+              key={el.element_id}
+              element={el}
+              isSelected={selectedElementIds.includes(el.element_id)}
+              isContextTarget={contextMenu.isOpen && contextMenu.targetElementId === el.element_id}
+              isGroupChild={activeGroupChildIds.has(el.element_id)}
+              isPickingMode={pickingGroupId !== null}
+              isBeingDragged={activeDragElementId === el.element_id}
+              onMouseDown={handleElementMouseDown}
+              onContextMenu={handleElementContextMenu}
+            />
+          );
+        })}
       </div>
 
       {/* 画布直选子控件悬浮 HUD 状态条 */}

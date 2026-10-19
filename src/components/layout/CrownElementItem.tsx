@@ -12,6 +12,7 @@ import {
   type CrownElement,
 } from "../../crownSchema";
 import { getKeyHumanLabel } from "../../utils/keyMapping";
+import { useCrownStore } from "../../store/useCrownStore";
 
 interface CrownElementItemProps {
   element: CrownElement;
@@ -636,6 +637,8 @@ const CrownElementContent: React.FC<CrownElementContentProps> = ({
         ? CrownColorUtils.intToRgbaHex(el.normalTextColor)
         : "#111111";
 
+      const isExpanded = useCrownStore((s) => s.isGroupExpanded(el.element_id));
+
       return (
         <div className="flex flex-col items-center justify-center pointer-events-none text-center px-1">
           <span
@@ -644,8 +647,16 @@ const CrownElementContent: React.FC<CrownElementContentProps> = ({
           >
             {el.element_text || "GROUP"}
           </span>
-          <span className="font-mono text-[10px] font-semibold text-blue-600 mt-1 bg-blue-50/80 px-1.5 py-0.5 rounded">
-            {childIds.length > 0 ? `📁 ${childIds.length} 项` : "📁 组"}
+          <span
+            className={`font-mono text-[10px] font-semibold mt-1 px-1.5 py-0.5 rounded ${
+              isExpanded
+                ? "text-blue-600 bg-blue-50/80"
+                : "text-amber-800 bg-amber-50/90 border border-amber-200/60"
+            }`}
+          >
+            {isExpanded
+              ? childIds.length > 0 ? `📁 展开中 (${childIds.length})` : "📁 组"
+              : childIds.length > 0 ? `📁 已收纳 (${childIds.length})` : "📁 组"}
           </span>
         </div>
       );
