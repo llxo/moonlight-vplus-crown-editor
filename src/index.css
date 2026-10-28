@@ -12,8 +12,25 @@
     user-select: none;
     background-color: #f7f6f3;
     color: #111111;
-    text-rendering: optimizeLegibility;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+}
+
+/* 高保真抗锯齿与几何矢量文字渲染 - 杜绝 transform 缩放和亚像素采样下的字形模糊发灰 */
+.crisp-canvas-root {
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  backface-visibility: hidden;
+  transform-style: flat;
+}
+
+.crisp-canvas-text {
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* 简约浅色自定义滚动条 */

@@ -41,6 +41,27 @@ export const StageViewport: React.FC = () => {
   const isSpaceDownRef = useRef(false);
   const rafIdRef = useRef<number | null>(null);
 
+  // 视口容器物理像素尺寸追踪（消除亚像素偏移，严格对齐物理像素网格）
+  const [containerSize, setContainerSize] = useState<{ width: number; height: number }>({
+    width: 0,
+    height: 0,
+  });
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        setContainerSize({
+          width: Math.round(entry.contentRect.width),
+          height: Math.round(entry.contentRect.height),
+        });
+      }
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   const {
     layoutBasis,
     statusBarInset,
@@ -124,13 +145,46 @@ export const StageViewport: React.FC = () => {
 
   const canvasFrameClass = useMemo(() => {
     if (isDarkCanvas) {
-      return "rounded-[36px] border-[8px] border-[#222225] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.06)] select-none transition-colors duration-200";
+      return "rounded-[36px] border-[8px] border-[#222225] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.06)] crisp-canvas-root select-none transition-colors duration-200";
     }
     if (canvasBg.preset === "pure-white") {
-      return "rounded-[36px] border-[8px] border-[#f0f0ee] shadow-[0_16px_50px_-10px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.07)] select-none transition-colors duration-200";
+      return "rounded-[36px] border-[8px] border-[#f0f0ee] shadow-[0_16px_50px_-10px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.07)] crisp-canvas-root select-none transition-colors duration-200";
     }
-    return "rounded-[36px] border-[8px] border-[#ffffff] shadow-[0_16px_50px_-10px_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.06)] select-none transition-colors duration-200";
+    return "rounded-[36px] border-[8px] border-[#ffffff] shadow-[0_16px_50px_-10px_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.06)] crisp-canvas-root select-none transition-colors duration-200";
   }, [isDarkCanvas, canvasBg.preset]);
+
+  // 计算消除半像素（Subpixel）的绝对物理整数像素坐标与无损变换
+  const canvasPositionStyle = useMemo<React.CSSProperties>(() => {
+    const visualW = layoutBasis.widthPx * zoom;
+    const visualH = layoutBasis.heightPx * zoom;
+
+    // 当已测量出视口容器物理尺寸时，使用精确到 1px 整数的 translate3d 定位，缩放原点定为 0 0
+    // 彻底杜绝 translate(-50%, -50%) 遇上奇数视口/奇数画幅时产生的 0.5px 亚像素模糊
+    if (containerSize.width > 0 && containerSize.height > 0) {
+      const snappedLeft = Math.round((containerSize.width - visualW) / 2 + panOffset.x);
+      const snappedTop = Math.round((containerSize.height - visualH) / 2 + panOffset.y);
+      return {
+        position: "absolute",
+        left: 0,
+        top: 0,
+        width: `${layoutBasis.widthPx}px`,
+        height: `${layoutBasis.heightPx}px`,
+        transform: `translate3d(${snappedLeft}px, ${snappedTop}px, 0) scale(${zoom})`,
+        transformOrigin: "0 0",
+      };
+    }
+
+    // 首帧兜底渲染
+    return {
+      position: "absolute",
+      left: `calc(50% + ${Math.round(panOffset.x)}px)`,
+      top: `calc(50% + ${Math.round(panOffset.y)}px)`,
+      width: `${layoutBasis.widthPx}px`,
+      height: `${layoutBasis.heightPx}px`,
+      transform: `translate(-50%, -50%) scale(${zoom})`,
+      transformOrigin: "center center",
+    };
+  }, [containerSize, layoutBasis.widthPx, layoutBasis.heightPx, zoom, panOffset]);
 
   // 计算视口屏幕像素坐标对应的画布物理坐标
   const calculateCanvasCoords = useCallback(
@@ -142,11 +196,22 @@ export const StageViewport: React.FC = () => {
         };
       }
       const rect = containerRef.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2 + panOffsetRef.current.x;
-      const centerY = rect.top + rect.height / 2 + panOffsetRef.current.y;
+      let rawX: number;
+      let rawY: number;
 
-      const rawX = (clientX - centerX) / zoom + layoutBasis.widthPx / 2;
-      const rawY = (clientY - centerY) / zoom + layoutBasis.heightPx / 2;
+      if (containerSize.width > 0 && containerSize.height > 0) {
+        const visualW = layoutBasis.widthPx * zoom;
+        const visualH = layoutBasis.heightPx * zoom;
+        const snappedLeft = Math.round((containerSize.width - visualW) / 2 + panOffsetRef.current.x);
+        const snappedTop = Math.round((containerSize.height - visualH) / 2 + panOffsetRef.current.y);
+        rawX = (clientX - (rect.left + snappedLeft)) / zoom;
+        rawY = (clientY - (rect.top + snappedTop)) / zoom;
+      } else {
+        const centerX = rect.left + rect.width / 2 + panOffsetRef.current.x;
+        const centerY = rect.top + rect.height / 2 + panOffsetRef.current.y;
+        rawX = (clientX - centerX) / zoom + layoutBasis.widthPx / 2;
+        rawY = (clientY - centerY) / zoom + layoutBasis.heightPx / 2;
+      }
 
       let clampedX = Math.round(rawX);
       let clampedY = Math.round(rawY);
@@ -156,7 +221,7 @@ export const StageViewport: React.FC = () => {
 
       return { x: clampedX, y: clampedY };
     },
-    [layoutBasis, zoom]
+    [layoutBasis, zoom, containerSize]
   );
 
   const openContextMenu = useCallback(
@@ -552,14 +617,12 @@ export const StageViewport: React.FC = () => {
       {/* 居中渲染的真实设备屏幕画幅 */}
       <div
         style={{
-          position: "absolute",
-          left: `calc(50% + ${panOffset.x}px)`,
-          top: `calc(50% + ${panOffset.y}px)`,
-          width: `${layoutBasis.widthPx}px`,
-          height: `${layoutBasis.heightPx}px`,
-          transform: `translate(-50%, -50%) scale(${zoom})`,
-          transformOrigin: "center center",
-          willChange: isPanningRef.current ? "left, top" : "auto",
+          ...canvasPositionStyle,
+          willChange: isPanningRef.current ? "transform" : "auto",
+          textRendering: "geometricPrecision",
+          WebkitFontSmoothing: "antialiased",
+          MozOsxFontSmoothing: "grayscale",
+          backfaceVisibility: "hidden",
           ...canvasBgStyle,
         }}
         className={canvasFrameClass}

@@ -35,8 +35,8 @@ export const CrownElementItem: React.FC<CrownElementItemProps> = ({
   onMouseDown,
   onContextMenu,
 }) => {
-  const left = el.element_central_x - el.element_width / 2;
-  const top = el.element_central_y - el.element_height / 2;
+  const left = Math.round(el.element_central_x - el.element_width / 2);
+  const top = Math.round(el.element_central_y - el.element_height / 2);
 
   const borderColor = CrownColorUtils.intToRgbaHex(el.element_color);
   const bgColor = CrownColorUtils.intToRgbaHex(el.element_background_color);
@@ -77,6 +77,9 @@ export const CrownElementItem: React.FC<CrownElementItemProps> = ({
         backgroundColor: isCustomSvgElement ? "transparent" : bgColor,
         zIndex: isBeingDragged ? 9999 : el.element_layer,
         willChange: isBeingDragged ? "left, top" : "auto",
+        textRendering: "geometricPrecision",
+        WebkitFontSmoothing: "antialiased",
+        MozOsxFontSmoothing: "grayscale",
       }}
       className={`group select-none flex items-center justify-center transition-colors duration-100 ${
         isPickingMode ? "cursor-pointer" : "cursor-move"
@@ -171,6 +174,8 @@ const CrownElementContent: React.FC<CrownElementContentProps> = ({
         <svg
           className="h-full w-full pointer-events-none"
           viewBox={`0 0 ${size} ${size}`}
+          shapeRendering="geometricPrecision"
+          textRendering="geometricPrecision"
         >
           {/* 1. 十字底色多边形 */}
           <polygon points={polygonPoints} fill={bgColor} />
@@ -284,6 +289,8 @@ const CrownElementContent: React.FC<CrownElementContentProps> = ({
         <svg
           className="h-full w-full pointer-events-none"
           viewBox={`0 0 ${el.element_width} ${el.element_height}`}
+          shapeRendering="geometricPrecision"
+          textRendering="geometricPrecision"
         >
           {/* 1. 底色填充大圆 */}
           <circle cx={radius} cy={radius} r={radiusComplete} fill={bgColor} />
@@ -353,6 +360,8 @@ const CrownElementContent: React.FC<CrownElementContentProps> = ({
         <svg
           className="h-full w-full pointer-events-none"
           viewBox={`0 0 ${el.element_width} ${el.element_height}`}
+          shapeRendering="geometricPrecision"
+          textRendering="geometricPrecision"
         >
           {/* 1. 底色大圆 */}
           <circle cx={radius} cy={radius} r={radiusComplete} fill={bgColor} />
@@ -535,6 +544,8 @@ const CrownElementContent: React.FC<CrownElementContentProps> = ({
         <svg
           className="h-full w-full pointer-events-none"
           viewBox={`0 0 ${el.element_width} ${el.element_height}`}
+          shapeRendering="geometricPrecision"
+          textRendering="geometricPrecision"
         >
           {/* 1. 外圈底色圆 */}
           <circle cx={radius} cy={radius} r={fillOuterRadius} fill={bgColor} />
@@ -618,8 +629,13 @@ const CrownElementContent: React.FC<CrownElementContentProps> = ({
       const textColor = CrownColorUtils.intToRgbaHex(el.element_color);
       return (
         <div
-          style={{ fontSize: `${perfFontSize}px`, color: textColor }}
-          className="px-4 text-center font-mono font-bold truncate leading-none pointer-events-none select-none"
+          style={{
+            fontSize: `${perfFontSize}px`,
+            color: textColor,
+            textRendering: "geometricPrecision",
+            WebkitFontSmoothing: "antialiased",
+          }}
+          className="px-4 text-center font-mono font-bold truncate leading-none pointer-events-none select-none crisp-canvas-text"
         >
           {el.element_text || "FPS: 60 | 延迟: 12ms | 12:00:00"}
         </div>
@@ -642,8 +658,13 @@ const CrownElementContent: React.FC<CrownElementContentProps> = ({
       return (
         <div className="flex flex-col items-center justify-center pointer-events-none text-center px-1">
           <span
-            style={{ fontSize: `${mainFontSize}px`, color: textColor }}
-            className="font-bold tracking-tight leading-none"
+            style={{
+              fontSize: `${mainFontSize}px`,
+              color: textColor,
+              textRendering: "geometricPrecision",
+              WebkitFontSmoothing: "antialiased",
+            }}
+            className="font-bold tracking-tight leading-none crisp-canvas-text"
           >
             {el.element_text || "GROUP"}
           </span>
@@ -678,8 +699,13 @@ const CrownElementContent: React.FC<CrownElementContentProps> = ({
       return (
         <div className="flex items-center justify-center pointer-events-none text-center px-2 h-full w-full">
           <span
-            style={{ fontSize: `${mainFontSize}px`, color: textColor }}
-            className="font-bold tracking-tight leading-none select-none"
+            style={{
+              fontSize: `${mainFontSize}px`,
+              color: textColor,
+              textRendering: "geometricPrecision",
+              WebkitFontSmoothing: "antialiased",
+            }}
+            className="font-bold tracking-tight leading-none select-none crisp-canvas-text"
           >
             {text}
           </span>
