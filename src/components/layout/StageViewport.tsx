@@ -6,7 +6,7 @@
  */
 
 import React, { useRef, useState, useEffect, useCallback, useMemo } from "react";
-import { useCrownStore } from "../../store/useCrownStore";
+import { useCrownStore, getCanvasBgOption } from "../../store/useCrownStore";
 import {
   CrownElementType,
   CrownChildVisibility,
@@ -65,6 +65,8 @@ export const StageViewport: React.FC = () => {
     setPickingGroupId,
     toggleChildInGroup,
     editorGroupExpandOverrides,
+    canvasBg,
+    cycleCanvasBg,
   } = useCrownStore();
 
   // 右键菜单状态
@@ -80,6 +82,55 @@ export const StageViewport: React.FC = () => {
   const closeContextMenu = useCallback(() => {
     setContextMenu((prev) => (prev.isOpen ? { ...prev, isOpen: false } : prev));
   }, []);
+
+  // 画布背景与边框色彩推导
+  const currentBgOption = useMemo(() => {
+    return getCanvasBgOption(canvasBg.preset);
+  }, [canvasBg.preset]);
+
+  const isDarkCanvas = useMemo(() => {
+    if (canvasBg.preset === "custom") {
+      const hex = canvasBg.customColor.replace("#", "");
+      if (hex.length >= 6) {
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        return (r * 299 + g * 587 + b * 114) / 1000 < 128;
+      }
+      return true;
+    }
+    return currentBgOption.isDark;
+  }, [canvasBg, currentBgOption]);
+
+  const canvasBgStyle = useMemo<React.CSSProperties>(() => {
+    if (canvasBg.preset === "checkerboard") {
+      return {
+        backgroundColor: "#ffffff",
+        backgroundImage:
+          "linear-gradient(45deg, #e4e4e7 25%, transparent 25%), linear-gradient(-45deg, #e4e4e7 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e4e4e7 75%), linear-gradient(-45deg, transparent 75%, #e4e4e7 75%)",
+        backgroundSize: "24px 24px",
+        backgroundPosition: "0 0, 0 12px, 12px -12px, -12px 0px",
+      };
+    }
+    if (canvasBg.preset === "custom") {
+      return {
+        backgroundColor: canvasBg.customColor || "#1c1917",
+      };
+    }
+    return {
+      backgroundColor: currentBgOption.color || "#fafaf9",
+    };
+  }, [canvasBg, currentBgOption]);
+
+  const canvasFrameClass = useMemo(() => {
+    if (isDarkCanvas) {
+      return "rounded-[36px] border-[8px] border-[#222225] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.06)] select-none transition-colors duration-200";
+    }
+    if (canvasBg.preset === "pure-white") {
+      return "rounded-[36px] border-[8px] border-[#f0f0ee] shadow-[0_16px_50px_-10px_rgba(0,0,0,0.08),0_0_0_1px_rgba(0,0,0,0.07)] select-none transition-colors duration-200";
+    }
+    return "rounded-[36px] border-[8px] border-[#ffffff] shadow-[0_16px_50px_-10px_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.06)] select-none transition-colors duration-200";
+  }, [isDarkCanvas, canvasBg.preset]);
 
   // 计算视口屏幕像素坐标对应的画布物理坐标
   const calculateCanvasCoords = useCallback(
@@ -509,12 +560,13 @@ export const StageViewport: React.FC = () => {
           transform: `translate(-50%, -50%) scale(${zoom})`,
           transformOrigin: "center center",
           willChange: isPanningRef.current ? "left, top" : "auto",
+          ...canvasBgStyle,
         }}
-        className="rounded-[36px] border-[8px] border-[#ffffff] bg-[#fafaf9] shadow-[0_16px_50px_-10px_rgba(0,0,0,0.07),0_0_0_1px_rgba(0,0,0,0.06)] select-none"
+        className={canvasFrameClass}
       >
         {/* 屏幕几何中心十字准星 */}
-        <div className="pointer-events-none absolute left-1/2 top-0 bottom-0 w-[1px] bg-black/[0.04] z-0" />
-        <div className="pointer-events-none absolute top-1/2 left-0 right-0 h-[1px] bg-black/[0.04] z-0" />
+        <div className={`pointer-events-none absolute left-1/2 top-0 bottom-0 w-[1px] ${isDarkCanvas ? "bg-white/[0.08]" : "bg-black/[0.04]"} z-0`} />
+        <div className={`pointer-events-none absolute top-1/2 left-0 right-0 h-[1px] ${isDarkCanvas ? "bg-white/[0.08]" : "bg-black/[0.04]"} z-0`} />
 
         {/* 状态栏辅助遮罩提示 */}
         {statusBarInset > 0 && (
@@ -585,20 +637,35 @@ export const StageViewport: React.FC = () => {
       )}
 
       {/* 视口浮动状态标签 */}
-      <div className="pointer-events-none absolute bottom-4 left-4 flex items-center gap-2 rounded-md border border-[#d4d4d0] bg-[#ffffff] px-3 py-1.5 text-xs text-[#374151] shadow-xs">
+      <div className="absolute bottom-4 left-4 z-10 flex items-center gap-2 rounded-md border border-[#d4d4d0] bg-[#ffffff]/95 backdrop-blur-xs px-3 py-1.5 text-xs text-[#374151] shadow-xs select-none">
         <span>画布基准: <strong className="text-[#111111] font-mono font-semibold">{layoutBasis.widthPx} × {layoutBasis.heightPx}</strong></span>
         {statusBarInset > 0 && (
           <>
             <span>•</span>
             <span className="text-amber-800 bg-amber-50 border border-amber-200/60 px-1.5 py-0.5 rounded font-mono font-medium">
-              状态栏(自动补全): {statusBarInset}px
+              状态栏: {statusBarInset}px
             </span>
           </>
         )}
         <span>•</span>
         <span>缩放: <strong className="text-[#111111] font-mono font-semibold">{Math.round(zoom * 100)}%</strong></span>
         <span>•</span>
-        <span>右键呼出菜单</span>
+        <button
+          type="button"
+          onClick={cycleCanvasBg}
+          className="flex items-center gap-1.5 rounded px-1.5 py-0.5 hover:bg-[#f3f2ee] active:scale-95 transition-all cursor-pointer text-[#111111]"
+          title="点击快速切换画布背景色 (快捷键 B)"
+        >
+          <span
+            className="h-2.5 w-2.5 rounded-full border border-black/15 shadow-2xs"
+            style={{
+              backgroundColor: canvasBg.preset === "checkerboard" ? "#cccccc" : (canvasBg.preset === "custom" ? canvasBg.customColor : currentBgOption.color),
+            }}
+          />
+          <span>背景: <strong className="font-semibold">{currentBgOption.shortName}</strong></span>
+        </button>
+        <span>•</span>
+        <span className="text-[#777777]">右键呼出菜单</span>
       </div>
 
       {/* 极简右键快捷菜单 */}
@@ -617,6 +684,8 @@ export const StageViewport: React.FC = () => {
         onAddStick={handleAddStickAt}
         onResetViewport={resetViewport}
         onDeselect={() => selectElement(null)}
+        onCycleCanvasBg={cycleCanvasBg}
+        canvasBgName={currentBgOption.shortName}
       />
     </main>
   );

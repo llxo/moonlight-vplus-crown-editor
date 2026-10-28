@@ -8,7 +8,7 @@ import { useCrownStore } from "../../store/useCrownStore";
 import { Smartphone, MousePointer, Layers } from "lucide-react";
 
 export const StatusBar: React.FC = () => {
-  const { elements, selectedElementIds, layoutBasis, zoom } = useCrownStore();
+  const { elements, selectedElementIds, layoutBasis, zoom, cycleCanvasBg } = useCrownStore();
 
   return (
     <footer className="flex h-9 w-full items-center justify-between border-t border-[#eaeaea] bg-[#fbfbfa] px-6 text-xs text-[#4b5563] select-none">
@@ -58,6 +58,15 @@ export const StatusBar: React.FC = () => {
         <div className="flex items-center gap-1">
           <kbd>Ctrl+Z</kbd> 撤销
         </div>
+        <span>•</span>
+        <button
+          type="button"
+          onClick={cycleCanvasBg}
+          className="flex items-center gap-1 hover:text-[#111111] transition-colors cursor-pointer"
+          title="点击快速切换画布背景色 (快捷键 B)"
+        >
+          <kbd>B</kbd> 切换背景
+        </button>
       </div>
     </footer>
   );

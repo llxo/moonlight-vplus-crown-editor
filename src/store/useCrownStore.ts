@@ -21,6 +21,43 @@ import {
   type SmartImportResult,
 } from "../crownCodec";
 
+export type CanvasBgPreset =
+  | "warm"
+  | "dark"
+  | "black"
+  | "slate"
+  | "checkerboard"
+  | "pure-white"
+  | "custom";
+
+export interface CanvasBackgroundState {
+  preset: CanvasBgPreset;
+  customColor: string;
+}
+
+export interface CanvasBgOption {
+  id: CanvasBgPreset;
+  name: string;
+  shortName: string;
+  hint: string;
+  color?: string;
+  isDark: boolean;
+}
+
+export const CANVAS_BG_PRESETS: CanvasBgOption[] = [
+  { id: "warm", name: "暖白素雅", shortName: "暖白", hint: "柔和明亮护眼底色", color: "#fafaf9", isDark: false },
+  { id: "dark", name: "深空灰炭", shortName: "深灰", hint: "经典掌机 / 暗色游戏模式", color: "#18181b", isDark: true },
+  { id: "black", name: "极夜全黑", shortName: "纯黑", hint: "模拟全屏游戏 OLED 黑屏", color: "#000000", isDark: true },
+  { id: "slate", name: "幽蓝电竞", shortName: "幽蓝", hint: "冷暗调游戏夜景", color: "#0f172a", isDark: true },
+  { id: "checkerboard", name: "透明网格", shortName: "网格", hint: "透明通道 / 贴手边缘对齐", color: "#e5e5e5", isDark: false },
+  { id: "pure-white", name: "纯白无暇", shortName: "纯白", hint: "极致纯白对照", color: "#ffffff", isDark: false },
+  { id: "custom", name: "自定义色", shortName: "自定", hint: "自选任意游戏场景底色", isDark: true },
+];
+
+export function getCanvasBgOption(preset: CanvasBgPreset): CanvasBgOption {
+  return CANVAS_BG_PRESETS.find((p) => p.id === preset) ?? CANVAS_BG_PRESETS[0]!;
+}
+
 export interface BundleMetadata {
   name: string;
   summary: string;
@@ -64,6 +101,9 @@ export interface CrownState {
     isValidMd5: boolean;
   };
 
+  // 画布外观
+  canvasBg: CanvasBackgroundState;
+
   // 历史快照
   historyPast: HistorySnapshot[];
   historyFuture: HistorySnapshot[];
@@ -88,6 +128,10 @@ export interface CrownState {
   updateMeta: (patch: Partial<BundleMetadata>) => void;
   updateLayoutBasis: (patch: Partial<CrownLayoutBasis>) => void;
   applyAutoColor: (accentHexOrInt: string | number) => void;
+
+  // 画布外观控制
+  setCanvasBg: (bg: Partial<CanvasBackgroundState>) => void;
+  cycleCanvasBg: () => void;
 
   // 视口控制
   setZoom: (zoom: number | ((prev: number) => number)) => void;
@@ -137,6 +181,29 @@ const DEFAULT_SETTINGS: CrownGlobalSettings = {
   enhanced_touch: "false",
 };
 
+const DEFAULT_CANVAS_BG: CanvasBackgroundState = {
+  preset: "warm",
+  customColor: "#1c1917",
+};
+
+function loadSavedCanvasBg(): CanvasBackgroundState {
+  if (typeof window === "undefined") return DEFAULT_CANVAS_BG;
+  try {
+    const raw = localStorage.getItem("moonlight_crown_canvas_bg");
+    if (!raw) return DEFAULT_CANVAS_BG;
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed.preset === "string") {
+      return {
+        preset: parsed.preset,
+        customColor: typeof parsed.customColor === "string" ? parsed.customColor : "#1c1917",
+      };
+    }
+  } catch {
+    // 忽略异常
+  }
+  return DEFAULT_CANVAS_BG;
+}
+
 export const useCrownStore = create<CrownState>((set, get) => ({
   meta: {
     name: "Untitled Profile",
@@ -167,6 +234,8 @@ export const useCrownStore = create<CrownState>((set, get) => ({
     isValidSha256: true,
     isValidMd5: true,
   },
+
+  canvasBg: loadSavedCanvasBg(),
 
   historyPast: [],
   historyFuture: [],
@@ -460,6 +529,26 @@ export const useCrownStore = create<CrownState>((set, get) => ({
     });
 
     set({ elements: updated, isDirty: true });
+  },
+
+  setCanvasBg: (patch) => {
+    const next = { ...get().canvasBg, ...patch };
+    set({ canvasBg: next });
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("moonlight_crown_canvas_bg", JSON.stringify(next));
+      } catch {
+        // 忽略存储异常
+      }
+    }
+  },
+
+  cycleCanvasBg: () => {
+    const cycleOrder: CanvasBgPreset[] = ["warm", "dark", "black", "slate", "checkerboard", "pure-white"];
+    const current = get().canvasBg.preset;
+    const currentIndex = cycleOrder.indexOf(current);
+    const nextPreset = currentIndex === -1 ? cycleOrder[0] : cycleOrder[(currentIndex + 1) % cycleOrder.length];
+    get().setCanvasBg({ preset: nextPreset });
   },
 
   setZoom: (zoomOrUpdater) => {

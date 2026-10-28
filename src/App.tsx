@@ -23,6 +23,7 @@ export default function App() {
     redo,
     canUndo,
     canRedo,
+    cycleCanvasBg,
   } = useCrownStore();
 
   // 全局键盘快捷键响应 (Delete, Ctrl+Z, Ctrl+Y)
@@ -48,12 +49,15 @@ export default function App() {
       } else if (e.ctrlKey && e.key.toLowerCase() === "y") {
         e.preventDefault();
         if (canRedo()) redo();
+      } else if ((e.key === "b" || e.key === "B") && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        e.preventDefault();
+        cycleCanvasBg();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [deleteSelectedElements, undo, redo, canUndo, canRedo]);
+  }, [deleteSelectedElements, undo, redo, canUndo, canRedo, cycleCanvasBg]);
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#f7f6f3] text-[#111111] relative">

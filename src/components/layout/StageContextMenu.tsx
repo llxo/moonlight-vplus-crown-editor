@@ -18,6 +18,7 @@ import {
   Compass,
   MousePointerClick,
   SlidersHorizontal,
+  SunMoon,
 } from "lucide-react";
 
 export interface ContextMenuState {
@@ -44,6 +45,8 @@ interface StageContextMenuProps {
   onAddStick: (cx: number, cy: number) => void;
   onResetViewport: () => void;
   onDeselect: () => void;
+  onCycleCanvasBg?: () => void;
+  canvasBgName?: string;
 }
 
 export const StageContextMenu: React.FC<StageContextMenuProps> = ({
@@ -61,6 +64,8 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
   onAddStick,
   onResetViewport,
   onDeselect,
+  onCycleCanvasBg,
+  canvasBgName,
 }) => {
   if (!menu.isOpen) {
     return null;
@@ -236,6 +241,23 @@ export const StageContextMenu: React.FC<StageContextMenuProps> = ({
               <span>重置视口居中</span>
             </div>
           </button>
+
+          {onCycleCanvasBg && (
+            <button
+              type="button"
+              onClick={() => {
+                onCycleCanvasBg();
+                onClose();
+              }}
+              className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#111111] hover:bg-[#f7f6f3] transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-2.5">
+                <SunMoon className="h-4 w-4 text-[#555555]" />
+                <span>切换画布背景 {canvasBgName ? `(${canvasBgName})` : ""}</span>
+              </div>
+              <span className="text-xs font-mono font-semibold text-[#888888]">B</span>
+            </button>
+          )}
 
           {hasSelectedElements && (
             <>

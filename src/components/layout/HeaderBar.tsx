@@ -19,7 +19,11 @@ import {
   HelpCircle,
   Palette,
 } from "lucide-react";
-import { useCrownStore } from "../../store/useCrownStore";
+import {
+  useCrownStore,
+  CANVAS_BG_PRESETS,
+  getCanvasBgOption,
+} from "../../store/useCrownStore";
 
 const PRESET_RESOLUTIONS = [
   { label: "2400 × 1080 (20:9 常见旗舰 400 DPI)", width: 2400, height: 1080, dpi: 400, density: 2.5 },
@@ -34,13 +38,18 @@ export const HeaderBar: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isResDropdownOpen, setIsResDropdownOpen] = useState(false);
   const [isColorDropdownOpen, setIsColorDropdownOpen] = useState(false);
+  const [isBgDropdownOpen, setIsBgDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const colorDropdownRef = useRef<HTMLDivElement>(null);
+  const bgDropdownRef = useRef<HTMLDivElement>(null);
 
   const {
     meta,
     layoutBasis,
     zoom,
+    canvasBg,
+    setCanvasBg,
+    cycleCanvasBg,
     updateMeta,
     updateLayoutBasis,
     applyAutoColor,
@@ -105,12 +114,15 @@ export const HeaderBar: React.FC = () => {
       if (colorDropdownRef.current && !colorDropdownRef.current.contains(e.target as Node)) {
         setIsColorDropdownOpen(false);
       }
+      if (bgDropdownRef.current && !bgDropdownRef.current.contains(e.target as Node)) {
+        setIsBgDropdownOpen(false);
+      }
     };
-    if (isResDropdownOpen || isColorDropdownOpen) {
+    if (isResDropdownOpen || isColorDropdownOpen || isBgDropdownOpen) {
       window.addEventListener("mousedown", handleOutsideClick);
     }
     return () => window.removeEventListener("mousedown", handleOutsideClick);
-  }, [isResDropdownOpen, isColorDropdownOpen]);
+  }, [isResDropdownOpen, isColorDropdownOpen, isBgDropdownOpen]);
 
   const currentPreset = PRESET_RESOLUTIONS.find(
     (r) =>
@@ -362,6 +374,128 @@ export const HeaderBar: React.FC = () => {
                   className="h-7 w-12 cursor-pointer rounded border border-[#eaeaea] p-0.5 bg-[#fbfbfa]"
                   title="选取任意颜色实时应用到所有按键"
                 />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 画布背景快速切换 */}
+        <div className="relative" ref={bgDropdownRef}>
+          <div className="h-9 flex items-center rounded-lg border border-[#eaeaea] bg-[#ffffff] shadow-2xs hover:border-[#d4d4d0] transition-all">
+            {/* 快速单击轮换主按钮 */}
+            <button
+              type="button"
+              onClick={cycleCanvasBg}
+              className="h-full flex items-center gap-1.5 px-2.5 text-xs font-semibold text-[#111111] hover:bg-[#fbfbfa] rounded-l-lg transition-colors cursor-pointer"
+              title="快速切换画布背景 (快捷键 B)"
+            >
+              <div
+                className="h-3.5 w-3.5 rounded-full border border-black/15 shadow-2xs shrink-0"
+                style={{
+                  backgroundColor: canvasBg.preset === "checkerboard" ? "#ffffff" : (canvasBg.preset === "custom" ? canvasBg.customColor : getCanvasBgOption(canvasBg.preset).color),
+                  backgroundImage:
+                    canvasBg.preset === "checkerboard"
+                      ? "linear-gradient(45deg, #a1a1aa 25%, transparent 25%), linear-gradient(-45deg, #a1a1aa 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #a1a1aa 75%), linear-gradient(-45deg, transparent 75%, #a1a1aa 75%)"
+                      : undefined,
+                  backgroundSize: canvasBg.preset === "checkerboard" ? "6px 6px" : undefined,
+                  backgroundPosition: canvasBg.preset === "checkerboard" ? "0 0, 0 3px, 3px -3px, -3px 0px" : undefined,
+                }}
+              />
+              <span className="whitespace-nowrap">背景: {getCanvasBgOption(canvasBg.preset).shortName}</span>
+            </button>
+
+            <div className="h-4 w-[1px] bg-[#eaeaea]" />
+
+            {/* 下拉展开面板 */}
+            <button
+              type="button"
+              onClick={() => setIsBgDropdownOpen(!isBgDropdownOpen)}
+              className="h-full px-1.5 text-[#888888] hover:text-[#111111] hover:bg-[#fbfbfa] rounded-r-lg transition-colors cursor-pointer"
+              title="展开画布背景选择面板"
+            >
+              <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-150 ${isBgDropdownOpen ? "rotate-180" : ""}`} />
+            </button>
+          </div>
+
+          {isBgDropdownOpen && (
+            <div className="absolute top-full left-0 mt-2 z-40 w-72 rounded-2xl border border-[#eaeaea] bg-[#ffffff] p-3 shadow-[0_16px_40px_-8px_rgba(0,0,0,0.12),0_0_0_1px_rgba(0,0,0,0.04)] animate-in fade-in space-y-2 select-none">
+              <div className="flex items-center justify-between px-1.5 pb-1">
+                <span className="text-xs font-bold text-[#374151]">画布屏幕背景</span>
+                <span className="text-[11px] text-[#6b7280] flex items-center gap-1 font-mono">
+                  快捷键 <kbd className="border border-[#e5e5e5] bg-[#f7f6f3] px-1 rounded text-[10px] font-semibold text-[#374151]">B</kbd>
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                {CANVAS_BG_PRESETS.filter((p) => p.id !== "custom").map((preset) => {
+                  const isSelected = canvasBg.preset === preset.id;
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => {
+                        setCanvasBg({ preset: preset.id });
+                        setIsBgDropdownOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between rounded-xl px-2.5 py-1.5 text-xs text-left transition-colors cursor-pointer ${
+                        isSelected
+                          ? "bg-[#111111] text-[#ffffff]"
+                          : "text-[#2f3437] hover:bg-[#f7f6f3] hover:text-[#111111]"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div
+                          className="h-4.5 w-4.5 rounded-full border border-black/15 shadow-2xs shrink-0"
+                          style={{
+                            backgroundColor: preset.id === "checkerboard" ? "#ffffff" : preset.color,
+                            backgroundImage:
+                              preset.id === "checkerboard"
+                                ? "linear-gradient(45deg, #a1a1aa 25%, transparent 25%), linear-gradient(-45deg, #a1a1aa 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #a1a1aa 75%), linear-gradient(-45deg, transparent 75%, #a1a1aa 75%)"
+                                : undefined,
+                            backgroundSize: preset.id === "checkerboard" ? "6px 6px" : undefined,
+                            backgroundPosition: preset.id === "checkerboard" ? "0 0, 0 3px, 3px -3px, -3px 0px" : undefined,
+                          }}
+                        />
+                        <div className="truncate">
+                          <span className="font-semibold block truncate">{preset.name}</span>
+                          <span className={`text-[10px] block truncate ${isSelected ? "text-[#cccccc]" : "text-[#787774]"}`}>
+                            {preset.hint}
+                          </span>
+                        </div>
+                      </div>
+                      {isSelected && <Check className="h-4 w-4 shrink-0 text-[#ffffff] ml-2" />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* 自定义颜色行 */}
+              <div className="border-t border-[#eaeaea] pt-2 px-1 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-[#4b5563]">自定义底色:</span>
+                  <span className="font-mono text-xs text-[#111111] font-semibold uppercase">
+                    {canvasBg.customColor}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="color"
+                    value={canvasBg.customColor}
+                    onChange={(e) => {
+                      setCanvasBg({
+                        preset: "custom",
+                        customColor: e.target.value,
+                      });
+                    }}
+                    className="h-7 w-10 cursor-pointer rounded border border-[#eaeaea] p-0.5 bg-[#fbfbfa]"
+                    title="选择任意自定义画布底色"
+                  />
+                  {canvasBg.preset === "custom" && (
+                    <span className="text-[10px] font-semibold text-[#111111] bg-[#f3f2ee] px-1.5 py-0.5 rounded">
+                      生效中
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           )}
